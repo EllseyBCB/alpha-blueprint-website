@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /alpha-blueprint-website/vergleich/
+Disallow: /alpha-blueprint-website/admin.html
+Sitemap: https://ellseybcb.github.io/alpha-blueprint-website/sitemap.xml
