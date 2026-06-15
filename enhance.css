@@ -1,0 +1,130 @@
+/* ============================================================
+   Alpha Blueprint – Design-Refresh (additiv, baut auf styles.css auf)
+   ============================================================ */
+:root {
+  --grad: linear-gradient(135deg, #25a4ee 0%, #1687cf 48%, #0d5f99 100%);
+  --grad-soft: linear-gradient(135deg, #e9f5fe, #f3f9fd);
+  --ring: 0 0 0 4px rgba(22, 135, 207, .15);
+}
+
+body { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+
+::selection { background: rgba(22, 135, 207, .18); }
+
+/* sichtbarer, einheitlicher Fokus-Stil (Barrierefreiheit) */
+a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 3px solid rgba(22, 135, 207, .55);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* ---------- Scroll-Fortschrittsbalken oben ---------- */
+.scroll-progress {
+  position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 200;
+  background: var(--grad);
+  box-shadow: 0 0 12px rgba(22, 135, 207, .6);
+  transition: width .12s linear;
+}
+
+/* ---------- Eyebrow als dezente Linie-Pille ---------- */
+.eyebrow { display: inline-flex; align-items: center; gap: 10px; }
+.eyebrow::before { content: ""; width: 24px; height: 2px; background: currentColor; opacity: .55; border-radius: 2px; }
+
+/* ---------- Hero: Farbverlauf-Wort + animierte Lichtflächen ---------- */
+.hero h1 span {
+  background: var(--grad);
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: transparent;
+}
+.hero::before, .hero::after {
+  content: ""; position: absolute; z-index: 1; border-radius: 50%;
+  filter: blur(70px); pointer-events: none;
+}
+.hero::before { width: 440px; height: 440px; top: -130px; right: -90px; background: rgba(37, 164, 238, .22); animation: abFloat 9s ease-in-out infinite; }
+.hero::after  { width: 380px; height: 380px; bottom: -150px; left: 32%;  background: rgba(13, 95, 153, .16); animation: abFloat 12s ease-in-out infinite reverse; }
+@keyframes abFloat { 50% { transform: translate(22px, -26px) scale(1.08); } }
+
+/* ---------- Buttons: Glanz-Effekt beim Hover ---------- */
+.button { position: relative; overflow: hidden; }
+.button::after {
+  content: ""; position: absolute; top: 0; left: -130%; width: 65%; height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255, 255, 255, .38), transparent);
+  transform: skewX(-18deg); transition: left .6s ease;
+}
+.button:hover::after { left: 140%; }
+.button-light { box-shadow: 0 12px 28px rgba(10, 40, 60, .12); }
+
+/* ---------- Service-Cards: Akzentlinie + weichere Anhebung + Nummern-Badge ---------- */
+.service-card { position: relative; transition: transform .4s cubic-bezier(.16, 1, .3, 1), box-shadow .4s ease; }
+.service-card::before {
+  content: ""; position: absolute; top: 0; left: 0; right: 0; height: 4px; z-index: 3;
+  background: var(--grad); transform: scaleX(0); transform-origin: left; transition: transform .45s ease;
+}
+.service-card:hover { transform: translateY(-8px); box-shadow: 0 32px 72px rgba(26, 75, 108, .20); }
+.service-card:hover::before { transform: scaleX(1); }
+.service-number {
+  display: inline-grid; place-items: center; width: 40px; height: 40px; margin-bottom: 4px;
+  background: var(--grad-soft); color: var(--primary-dark); border-radius: 13px;
+  font-size: .82rem;
+}
+.service-content a { display: inline-flex; align-items: center; gap: 6px; transition: gap .2s; }
+.service-content a:hover { gap: 12px; }
+
+/* ---------- Check-Liste: runde Häkchen-Badges ---------- */
+.check-list li { display: flex; align-items: flex-start; gap: 12px; }
+.check-list li::before {
+  content: "✓"; flex: 0 0 auto; display: grid; place-items: center;
+  width: 24px; height: 24px; margin: 0; border-radius: 50%;
+  background: rgba(85, 185, 245, .18); color: #7cd0ff; font-size: .8rem;
+}
+
+/* ---------- Erfahrungs-Karte mit Verlaufskante ---------- */
+.experience-card { border: 1px solid rgba(255, 255, 255, .6); }
+.experience-card strong { background: var(--grad); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* ---------- Prozess-Schritte: Nummer als Badge + Verlaufslinie ---------- */
+.process-step { transition: transform .35s ease; }
+.process-step:hover { transform: translateY(-6px); }
+.process-step > span {
+  display: inline-grid; place-items: center; width: 36px; height: 36px;
+  background: var(--grad-soft); border-radius: 11px; font-size: .82rem;
+}
+@media (min-width: 901px) {
+  .process-step { border-left: 2px solid transparent; border-image: linear-gradient(180deg, var(--primary), transparent) 1; }
+}
+
+/* ---------- Kontaktformular: moderne, gerahmte Felder ---------- */
+.contact-form input, .contact-form textarea {
+  padding: 13px 15px;
+  background: #f6fafd;
+  border: 1px solid #d8e6f0;
+  border-radius: 12px;
+  transition: border-color .2s, box-shadow .2s, background .2s;
+}
+.contact-form input:focus, .contact-form textarea:focus {
+  background: #fff; border-color: var(--primary); box-shadow: var(--ring);
+}
+.contact-details a { transition: padding-left .2s, color .2s; }
+.contact-details a:hover { padding-left: 8px; color: var(--primary-dark); }
+
+/* ---------- Reveal: zarte Skalierung dazu, gestaffelt ---------- */
+.reveal { transform: translateY(26px) scale(.985); }
+.reveal.visible { transform: translateY(0) scale(1); }
+.service-grid .reveal:nth-child(2), .process-grid .reveal:nth-child(2) { transition-delay: .08s; }
+.service-grid .reveal:nth-child(3), .process-grid .reveal:nth-child(3) { transition-delay: .16s; }
+
+/* ---------- Aktiver Navigationspunkt ---------- */
+.main-nav > a.active:not(.button)::after { width: 100%; }
+.main-nav > a.active:not(.button) { color: var(--primary-dark); }
+
+/* ---------- Bilder generell etwas weicher ---------- */
+.service-image img, .step-icon img, .split-image > img, .showcase > img, .hero-background { will-change: transform; }
+
+/* ---------- Footer: feine Verlaufslinie oben ---------- */
+.site-footer { position: relative; }
+.site-footer::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--grad); opacity: .8; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero::before, .hero::after { animation: none !important; }
+  .button::after { display: none; }
+}
