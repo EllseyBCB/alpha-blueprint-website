@@ -47,11 +47,13 @@
     }
     list.innerHTML = rows.map(function (r) {
       var mail = esc(r.email);
-      return '<div class="entry">' +
-        '<div class="head"><span class="name">' + esc(r.vorname) + " " + esc(r.nachname) + '</span>' +
+      var name = esc(r.vorname + " " + r.nachname);
+      return '<div class="entry" data-id="' + esc(r.id) + '">' +
+        '<div class="head"><span class="name">' + name + "</span>" +
         '<span class="date">' + esc(fmtDate(r.created_at)) + "</span></div>" +
         '<div class="mail"><a href="mailto:' + mail + '">' + mail + "</a></div>" +
         '<div class="text">' + esc(r.nachricht) + "</div>" +
+        '<div class="actions"><button class="del" data-id="' + esc(r.id) + '" data-name="' + name + '">🗑 Löschen</button></div>' +
         "</div>";
     }).join("");
   }
@@ -84,6 +86,27 @@
 
   $("logout").addEventListener("click", function () { sb.auth.signOut(); });
   $("refresh").addEventListener("click", loadData);
+
+  // Eintrag löschen (nur Admin per RLS erlaubt)
+  $("list").addEventListener("click", async function (e) {
+    var btn = e.target.closest && e.target.closest(".del");
+    if (!btn) return;
+    var id = btn.getAttribute("data-id");
+    var name = btn.getAttribute("data-name") || "diesen Eintrag";
+    if (!confirm("Anfrage von " + name + " wirklich löschen? Das kann nicht rückgängig gemacht werden.")) return;
+    btn.disabled = true; btn.textContent = "Löscht…";
+    var res = await sb.from("kontakt_anfragen").delete().eq("id", id);
+    if (res.error) {
+      alert("Löschen fehlgeschlagen: " + res.error.message);
+      btn.disabled = false; btn.textContent = "🗑 Löschen";
+      return;
+    }
+    var card = btn.closest(".entry");
+    if (card) card.remove();
+    var c = $("count");
+    if (c) c.textContent = Math.max(0, (parseInt(c.textContent, 10) || 1) - 1);
+    if (!$("list").querySelector(".entry")) loadData();
+  });
 
   sb.auth.onAuthStateChange(function (_e, session) { render(session); });
   sb.auth.getSession().then(function (r) { render(r.data.session); });

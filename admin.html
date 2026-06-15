@@ -7,6 +7,12 @@
   <title>Anfragen · Alpha Blueprint</title>
   <link rel="icon" type="image/webp" href="assets/logo%20alpha%20blueprint.webp">
   <meta name="theme-color" content="#1687cf">
+  <link rel="manifest" href="manifest-admin.webmanifest">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Anfragen">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -54,6 +60,9 @@
     .entry .date{ font-size:.78rem; color:var(--muted); white-space:nowrap; }
     .entry .mail{ font-size:.9rem; margin:2px 0 10px; }
     .entry .text{ color:#33485a; white-space:pre-line; }
+    .entry .actions{ margin-top:12px; }
+    .del{ border:1px solid #f0c7c7; background:#fff5f5; color:#c0392b; border-radius:999px; padding:7px 14px; font:inherit; font-weight:700; font-size:.85rem; cursor:pointer; transition:background .15s; }
+    .del:hover{ background:#fdeaea; } .del[disabled]{ opacity:.5; cursor:default; }
     .empty{ text-align:center; color:var(--muted); padding:60px 20px; background:#fff; border:1px dashed var(--line); border-radius:18px; }
     .empty .big{ font-size:2.4rem; margin-bottom:8px; }
     .hidden{ display:none !important; }
@@ -97,5 +106,12 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="admin.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("sw.js").catch(function () {});
+      });
+    }
+  </script>
 </body>
 </html>
