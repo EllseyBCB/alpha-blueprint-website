@@ -39,6 +39,8 @@
       transition:filter .15s, transform .1s; }
     .btn:hover{ filter:brightness(1.05); } .btn:active{ transform:scale(.98); }
     .btn[disabled]{ opacity:.6; cursor:default; }
+    .showpw{ display:flex; align-items:center; gap:8px; text-transform:none; letter-spacing:normal; font-weight:600; color:#466072; margin:-6px 0 4px; }
+    .showpw input{ width:auto; margin:0; }
     .msg{ font-size:.85rem; margin:14px 0 0; min-height:1em; }
     .msg.err{ color:#c0392b; } .msg.ok{ color:#1f9e57; }
 
@@ -76,8 +78,9 @@
       <img src="assets/logo%20alpha%20blueprint.webp" alt="Alpha Blueprint">
       <h1>Anfragen-Login</h1>
       <p class="sub">Nur für Alpha Blueprint</p>
-      <label>E-Mail<input type="email" id="email" autocomplete="username" required></label>
-      <label>Passwort<input type="password" id="password" autocomplete="current-password" required></label>
+      <label>E-Mail<input type="email" id="email" autocomplete="username" inputmode="email" autocapitalize="none" autocorrect="off" spellcheck="false" required></label>
+      <label>Passwort<input type="password" id="password" autocomplete="current-password" autocapitalize="none" autocorrect="off" spellcheck="false" required></label>
+      <label class="showpw"><input type="checkbox" id="showpw"> Passwort anzeigen</label>
       <button class="btn" type="submit" id="login-btn">Anmelden</button>
       <p class="msg" id="login-msg"></p>
     </form>
@@ -105,7 +108,7 @@
   <div id="boot" class="center">Lädt…</div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="admin.js?v=2"></script>
+  <script src="admin.js?v=3"></script>
   <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {

@@ -1,9 +1,9 @@
 /* Service Worker für die Anfragen-App (PWA, offline-fähig).
    Nur GET-Anfragen im eigenen Ursprung werden gecacht; Supabase-API läuft immer übers Netz. */
-const CACHE = "abp-anfragen-v2";
+const CACHE = "abp-anfragen-v3";
 const ASSETS = [
   "admin.html",
-  "admin.js?v=2",
+  "admin.js?v=3",
   "icon-192.png",
   "icon-512.png",
   "apple-touch-icon.png",

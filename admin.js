@@ -74,7 +74,7 @@
     var btn = $("login-btn"), msg = $("login-msg");
     msg.className = "msg"; msg.textContent = "Anmeldung läuft…";
     btn.disabled = true;
-    var res = await sb.auth.signInWithPassword({ email: $("email").value.trim(), password: $("password").value });
+    var res = await sb.auth.signInWithPassword({ email: $("email").value.trim().toLowerCase(), password: $("password").value });
     btn.disabled = false;
     if (res.error) {
       msg.className = "msg err";
@@ -86,6 +86,11 @@
 
   $("logout").addEventListener("click", function () { sb.auth.signOut(); });
   $("refresh").addEventListener("click", loadData);
+
+  var showpw = $("showpw");
+  if (showpw) showpw.addEventListener("change", function () {
+    $("password").type = showpw.checked ? "text" : "password";
+  });
 
   // Eintrag löschen (nur Admin per RLS erlaubt)
   $("list").addEventListener("click", async function (e) {
