@@ -124,6 +124,12 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .site-footer { position: relative; }
 .site-footer::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--grad); opacity: .8; }
 
+/* Automations-Grafik vollständig (unbeschnitten) zeigen */
+.service-image img.illu, .service-row-image img.illu, .content-media img.illu {
+  object-fit: contain;
+  background: #eaf4fc;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hero::before, .hero::after { animation: none !important; }
   .button::after { display: none; }
