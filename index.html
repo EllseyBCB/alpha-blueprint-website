@@ -36,7 +36,7 @@
 <body>
   <header class="site-header" id="start">
     <a aria-label='Alpha Blueprint Startseite' class='brand' href="index.html">
-      <img loading="lazy" decoding="async" src="assets/logo%20alpha%20blueprint.webp" alt="Alpha Blueprint Logo">
+      <img loading="eager" fetchpriority="high" decoding="async" width="180" src="assets/logo%20alpha%20blueprint.webp" alt="Alpha Blueprint Logo">
     </a>
     <button class="menu-button" type="button" aria-expanded="false" aria-controls="main-navigation">
       <span></span><span></span><span></span>
@@ -201,6 +201,10 @@
           </div>
           <label>E-Mail<input type="email" name="email" autocomplete="email" required></label>
           <label>Nachricht<textarea name="nachricht" rows="5" required></textarea></label>
+          <div class="hp-field" aria-hidden="true">
+            <label>Bitte freilassen<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+          </div>
+          <label class="consent-row"><input type="checkbox" name="datenschutz" required> Ich habe die <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a> gelesen und stimme der Verarbeitung meiner Daten zur Bearbeitung meiner Anfrage zu.</label>
           <button class="button" type="submit">Nachricht senden</button>
           <p class="form-note" id="kontakt-status">Ihre Anfrage wird sicher übermittelt – wir melden uns zeitnah bei Ihnen.</p>
         </form>
@@ -238,6 +242,7 @@
 
   <script src="script.js" defer></script>
   <script src="enhance.js" defer></script>
+  <script src="consent.js" defer></script>
   <script src="contact.js" defer></script>
 </body>
 </html>

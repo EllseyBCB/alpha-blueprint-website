@@ -18,6 +18,15 @@
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
     var btn = form.querySelector('button[type="submit"]');
+
+    // Spamschutz: ausgefülltes Honeypot-Feld -> wie Erfolg behandeln, aber nichts senden.
+    if (form.website && form.website.value.trim() !== "") {
+      form.reset();
+      btn.textContent = "Gesendet ✓";
+      set("✓ Vielen Dank! Ihre Anfrage wurde übermittelt – wir melden uns zeitnah bei Ihnen.", "#1f9e57");
+      return;
+    }
+
     var data = {
       vorname: form.vorname.value.trim(),
       nachname: form.nachname.value.trim(),
@@ -26,6 +35,10 @@
     };
     if (!data.vorname || !data.nachname || !data.email || !data.nachricht) {
       set("Bitte füllen Sie alle Felder aus.", "#c0392b");
+      return;
+    }
+    if (form.datenschutz && !form.datenschutz.checked) {
+      set("Bitte stimmen Sie der Datenschutzerklärung zu.", "#c0392b");
       return;
     }
     var original = btn.textContent;
@@ -47,6 +60,8 @@
       form.reset();
       btn.textContent = "Gesendet ✓";
       set("✓ Vielen Dank! Ihre Anfrage wurde übermittelt – wir melden uns zeitnah bei Ihnen.", "#1f9e57");
+      // Google-Ads-Conversion melden (nur wenn Einwilligung erteilt und Tracking aktiv).
+      if (window.abpTrackConversion) window.abpTrackConversion();
     } catch (err) {
       btn.disabled = false;
       btn.textContent = original;
