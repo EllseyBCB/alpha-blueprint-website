@@ -50,7 +50,7 @@
     } catch (err) {
       btn.disabled = false;
       btn.textContent = original;
-      set("Leider gab es ein Problem beim Senden. Bitte erneut versuchen oder direkt an elia.nedvidek@dj-bildung.de schreiben.", "#c0392b");
+      set("Leider gab es ein Problem beim Senden. Bitte erneut versuchen oder direkt an info@alphablueprint.de schreiben.", "#c0392b");
     }
   });
 })();
