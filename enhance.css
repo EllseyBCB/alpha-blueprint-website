@@ -243,3 +243,36 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   .abp-consent-actions { justify-content: stretch; }
   .abp-btn { flex: 1; }
 }
+
+/* ===== Gründer-Statement / Vertrauen ===== */
+.founder-section { background: var(--grad-soft, #f3f9fe); }
+.founder-grid {
+  display: grid; grid-template-columns: 280px 1fr; gap: 48px; align-items: center;
+  max-width: 980px; margin-inline: auto;
+}
+.founder-photo img {
+  width: 280px; height: 320px; object-fit: cover; border-radius: 20px;
+  box-shadow: 0 20px 50px rgba(11, 78, 122, .18);
+}
+.founder-quote { margin: 0; }
+.founder-quote blockquote {
+  margin: 14px 0 22px; font-size: clamp(1.25rem, 2.4vw, 1.7rem); line-height: 1.45;
+  font-weight: 600; color: var(--ink, #0f2438); letter-spacing: -.01em;
+}
+.founder-quote figcaption { display: flex; flex-direction: column; gap: 2px; margin-bottom: 22px; }
+.founder-quote figcaption strong { font-size: 1.05rem; color: var(--ink, #0f2438); }
+.founder-quote figcaption span { color: var(--muted, #41566a); font-size: .92rem; }
+.founder-promises { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.founder-promises li {
+  position: relative; padding-left: 30px; color: var(--muted, #41566a); font-size: .98rem;
+}
+.founder-promises li::before {
+  content: "✓"; position: absolute; left: 0; top: -1px;
+  width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--primary, #1687cf); color: #fff; font-size: .72rem; font-weight: 700;
+}
+@media (max-width: 760px) {
+  .founder-grid { grid-template-columns: 1fr; gap: 28px; justify-items: center; text-align: center; }
+  .founder-photo img { width: 220px; height: 250px; }
+  .founder-promises { text-align: left; display: inline-grid; }
+}
