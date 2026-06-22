@@ -124,6 +124,9 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 .site-footer { position: relative; }
 .site-footer::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--grad); opacity: .8; }
 
+/* Footer-Logo: transparentes A ohne Aufhell-Filter, sauber auf dunklem Grund */
+.footer-brand img { filter: none; }
+
 /* Automations-Grafik vollständig (unbeschnitten) zeigen */
 .service-image img.illu, .service-row-image img.illu, .content-media img.illu {
   object-fit: contain;
