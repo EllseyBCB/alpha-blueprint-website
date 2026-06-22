@@ -127,16 +127,11 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 /* Footer-Logo: transparentes A ohne Aufhell-Filter, sauber auf dunklem Grund */
 .footer-brand img { filter: none; }
 
-/* Automations-Grafik: füllt den Rahmen voll aus (kein Rand oben/unten) */
-.service-image:has(img.illu), .service-row-image:has(img.illu), .content-media:has(img.illu) {
-  height: auto;
-  min-height: 0;
-}
+/* Automations-Grafik füllt den Rahmen wie ein Foto (komplett, ohne Lücke/Rand) */
 .service-image img.illu, .service-row-image img.illu, .content-media img.illu {
   width: 100%;
-  height: auto;
-  display: block;
-  object-fit: contain;
+  height: 100%;
+  object-fit: cover;
   background: #eaf4fc;
 }
 
