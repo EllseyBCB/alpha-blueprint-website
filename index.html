@@ -7,14 +7,15 @@
   <title>Alpha Blueprint – KI-Beratung, Automatisierung &amp; digitale Strategie</title>
   <link rel="icon" type="image/webp" href="assets/logo%20alpha%20blueprint.webp">
   <meta name="theme-color" content="#1687cf">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preload" href="assets/fonts/xn7gYHE41ni1AdIRggexSg.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="fonts.css">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="enhance.css">
+  <link rel="preload" as="image" href="assets/462c3189-1c81-4216-9192-8ef6ae85d0a0.webp" fetchpriority="high">
 
   <!--seo-->
   <link rel="canonical" href="https://alphablueprint.de/">
+  <link rel="alternate" hreflang="de" href="https://alphablueprint.de/">
+  <link rel="alternate" hreflang="x-default" href="https://alphablueprint.de/">
   <meta name="robots" content="index,follow,max-image-preview:large">
   <meta name="author" content="Alpha Blueprint">
   <meta property="og:type" content="website">
@@ -28,7 +29,7 @@
   <meta name="twitter:title" content="Alpha Blueprint – KI-Beratung, Automatisierung &amp; digitale Strategie">
   <meta name="twitter:description" content="Alpha Blueprint unterstützt Unternehmen mit verständlicher KI-Beratung, Prozessautomatisierung und digitaler Strategie – praxisnah, individuell und mit kostenlosem Erstgespräch.">
   <meta name="twitter:image" content="https://alphablueprint.de/og-image.jpg">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Alpha Blueprint","description":"KI-Beratung, Automatisierung und digitale Strategie für Unternehmen.","url":"https://alphablueprint.de/","logo":"https://alphablueprint.de/icon-512.png","image":"https://alphablueprint.de/og-image.jpg","email":"info@alphablueprint.de","telephone":"+49 174 6811322","areaServed":"DE","knowsAbout":["Künstliche Intelligenz","Automatisierung","Prozessautomatisierung","Digitale Strategie","KI-Beratung"]}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"ProfessionalService","name":"Alpha Blueprint","legalName":"Alpha Blueprint Management and Consulting - FZCO","description":"KI-Beratung, Automatisierung und digitale Strategie für Unternehmen.","url":"https://alphablueprint.de/","logo":"https://alphablueprint.de/icon-512.png","image":"https://alphablueprint.de/og-image.jpg","email":"info@alphablueprint.de","telephone":"+49 174 6811322","address":{"@type":"PostalAddress","streetAddress":"IFZA Business Park, Dubai Digital Park, Premises No. 74057-001","addressLocality":"Dubai","postalCode":"00000","addressCountry":"AE"},"founder":{"@type":"Person","name":"Elia Nedvidek"},"areaServed":["DE","AT","CH"],"knowsAbout":["Künstliche Intelligenz","Automatisierung","Prozessautomatisierung","Digitale Strategie","KI-Beratung"]}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Alpha Blueprint","url":"https://alphablueprint.de/"}</script>
   <!--/seo-->
 </head>
@@ -46,7 +47,7 @@
 
   <main>
     <section class="hero">
-      <img class="hero-background" src="assets/462c3189-1c81-4216-9192-8ef6ae85d0a0.webp" alt="">
+      <img class="hero-background" fetchpriority="high" src="assets/462c3189-1c81-4216-9192-8ef6ae85d0a0.webp" alt="">
       <div class="hero-overlay"></div>
       <div class="container hero-content reveal">
         <p class="eyebrow">Intelligente Lösungen für moderne Unternehmen</p>
@@ -235,8 +236,8 @@
     </div>
   </footer>
 
-  <script src="script.js"></script>
-  <script src="enhance.js"></script>
-  <script src="contact.js"></script>
+  <script src="script.js" defer></script>
+  <script src="enhance.js" defer></script>
+  <script src="contact.js" defer></script>
 </body>
 </html>
