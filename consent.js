@@ -47,12 +47,16 @@
     loadGtag();
   }
 
-  // Conversion-Auslöser für das Kontaktformular (GA4-Ereignis "generate_lead")
+  // Conversion-Auslöser für das Kontaktformular.
+  // Feuert das von Google Ads erzeugte GA4-Schluesselereignis (loest die
+  // Ads-Conversion aus) sowie das Standard-Ereignis generate_lead (fuer GA4-Berichte).
   window.abpTrackConversion = function () {
     if (!gtagLoaded) return; // ohne Einwilligung kein Tracking
+    gtag("event", "ads_conversion_Lead_Formular_senden_1", {
+      page_location: location.href,
+    });
     gtag("event", "generate_lead", {
       form: "kontaktformular",
-      page_location: location.href,
     });
   };
 
