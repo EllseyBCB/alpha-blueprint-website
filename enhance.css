@@ -243,6 +243,10 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   .abp-consent-actions { justify-content: stretch; }
   .abp-btn { flex: 1; }
 }
+/* Auf dem Handy ueber dem Sticky-Kontaktbalken platzieren (keine Ueberlappung) */
+@media (max-width: 760px) {
+  .abp-consent { bottom: 86px; }
+}
 
 /* ===== Gründer-Statement / Vertrauen ===== */
 .founder-section { background: var(--grad-soft, #f3f9fe); }
