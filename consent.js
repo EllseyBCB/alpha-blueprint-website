@@ -1,25 +1,18 @@
 /* ============================================================
-   Cookie-Consent-Banner + Google Ads Conversion-Tracking
+   Cookie-Consent-Banner + Google-Tag (GA4) + Conversion-Event
    ------------------------------------------------------------
-   SO AKTIVIERST DU DAS TRACKING:
-   1. Google-Ads-Konto -> Tools -> Conversions -> neue Conversion
-      "Website" anlegen (Aktion: Lead/Kontakt). Du bekommst:
-        - eine Conversion-ID  (Format: AW-123456789)
-        - ein Conversion-Label (Format: AbCdEfGhIj)
-   2. Trage beide unten bei AW_ID und CONVERSION_LABEL ein.
-   Solange AW_ID den Platzhalter enthält, passiert NICHTS
-   (kein Banner, kein Tracking) – die Seite bleibt DSGVO-neutral.
+   Google-Tag (Mess-ID): G-YGZR469JHW
+   - Laedt NICHTS, bis der Besucher im Banner "Akzeptieren" klickt
+     (Google Consent Mode v2, Standard = abgelehnt -> DSGVO-konform).
+   - Nach Einwilligung: GA4-Statistiken aktiv.
+   - Beim erfolgreichen Absenden des Kontaktformulars wird das
+     Ereignis "generate_lead" gesendet. Dieses Ereignis in GA4 als
+     Schluesselereignis markieren und in Google Ads als Conversion
+     importieren.
    ============================================================ */
 (function () {
-  var AW_ID = "AW-XXXXXXXXXX";        // <-- hier deine Google-Ads-ID eintragen
-  var CONVERSION_LABEL = "XXXXXXXXXX"; // <-- hier dein Conversion-Label eintragen
+  var GTAG_ID = "G-YGZR469JHW";
   var STORAGE_KEY = "abp-consent-v1";
-
-  // Noch nicht konfiguriert -> nichts tun.
-  if (AW_ID.indexOf("XXXX") !== -1) {
-    window.abpTrackConversion = function () {}; // No-Op, damit contact.js nicht bricht
-    return;
-  }
 
   // --- Google Consent Mode v2: standardmäßig alles abgelehnt ---
   window.dataLayer = window.dataLayer || [];
@@ -38,10 +31,10 @@
     gtagLoaded = true;
     var s = document.createElement("script");
     s.async = true;
-    s.src = "https://www.googletagmanager.com/gtag/js?id=" + AW_ID;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=" + GTAG_ID;
     document.head.appendChild(s);
     gtag("js", new Date());
-    gtag("config", AW_ID);
+    gtag("config", GTAG_ID);
   }
 
   function grant() {
@@ -54,11 +47,12 @@
     loadGtag();
   }
 
-  // Conversion-Auslöser für das Kontaktformular
+  // Conversion-Auslöser für das Kontaktformular (GA4-Ereignis "generate_lead")
   window.abpTrackConversion = function () {
-    if (!gtagLoaded) return; // ohne Einwilligung kein Conversion-Hit
-    gtag("event", "conversion", {
-      send_to: AW_ID + "/" + CONVERSION_LABEL,
+    if (!gtagLoaded) return; // ohne Einwilligung kein Tracking
+    gtag("event", "generate_lead", {
+      form: "kontaktformular",
+      page_location: location.href,
     });
   };
 
@@ -78,7 +72,7 @@
     b.setAttribute("aria-label", "Cookie-Einwilligung");
     b.innerHTML =
       '<div class="abp-consent-inner">' +
-        '<p>Wir verwenden Cookies, um anonym zu messen, wie unsere Werbung wirkt. ' +
+        '<p>Wir verwenden Cookies, um anonym zu messen, wie unsere Website und Werbung genutzt werden. ' +
         'Mehr dazu in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>' +
         '<div class="abp-consent-actions">' +
           '<button type="button" class="abp-btn abp-btn-ghost" data-act="deny">Nur notwendige</button>' +
