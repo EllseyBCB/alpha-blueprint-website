@@ -44,8 +44,8 @@ button, input, textarea { font: inherit; }
   transition: .25s ease;
 }
 .site-header.scrolled { height: 72px; box-shadow: 0 10px 30px rgba(20, 70, 100, .08); }
-.brand img { width: 72px; height: 72px; object-fit: contain; }
-.site-header.scrolled .brand img { width: 62px; height: 62px; }
+.brand img { width: auto; height: 64px; object-fit: contain; }
+.site-header.scrolled .brand img { width: auto; height: 52px; }
 .main-nav { display: flex; align-items: center; gap: 32px; font-size: .92rem; font-weight: 600; }
 .main-nav > a:not(.button) { position: relative; }
 .main-nav > a:not(.button)::after {
@@ -224,7 +224,7 @@ h2 { margin-bottom: 22px; font-size: clamp(2.4rem, 4.5vw, 4.2rem); line-height: 
 
 @media (max-width: 900px) {
   .site-header { height: 72px; }
-  .brand img { width: 62px; height: 62px; }
+  .brand img { width: auto; height: 52px; }
   .menu-button { display: block; z-index: 2; }
   .main-nav {
     position: absolute;
