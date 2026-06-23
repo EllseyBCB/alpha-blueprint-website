@@ -302,3 +302,21 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   .mcta-main { background: var(--primary, #1687cf); color: #fff; box-shadow: 0 8px 22px rgba(22, 135, 207, .35); }
   body { padding-bottom: 74px; }
 }
+
+/* ===== Lead-Magnet-Band (Startseite) ===== */
+.leadmagnet-band {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 28px;
+  background: var(--grad, linear-gradient(135deg, #1f9be6, #0b4e7a));
+  color: #fff; border-radius: 26px; padding: 32px 40px;
+  box-shadow: 0 24px 60px rgba(11, 78, 122, .22);
+}
+.lm-band-icon { font-size: 3.2rem; line-height: 1; }
+.leadmagnet-band .eyebrow { color: #cdeafd; }
+.leadmagnet-band h2 { color: #fff; font-size: clamp(1.4rem, 3vw, 2rem); margin: 4px 0 8px; }
+.leadmagnet-band p:not(.eyebrow) { color: rgba(255, 255, 255, .9); margin: 0; max-width: 560px; }
+.leadmagnet-band .button-light { flex: 0 0 auto; white-space: nowrap; }
+@media (max-width: 760px) {
+  .leadmagnet-band { grid-template-columns: 1fr; text-align: center; padding: 28px 24px; gap: 16px; }
+  .lm-band-icon { margin-inline: auto; }
+  .leadmagnet-band p:not(.eyebrow) { margin-inline: auto; }
+}
