@@ -276,3 +276,25 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
   .founder-photo img { width: 220px; height: 250px; }
   .founder-promises { text-align: left; display: inline-grid; }
 }
+
+/* ===== Mobiler Schnellkontakt-Balken (nur Handy) ===== */
+.mobile-cta { display: none; }
+@media (max-width: 760px) {
+  .mobile-cta {
+    display: grid; grid-template-columns: 1fr 1.35fr; gap: 10px;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 900;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+    background: rgba(255, 255, 255, .93); backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid var(--line, #e2e8f0);
+    box-shadow: 0 -8px 30px rgba(11, 78, 122, .14);
+  }
+  .mcta {
+    text-align: center; padding: 13px 10px; border-radius: 999px;
+    font-weight: 700; font-size: .95rem; text-decoration: none; line-height: 1;
+    display: flex; align-items: center; justify-content: center; gap: 7px;
+  }
+  .mcta-call { background: transparent; color: var(--primary-dark, #0b4e7a); border: 1px solid var(--line, #cbd5e1); }
+  .mcta-main { background: var(--primary, #1687cf); color: #fff; box-shadow: 0 8px 22px rgba(22, 135, 207, .35); }
+  body { padding-bottom: 74px; }
+}
