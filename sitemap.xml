@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://alphablueprint.de/</loc><lastmod>2026-06-15</lastmod></url>
-  <url><loc>https://alphablueprint.de/leistungen.html</loc><lastmod>2026-06-15</lastmod></url>
+  <url><loc>https://alphablueprint.de/leistungen.html</loc><lastmod>2026-06-25</lastmod></url>
   <url><loc>https://alphablueprint.de/ablauf.html</loc><lastmod>2026-06-15</lastmod></url>
   <url><loc>https://alphablueprint.de/faq.html</loc><lastmod>2026-06-15</lastmod></url>
   <url><loc>https://alphablueprint.de/ueber-uns.html</loc><lastmod>2026-06-15</lastmod></url>
@@ -10,10 +10,11 @@
   <url><loc>https://alphablueprint.de/ratgeber-prozesse-automatisieren.html</loc><lastmod>2026-06-23</lastmod></url>
   <url><loc>https://alphablueprint.de/ratgeber-ki-mittelstand.html</loc><lastmod>2026-06-23</lastmod></url>
   <url><loc>https://alphablueprint.de/ratgeber-email-automatisierung.html</loc><lastmod>2026-06-23</lastmod></url>
-  <url><loc>https://alphablueprint.de/ki-beratung.html</loc><lastmod>2026-06-15</lastmod></url>
-  <url><loc>https://alphablueprint.de/workflow-automationen.html</loc><lastmod>2026-06-15</lastmod></url>
+  <url><loc>https://alphablueprint.de/ki-beratung.html</loc><lastmod>2026-06-25</lastmod></url>
+  <url><loc>https://alphablueprint.de/workflow-automationen.html</loc><lastmod>2026-06-25</lastmod></url>
   <url><loc>https://alphablueprint.de/ki-im-arbeitsalltag.html</loc><lastmod>2026-06-15</lastmod></url>
-  <url><loc>https://alphablueprint.de/zertifizierte-ki-kurse.html</loc><lastmod>2026-06-15</lastmod></url>
+  <url><loc>https://alphablueprint.de/zertifizierte-ki-kurse.html</loc><lastmod>2026-06-25</lastmod></url>
+  <url><loc>https://alphablueprint.de/gefoerderte-ki-kurse.html</loc><lastmod>2026-06-25</lastmod></url>
   <url><loc>https://alphablueprint.de/impressum.html</loc><lastmod>2026-06-15</lastmod></url>
   <url><loc>https://alphablueprint.de/datenschutz.html</loc><lastmod>2026-06-15</lastmod></url>
 </urlset>
