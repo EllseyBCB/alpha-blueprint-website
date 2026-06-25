@@ -1,0 +1,30 @@
+# Alpha Blueprint
+
+> Alpha Blueprint Management and Consulting - FZCO bietet verständliche KI-Beratung, Prozessautomatisierung und digitale Strategie für kleine und mittlere Unternehmen (KMU) im deutschsprachigen Raum (Deutschland, Österreich, Schweiz).
+
+Alpha Blueprint hilft Unternehmen, Künstliche Intelligenz und Automatisierung praxisnah einzusetzen – ohne Fachchinesisch, mit einem festen Ansprechpartner und einem kostenlosen, unverbindlichen Erstgespräch. Der Fokus liegt auf messbaren Ergebnissen im Arbeitsalltag, etwa der Automatisierung von E-Mails, Dokumenten und Dateneingabe.
+
+## Leistungen
+- [KI-Beratung](https://alphablueprint.de/ki-beratung.html): Sinnvolle Einsatzfelder für KI identifizieren und eine realistische Strategie entwickeln.
+- [Prozessautomatisierung](https://alphablueprint.de/workflow-automationen.html): Wiederkehrende Abläufe intelligent verknüpfen und Zeit sparen.
+- [Digitale Strategie](https://alphablueprint.de/leistungen.html): Belastbare digitale Grundlage für nachhaltiges Wachstum schaffen.
+- [Alle Leistungen](https://alphablueprint.de/leistungen.html)
+
+## Ablauf & Hilfe
+- [So läuft die Zusammenarbeit ab](https://alphablueprint.de/ablauf.html): Erstgespräch, Strategie, Umsetzung.
+- [Häufige Fragen (FAQ)](https://alphablueprint.de/faq.html)
+- [Kostenlose KI-Checkliste für KMU (PDF)](https://alphablueprint.de/checkliste.html)
+
+## Ratgeber
+- [Diese 3 Prozesse sollte jedes KMU zuerst automatisieren](https://alphablueprint.de/ratgeber-prozesse-automatisieren.html)
+- [KI im Mittelstand: Wo sich der Einstieg wirklich lohnt](https://alphablueprint.de/ratgeber-ki-mittelstand.html)
+- [E-Mail-Automatisierung: So sparen Sie Stunden pro Woche](https://alphablueprint.de/ratgeber-email-automatisierung.html)
+
+## Kontakt
+- Website: https://alphablueprint.de/
+- E-Mail: info@alphablueprint.de
+- Telefon: +49 174 6811322
+- Kostenloses Erstgespräch: https://alphablueprint.de/index.html#kontakt
+
+## Über uns
+- [Über Alpha Blueprint](https://alphablueprint.de/ueber-uns.html): Gegründet von Elia Nedvidek. Persönliche, verständliche Beratung mit Fokus auf praxisnahen Nutzen für KMU.
