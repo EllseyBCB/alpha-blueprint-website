@@ -1,0 +1,32 @@
+name: Keep Supabase awake
+
+# Hält das Supabase-Projekt aktiv, damit es auf dem Free-Plan nicht nach
+# 7 Tagen Inaktivität automatisch pausiert (sonst funktioniert das
+# Kontaktformular nicht mehr und Anfragen gehen verloren).
+# Der publishable Key ist bewusst öffentlich (steht auch in contact.js);
+# durch Row Level Security ist darüber nur Eintragen möglich, kein Lesen.
+
+on:
+  schedule:
+    - cron: "30 6 * * *"   # täglich 06:30 UTC
+  workflow_dispatch:        # manuelles Auslösen möglich
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Supabase REST-API anpingen
+        run: |
+          URL="https://gwoqublnvyefszckjyqh.supabase.co/rest/v1/kontakt_anfragen?select=id&limit=1"
+          KEY="sb_publishable_ErEYfc9_fLQ362TZ2ldzpg_BVgtndMw"
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: $KEY" \
+            -H "Authorization: Bearer $KEY" \
+            "$URL")
+          echo "Supabase antwortete mit HTTP $code"
+          # 2xx/4xx = Datenbank ist erreichbar und zählt als Aktivität.
+          # Nur 5xx/000 (Server weg / nicht erreichbar) gilt als Fehler.
+          if [ "$code" -ge 500 ] || [ "$code" -eq 000 ]; then
+            echo "::error::Supabase nicht erreichbar (HTTP $code)"
+            exit 1
+          fi
