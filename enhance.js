@@ -1,15 +1,27 @@
 /* Alpha Blueprint – interaktive Erweiterungen (additiv, robust gegen fehlende Elemente) */
 (function () {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
-  /* 1) Scroll-Fortschrittsbalken oben */
+  /* 1) Scroll-Fortschrittsbalken + Hero-Parallaxe (rAF-gebündelt, ein Handler) */
   const bar = document.createElement("div");
   bar.className = "scroll-progress";
   document.body.appendChild(bar);
+  const heroBg = document.querySelector(".hero-background");
+  let ticking = false;
   const onScroll = () => {
-    const h = document.documentElement;
-    const max = h.scrollHeight - h.clientHeight;
-    bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const h = document.documentElement;
+      const max = h.scrollHeight - h.clientHeight;
+      bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
+      if (heroBg && !reduce) {
+        const y = h.scrollTop;
+        if (y < window.innerHeight) heroBg.style.transform = "translateY(" + y * 0.18 + "px) scale(1.06)";
+      }
+      ticking = false;
+    });
   };
   window.addEventListener("scroll", onScroll, { passive: true });
   onScroll();
@@ -34,20 +46,7 @@
     sections.forEach((s) => navObserver.observe(s));
   }
 
-  /* 3) Sanfte Parallaxe auf dem Hero-Hintergrund */
-  const heroBg = document.querySelector(".hero-background");
-  if (heroBg && !reduce) {
-    window.addEventListener(
-      "scroll",
-      () => {
-        const y = window.scrollY;
-        if (y < window.innerHeight) heroBg.style.transform = "translateY(" + y * 0.18 + "px) scale(1.06)";
-      },
-      { passive: true }
-    );
-  }
-
-  /* 4) Zähler in der Erfahrungs-Karte hochzählen (z. B. 100%) */
+  /* 3) Zähler in der Erfahrungs-Karte hochzählen (z. B. 100%) */
   const stat = document.querySelector(".experience-card strong");
   if (stat && !reduce) {
     const raw = stat.textContent.trim();
@@ -71,5 +70,53 @@
       }, { threshold: 0.6 });
       io.observe(stat);
     }
+  }
+
+  /* 4) 3D-Tilt auf Karten: nur Maus-Geräte, weich per rAF-Interpolation */
+  if (finePointer && !reduce) {
+    const targets = document.querySelectorAll(
+      ".service-card, .benefit-card, .ratgeber-card, .founder-photo img, .content-media img, .split-image > img"
+    );
+    const MAX_TILT = 6;
+    targets.forEach((el) => {
+      el.classList.add("tilt");
+      const glare = document.createElement("div");
+      glare.className = "tilt-glare";
+      glare.setAttribute("aria-hidden", "true");
+      if (el.tagName !== "IMG") el.appendChild(glare);
+
+      let targetX = 0, targetY = 0, curX = 0, curY = 0, lift = 0, targetLift = 0;
+      let raf = null;
+      const animate = () => {
+        curX += (targetX - curX) * 0.14;
+        curY += (targetY - curY) * 0.14;
+        lift += (targetLift - lift) * 0.14;
+        el.style.transform =
+          "perspective(1000px) rotateX(" + curX.toFixed(3) + "deg) rotateY(" + curY.toFixed(3) + "deg) translateY(" + lift.toFixed(2) + "px)";
+        if (Math.abs(targetX - curX) + Math.abs(targetY - curY) + Math.abs(targetLift - lift) > 0.02) {
+          raf = requestAnimationFrame(animate);
+        } else {
+          if (targetX === 0 && targetY === 0 && targetLift === 0) el.style.transform = "";
+          raf = null;
+        }
+      };
+      const kick = () => { if (!raf) raf = requestAnimationFrame(animate); };
+
+      el.addEventListener("pointermove", (ev) => {
+        const r = el.getBoundingClientRect();
+        const px = (ev.clientX - r.left) / r.width;
+        const py = (ev.clientY - r.top) / r.height;
+        targetY = (px - 0.5) * 2 * MAX_TILT;
+        targetX = (0.5 - py) * 2 * MAX_TILT;
+        targetLift = -6;
+        el.style.setProperty("--mx", (px * 100).toFixed(1) + "%");
+        el.style.setProperty("--my", (py * 100).toFixed(1) + "%");
+        kick();
+      });
+      el.addEventListener("pointerleave", () => {
+        targetX = 0; targetY = 0; targetLift = 0;
+        kick();
+      });
+    });
   }
 })();
