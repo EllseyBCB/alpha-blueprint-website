@@ -80,6 +80,44 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 }
 @keyframes heroCanvasIn { from { opacity: 0; transform: scale(.92); } to { opacity: 1; transform: scale(1); } }
 
+/* ---------- Rotierender Gold-Leuchtrahmen um den Haupt-CTA ---------- */
+@property --border-angle { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.btn-glow { position: relative; display: inline-flex; border-radius: 999px; }
+.btn-glow::before {
+  content: ""; position: absolute; inset: -3px; border-radius: 999px; padding: 2px;
+  background: conic-gradient(from var(--border-angle, 0deg), #ecd06f, rgba(212, 175, 55, 0) 25%, #d4af37 50%, rgba(212, 175, 55, 0) 75%, #ecd06f);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: borderSpin 3.5s linear infinite;
+  pointer-events: none;
+}
+@keyframes borderSpin { to { --border-angle: 360deg; } }
+
+/* ---------- Typewriter-Cursor in der Hero-Headline ---------- */
+.type-cursor {
+  display: inline-block; width: .08em; height: .82em; margin-left: .06em;
+  background: var(--primary); vertical-align: baseline;
+  animation: cursorBlink .8s steps(1) infinite;
+}
+@keyframes cursorBlink { 50% { opacity: 0; } }
+
+/* ---------- Orbit-Ringe mit wanderndem Goldschimmer um das 3D-Zeichen ---------- */
+.hero-3d .orbit {
+  position: absolute; top: 50%; left: 50%; border-radius: 50%; padding: 1px;
+  background: linear-gradient(180deg, rgba(212, 175, 55, 0) 0%, rgba(236, 208, 111, .85) 45%, rgba(212, 175, 55, 0) 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.hero-3d .orbit.o1 { width: 300px; height: 300px; margin: -150px 0 0 -150px; animation: orbitSpin 32s linear infinite; }
+.hero-3d .orbit.o2 { width: 430px; height: 430px; margin: -215px 0 0 -215px; animation: orbitSpin 44s linear infinite reverse; }
+.hero-3d .orbit.o3 { width: 560px; height: 560px; margin: -280px 0 0 -280px; animation: orbitSpin 58s linear infinite; }
+@keyframes orbitSpin { to { transform: rotate(360deg); } }
+
 /* ---------- Buttons: Glanz-Effekt beim Hover ---------- */
 .button { position: relative; overflow: hidden; }
 .button::after {

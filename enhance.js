@@ -73,6 +73,43 @@
     }, { threshold: 0.35 });
     document.querySelectorAll(".split-h2").forEach((h) => wordsIo.observe(h));
   }
+  /* Typewriter für die Hero-Headline (Original bleibt als aria-label erhalten) */
+  const heroH1 = document.querySelector(".hero-content h1");
+  if (heroH1 && !reduce) {
+    const segs = [];
+    heroH1.childNodes.forEach((n) => {
+      if (n.nodeType === Node.TEXT_NODE && n.textContent.trim()) {
+        segs.push({ node: n, text: n.textContent });
+      } else if (n.nodeType === Node.ELEMENT_NODE && n.tagName === "SPAN" && n.firstChild) {
+        segs.push({ node: n.firstChild, text: n.textContent });
+      }
+    });
+    if (segs.length) {
+      heroH1.setAttribute("aria-label", heroH1.textContent.trim());
+      heroH1.style.minHeight = heroH1.offsetHeight + "px";
+      segs.forEach((s) => { s.node.textContent = ""; });
+      const cursor = document.createElement("span");
+      cursor.className = "type-cursor";
+      cursor.setAttribute("aria-hidden", "true");
+      let si = 0, ci = 0;
+      const typeNext = () => {
+        if (si >= segs.length) {
+          setTimeout(() => cursor.remove(), 1600);
+          return;
+        }
+        const s = segs[si];
+        ci++;
+        s.node.textContent = s.text.slice(0, ci);
+        s.node.parentNode === heroH1
+          ? heroH1.insertBefore(cursor, s.node.nextSibling)
+          : s.node.parentNode.appendChild(cursor);
+        if (ci >= s.text.length) { si++; ci = 0; }
+        setTimeout(typeNext, 38);
+      };
+      setTimeout(typeNext, 550);
+    }
+  }
+
   const showcaseImg = document.querySelector(".showcase > img");
   const showcaseH2 = document.querySelector(".showcase-content h2");
   const showcaseSec = document.querySelector(".showcase");
