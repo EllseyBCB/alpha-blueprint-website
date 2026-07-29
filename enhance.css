@@ -160,6 +160,19 @@ a:focus-visible, button:focus-visible, input:focus-visible, textarea:focus-visib
 /* ---------- Reveal: zarte 3D-Neigung, gestaffelt ---------- */
 .service-grid .reveal:nth-child(2), .process-grid .reveal:nth-child(2) { transition-delay: .08s; }
 .service-grid .reveal:nth-child(3), .process-grid .reveal:nth-child(3) { transition-delay: .16s; }
+.benefit-grid .reveal:nth-child(2) { transition-delay: .07s; }
+.benefit-grid .reveal:nth-child(3) { transition-delay: .14s; }
+.benefit-grid .reveal:nth-child(4) { transition-delay: .21s; }
+.ratgeber-grid .reveal:nth-child(2) { transition-delay: .08s; }
+.ratgeber-grid .reveal:nth-child(3) { transition-delay: .16s; }
+
+/* ---------- Scroll-Parallaxe (JS setzt --py pro Frame, nur Desktop) ---------- */
+.showcase > img { transform: translate3d(0, var(--py, 0px), 0) scale(1.12); }
+.page-hero > img { transform: translate3d(0, var(--py, 0px), 0) scale(1.1); }
+.founder-photo { transform: translate3d(0, var(--py, 0px), 0); }
+/* Hero-Text schwebt beim Wegscrollen nach oben und blendet aus
+   (erst nach der Eingangs-Animation aktiv, sonst ruckelt der Übergang) */
+.js .hero-content.parallax-live { transition: none; transform: translate3d(0, var(--hy, 0px), 0); opacity: var(--ho, 1); }
 
 /* ---------- Aktiver Navigationspunkt ---------- */
 .main-nav > a.active:not(.button)::after { width: 100%; }

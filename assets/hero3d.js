@@ -116,10 +116,12 @@ import * as THREE from "./vendor/three.module.min.js";
     raf = null;
     if (!inView || document.hidden) { running = false; return; }
     const t = clock.getElapsedTime();
+    const sy = document.documentElement.scrollTop || 0;
     cx += (tx - cx) * 0.05;
     cy += (ty - cy) * 0.05;
-    mark.rotation.y = t * 0.45 + cx;
+    mark.rotation.y = t * 0.45 + cx + sy * 0.0018;
     mark.rotation.x = Math.sin(t * 0.35) * 0.12 + cy;
+    mark.position.y = -sy * 0.0016;
     dust.rotation.y = t * 0.03;
     renderer.render(scene, camera);
     raf = requestAnimationFrame(tick);

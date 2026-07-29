@@ -3,22 +3,57 @@
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
 
-  /* 1) Scroll-Fortschrittsbalken + Hero-Parallaxe (rAF-gebündelt, ein Handler) */
+  /* 1) Scroll-Fortschrittsbalken + Parallaxe-Ebene (rAF-gebündelt, ein Handler) */
   const bar = document.createElement("div");
   bar.className = "scroll-progress";
   document.body.appendChild(bar);
   const heroBg = document.querySelector(".hero-background");
+  const heroContent = document.querySelector(".hero-content");
+
+  /* Parallaxe-Ziele: große Bildflächen driften leicht gegen die Scroll-Richtung */
+  const parallax = [];
+  if (!reduce && window.matchMedia("(min-width: 900px)").matches) {
+    const register = (sel, speed) => {
+      document.querySelectorAll(sel).forEach((el) => parallax.push({ el, speed, visible: false }));
+    };
+    register(".showcase > img", 58);
+    register(".page-hero > img", 44);
+    register(".founder-photo", 26);
+    if (parallax.length) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          const t = parallax.find((p) => p.el === e.target);
+          if (t) t.visible = e.isIntersecting;
+        });
+      }, { rootMargin: "120px 0px" });
+      parallax.forEach((p) => io.observe(p.el));
+    }
+    /* Hero-Text-Parallaxe erst nach der Eingangs-Animation scharf schalten */
+    if (heroContent) setTimeout(() => heroContent.classList.add("parallax-live"), 1400);
+  }
+
   let ticking = false;
   const onScroll = () => {
     if (ticking) return;
     ticking = true;
     requestAnimationFrame(() => {
       const h = document.documentElement;
-      const max = h.scrollHeight - h.clientHeight;
-      bar.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + "%";
-      if (heroBg && !reduce) {
-        const y = h.scrollTop;
-        if (y < window.innerHeight) heroBg.style.transform = "translateY(" + y * 0.18 + "px) scale(1.06)";
+      const vh = h.clientHeight;
+      const y = h.scrollTop;
+      const max = h.scrollHeight - vh;
+      bar.style.width = (max > 0 ? (y / max) * 100 : 0) + "%";
+      if (heroBg && !reduce && y < vh) {
+        heroBg.style.transform = "translateY(" + y * 0.18 + "px) scale(1.06)";
+      }
+      if (heroContent && heroContent.classList.contains("parallax-live") && y < vh * 1.2) {
+        heroContent.style.setProperty("--hy", (y * 0.16).toFixed(1) + "px");
+        heroContent.style.setProperty("--ho", Math.max(0, 1 - y / (vh * 0.85)).toFixed(3));
+      }
+      for (const p of parallax) {
+        if (!p.visible) continue;
+        const r = p.el.getBoundingClientRect();
+        const rel = (r.top + r.height / 2 - vh / 2) / vh;
+        p.el.style.setProperty("--py", (rel * p.speed).toFixed(1) + "px");
       }
       ticking = false;
     });
