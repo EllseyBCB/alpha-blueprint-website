@@ -11,8 +11,9 @@
   const heroContent = document.querySelector(".hero-content");
 
   /* Parallaxe-Ziele: große Bildflächen driften leicht gegen die Scroll-Richtung */
+  const wide = window.matchMedia("(min-width: 900px)").matches;
   const parallax = [];
-  if (!reduce && window.matchMedia("(min-width: 900px)").matches) {
+  if (!reduce && wide) {
     const register = (sel, speed) => {
       document.querySelectorAll(sel).forEach((el) => parallax.push({ el, speed, visible: false }));
     };
@@ -30,7 +31,51 @@
     }
     /* Hero-Text-Parallaxe erst nach der Eingangs-Animation scharf schalten */
     if (heroContent) setTimeout(() => heroContent.classList.add("parallax-live"), 1400);
+
+    /* Überschriften in maskierte Wörter zerlegen (Original als aria-label erhalten) */
+    document.querySelectorAll(".section-heading h2, .split-copy h2, .contact-copy h2").forEach((h) => {
+      h.setAttribute("aria-label", h.textContent.trim());
+      let wi = 0;
+      const split = (node) => {
+        Array.from(node.childNodes).forEach((child) => {
+          if (child.nodeType === Node.TEXT_NODE) {
+            const frag = document.createDocumentFragment();
+            child.textContent.split(/(\s+)/).forEach((part) => {
+              if (!part) return;
+              if (/^\s+$/.test(part)) {
+                frag.appendChild(document.createTextNode(part));
+              } else {
+                const w = document.createElement("span");
+                w.className = "w";
+                const inner = document.createElement("i");
+                inner.textContent = part;
+                inner.style.setProperty("--wi", wi++);
+                w.appendChild(inner);
+                frag.appendChild(w);
+              }
+            });
+            node.replaceChild(frag, child);
+          } else if (child.nodeType === Node.ELEMENT_NODE && child.tagName !== "BR") {
+            split(child);
+          }
+        });
+      };
+      split(h);
+      h.classList.add("split-h2");
+    });
+    const wordsIo = new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          e.target.classList.add("words-in");
+          wordsIo.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.35 });
+    document.querySelectorAll(".split-h2").forEach((h) => wordsIo.observe(h));
   }
+  const showcaseImg = document.querySelector(".showcase > img");
+  const showcaseH2 = document.querySelector(".showcase-content h2");
+  const showcaseSec = document.querySelector(".showcase");
 
   let ticking = false;
   const onScroll = () => {
@@ -42,11 +87,13 @@
       const y = h.scrollTop;
       const max = h.scrollHeight - vh;
       bar.style.width = (max > 0 ? (y / max) * 100 : 0) + "%";
-      if (heroBg && !reduce && y < vh) {
-        heroBg.style.transform = "translateY(" + y * 0.18 + "px) scale(1.06)";
+      if (heroBg && !reduce && y < vh * 1.2) {
+        heroBg.style.transform = wide
+          ? "scale(" + (1.04 + Math.min(1, y / vh) * 0.09).toFixed(4) + ")"   // angepinnter Hero: langsamer Zoom unter dem Vorhang
+          : "translateY(" + y * 0.18 + "px) scale(1.06)";                     // mobil: klassische Drift
       }
       if (heroContent && heroContent.classList.contains("parallax-live") && y < vh * 1.2) {
-        heroContent.style.setProperty("--hy", (y * 0.16).toFixed(1) + "px");
+        heroContent.style.setProperty("--hy", (y * -0.06).toFixed(1) + "px");
         heroContent.style.setProperty("--ho", Math.max(0, 1 - y / (vh * 0.85)).toFixed(3));
       }
       for (const p of parallax) {
@@ -54,6 +101,21 @@
         const r = p.el.getBoundingClientRect();
         const rel = (r.top + r.height / 2 - vh / 2) / vh;
         p.el.style.setProperty("--py", (rel * p.speed).toFixed(1) + "px");
+      }
+      /* Showcase: Zoom atmet zur Mitte hin, Headline füllt sich mit Gold */
+      if (showcaseSec && !reduce && parallax.length) {
+        const r = showcaseSec.getBoundingClientRect();
+        if (r.bottom > -100 && r.top < vh + 100) {
+          const rel = (r.top + r.height / 2 - vh / 2) / vh;
+          if (showcaseImg) {
+            const near = 1 - Math.min(1, Math.abs(rel));
+            showcaseImg.style.setProperty("--pz", (1.08 + near * 0.1).toFixed(3));
+          }
+          if (showcaseH2) {
+            const p = Math.min(1, Math.max(0, (0.55 - rel) / 0.75));
+            showcaseH2.style.setProperty("--fill", (100 - p * 100).toFixed(1) + "%");
+          }
+        }
       }
       ticking = false;
     });

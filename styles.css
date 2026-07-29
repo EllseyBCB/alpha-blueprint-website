@@ -133,7 +133,7 @@ h1 span { color: var(--primary); }
 }
 @keyframes float { 50% { transform: translateY(7px); } }
 
-.section { padding: 120px 0; }
+.section { padding: 120px 0; background: var(--white); }
 .intro { background: linear-gradient(180deg, var(--white), var(--pale)); }
 .section-heading { max-width: 720px; margin-bottom: 60px; }
 .section-heading.centered { margin-inline: auto; text-align: center; }
