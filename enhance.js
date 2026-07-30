@@ -209,7 +209,7 @@
   /* 4) 3D-Tilt auf Karten: nur Maus-Geräte, weich per rAF-Interpolation */
   if (finePointer && !reduce) {
     const targets = document.querySelectorAll(
-      ".service-card, .benefit-card, .ratgeber-card, .founder-photo img, .content-media img, .split-image > img"
+      ".service-card, .benefit-grid:not(.four) .benefit-card, .ratgeber-card, .founder-photo img, .content-media img, .split-image > img"
     );
     const MAX_TILT = 6;
     targets.forEach((el) => {
