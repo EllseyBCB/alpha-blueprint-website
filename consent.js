@@ -77,7 +77,9 @@
     b.innerHTML =
       '<div class="abp-consent-inner">' +
         '<p>Wir verwenden Cookies, um anonym zu messen, wie unsere Website und Werbung genutzt werden. ' +
-        'Mehr dazu in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>' +
+        /* Absolut, nicht relativ: Das Banner läuft auch auf Unterseiten in eigenen
+   Ordnern (z. B. /jarvis/), dort ginge ein relativer Pfad ins Leere. */
+        'Mehr dazu in der <a href="/datenschutz.html">Datenschutzerklärung</a>.</p>' +
         '<div class="abp-consent-actions">' +
           '<button type="button" class="abp-btn abp-btn-ghost" data-act="deny">Nur notwendige</button>' +
           '<button type="button" class="abp-btn abp-btn-solid" data-act="allow">Akzeptieren</button>' +

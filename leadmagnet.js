@@ -35,8 +35,8 @@
     if (form.website && form.website.value.trim() !== "") { deliver(); return; }
 
     var email = form.email.value.trim();
-    if (!email) { set("Bitte geben Sie Ihre E-Mail-Adresse ein.", "#c0392b"); return; }
-    if (form.datenschutz && !form.datenschutz.checked) { set("Bitte bestätigen Sie die Datenschutzerklärung.", "#c0392b"); return; }
+    if (!email) { set("Bitte geben Sie Ihre E-Mail-Adresse ein.", "#ff6b5e"); return; }
+    if (form.datenschutz && !form.datenschutz.checked) { set("Bitte bestätigen Sie die Datenschutzerklärung.", "#ff6b5e"); return; }
 
     var data = {
       vorname: form.vorname.value.trim() || "—",

@@ -254,3 +254,88 @@
     });
   }
 })();
+
+/* ══════════════════════════════════════════════════════════════════════════
+   JARVIS — Scroll-Effekte der Produktwelt
+
+   Zwei Dinge, beide über transform/opacity, damit der Browser nichts neu
+   berechnen muss:
+
+   1) Angepinnte Bildstrecke: Die Bildspalte bleibt stehen (position:sticky in
+      der CSS), während die Textschritte daran vorbeilaufen. Der Schritt, der
+      der Bildschirmmitte am nächsten ist, wird hell — und blendet das zu ihm
+      gehörende Bild ein.
+
+   2) Sanfte Drift der Produktbilder gegen die Scroll-Richtung.
+
+   Bei "Bewegung reduzieren" bleibt beides still: Dann sind alle Schritte hell
+   und das erste Bild steht fest.
+   ═══════════════════════════════════════════════════════════════════════ */
+(function jarvisScroll() {
+  const ruhig = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const schritte = Array.from(document.querySelectorAll(".jv-step"));
+  const bilder = Array.from(document.querySelectorAll(".jv-shot"));
+  const drift = Array.from(document.querySelectorAll(".jv-band-shot figure, .jv-hero-shot figure"));
+  if (!schritte.length && !drift.length) return;
+
+  if (ruhig) {
+    schritte.forEach((s) => s.classList.add("is-active"));
+    return;
+  }
+
+  const breit = window.matchMedia("(min-width: 1001px)").matches;
+  let aktiv = -1;
+
+  function zeigen(index) {
+    if (index === aktiv) return;
+    aktiv = index;
+    schritte.forEach((s, i) => s.classList.toggle("is-active", i === index));
+    bilder.forEach((b) => b.classList.toggle("is-visible", Number(b.dataset.shot) === index));
+  }
+
+  let laeuft = false;
+  function zeichnen() {
+    laeuft = false;
+    const hoehe = window.innerHeight;
+
+    /* Welcher Schritt steht der Mitte am nächsten? */
+    if (breit && schritte.length) {
+      let besterAbstand = Infinity;
+      let bester = aktiv < 0 ? 0 : aktiv;
+      schritte.forEach((s, i) => {
+        const r = s.getBoundingClientRect();
+        const abstand = Math.abs(r.top + r.height / 2 - hoehe / 2);
+        if (abstand < besterAbstand) { besterAbstand = abstand; bester = i; }
+      });
+      zeigen(bester);
+    }
+
+    /* Bilder driften langsamer als die Seite */
+    drift.forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (r.bottom < -200 || r.top > hoehe + 200) return;
+      const mitte = r.top + r.height / 2 - hoehe / 2;
+      el.style.transform = "translate3d(0, " + (-mitte * 0.055).toFixed(1) + "px, 0)";
+    });
+  }
+
+  function anstossen() {
+    if (laeuft) return;
+    laeuft = true;
+    requestAnimationFrame(zeichnen);
+  }
+
+  window.addEventListener("scroll", anstossen, { passive: true });
+  window.addEventListener("resize", anstossen);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") zeichnen();
+  });
+  zeichnen();
+
+  /* Auf schmalen Bildschirmen gibt es kein Anpinnen — dort ist jeder Schritt
+     für sich lesbar, und alle drei Aufnahmen stehen untereinander. */
+  if (!breit) {
+    schritte.forEach((s) => s.classList.add("is-active"));
+    bilder.forEach((b) => b.classList.add("is-visible"));
+  }
+})();

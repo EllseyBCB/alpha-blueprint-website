@@ -1,10 +1,11 @@
 # Alpha Blueprint
 
-> Alpha Blueprint Management and Consulting - FZCO bietet verständliche KI-Beratung, Prozessautomatisierung und digitale Strategie für kleine und mittlere Unternehmen (KMU) im deutschsprachigen Raum (Deutschland, Österreich, Schweiz).
+> Alpha Blueprint Management and Consulting - FZCO bietet verständliche KI-Beratung, persönliche KI-Assistenten, Prozessautomatisierung und digitale Strategie für kleine und mittlere Unternehmen (KMU) im deutschsprachigen Raum (Deutschland, Österreich, Schweiz).
 
 Alpha Blueprint hilft Unternehmen, Künstliche Intelligenz und Automatisierung praxisnah einzusetzen – ohne Fachchinesisch, mit einem festen Ansprechpartner und einem kostenlosen, unverbindlichen Erstgespräch. Der Fokus liegt auf messbaren Ergebnissen im Arbeitsalltag, etwa der Automatisierung von E-Mails, Dokumenten und Dateneingabe.
 
 ## Leistungen
+- [Jarvis – persönlicher KI-Assistent für Unternehmen](https://alphablueprint.de/jarvis/): Ein Assistent, der Postfach, Kalender und offene Aufgaben sieht, von selbst nachfasst, Firmenwissen dauerhaft behält und wiederkehrende Abläufe übernimmt. Er läuft auf den Systemen des Kunden; nichts wird ohne ausdrückliche Freigabe versendet. Preis auf Anfrage.
 - [KI-Beratung](https://alphablueprint.de/ki-beratung.html): Sinnvolle Einsatzfelder für KI identifizieren und eine realistische Strategie entwickeln.
 - [Prozessautomatisierung](https://alphablueprint.de/workflow-automationen.html): Wiederkehrende Abläufe intelligent verknüpfen und Zeit sparen.
 - [Digitale Strategie](https://alphablueprint.de/leistungen.html): Belastbare digitale Grundlage für nachhaltiges Wachstum schaffen.

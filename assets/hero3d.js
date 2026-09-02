@@ -37,10 +37,10 @@ import * as THREE from "./vendor/three.module.min.js";
     m.lookAt(0, 0, 0);
     envScene.add(m);
   };
-  mkLight(0xfff3cf, 4.5, 4, 5, 3, 6, 3);      // warmes Hauptlicht oben
-  mkLight(0xd4af37, 2.2, -6, 1, -2, 5, 5);    // goldener Reflex seitlich
-  mkLight(0x241c09, 1.4, 0, -6, 2, 8, 4);     // dunkler Boden
-  mkLight(0xfff8e2, 3.0, 2, 0, -6, 3, 6);     // Kante von hinten
+  mkLight(0xe8fbff, 5.2, 4, 5, 3, 6, 3);      // kühles Hauptlicht oben
+  mkLight(0x39d9f5, 3.4, -6, 1, -2, 5, 5);    // Cyan-Reflex seitlich
+  mkLight(0x061620, 1.4, 0, -6, 2, 8, 4);     // dunkler Boden
+  mkLight(0xd8f6ff, 3.0, 2, 0, -6, 3, 6);     // Kante von hinten
   const pmrem = new THREE.PMREMGenerator(renderer);
   scene.environment = pmrem.fromScene(envScene, 0.04).texture;
   pmrem.dispose();
@@ -67,16 +67,21 @@ import * as THREE from "./vendor/three.module.min.js";
     curveSegments: 8,
   });
   geo.center();
-  const gold = new THREE.MeshStandardMaterial({
-    color: 0xdcb84a,
-    metalness: 0.88,
-    roughness: 0.3,
-    envMapIntensity: 1.6,
+  /* Poliertes Metall im Ton der Marke — kein Gold mehr. */
+  const metall = new THREE.MeshStandardMaterial({
+    color: 0xcbeef8,
+    metalness: 0.92,
+    roughness: 0.22,
+    envMapIntensity: 2.1,
+    /* Ein Hauch Eigenleuchten, damit das Zeichen auch in der Kante nicht
+       absäuft — wie der Reaktor im Leitstand. */
+    emissive: 0x0e4a5e,
+    emissiveIntensity: 0.75,
   });
-  const mark = new THREE.Mesh(geo, gold);
+  const mark = new THREE.Mesh(geo, metall);
   scene.add(mark);
 
-  /* Goldstaub-Partikel */
+  /* Staubpartikel im Licht */
   const N = 90;
   const pos = new Float32Array(N * 3);
   for (let i = 0; i < N; i++) {
@@ -88,14 +93,14 @@ import * as THREE from "./vendor/three.module.min.js";
   pGeo.setAttribute("position", new THREE.BufferAttribute(pos, 3));
   const dust = new THREE.Points(
     pGeo,
-    new THREE.PointsMaterial({ color: 0xecd06f, size: 0.035, transparent: true, opacity: 0.75, depthWrite: false })
+    new THREE.PointsMaterial({ color: 0xa8ecfa, size: 0.035, transparent: true, opacity: 0.75, depthWrite: false })
   );
   scene.add(dust);
 
-  const key = new THREE.DirectionalLight(0xfff1c4, 2.2);
+  const key = new THREE.DirectionalLight(0xdff4fb, 2.8);
   key.position.set(3, 4, 5);
   scene.add(key);
-  scene.add(new THREE.AmbientLight(0x6b5a1e, 1.5));
+  scene.add(new THREE.AmbientLight(0x123a4a, 1.6));
 
   /* Einhängen: CSS-Würfel weichen lassen, Canvas einblenden */
   host.classList.add("webgl-on");

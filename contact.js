@@ -42,11 +42,11 @@
       nachricht: form.nachricht.value.trim(),
     };
     if (!data.vorname || !data.nachname || !data.email || !data.nachricht) {
-      set("Bitte alle Felder ausfüllen.", "#c0392b", true);
+      set("Bitte alle Felder ausfüllen.", "#ff6b5e", true);
       return;
     }
     if (form.datenschutz && !form.datenschutz.checked) {
-      set("Bitte noch der Datenschutzerklärung zustimmen.", "#c0392b", true);
+      set("Bitte noch der Datenschutzerklärung zustimmen.", "#ff6b5e", true);
       return;
     }
     var original = btn.textContent;
@@ -73,7 +73,7 @@
     } catch (err) {
       btn.disabled = false;
       btn.textContent = original;
-      set("Das Senden hat nicht geklappt. Bitte noch einmal versuchen – oder direkt an info@alphablueprint.de schreiben.", "#c0392b", true);
+      set("Das Senden hat nicht geklappt. Bitte noch einmal versuchen – oder direkt an info@alphablueprint.de schreiben.", "#ff6b5e", true);
     }
   });
 })();
