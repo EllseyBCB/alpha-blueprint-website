@@ -533,3 +533,18 @@ main { display: block; }
   .start { padding-top: calc(var(--kopf) + env(safe-area-inset-top) + 24px); }
   .seitenkopf { padding-top: calc(var(--kopf) + env(safe-area-inset-top) + 48px); }
 }
+
+/* Geräte-Bühne: Mac-Fenster mit iPhone davor */
+.buehne { position: relative; width: min(100%, 1060px); margin: 0 auto; padding-bottom: 6%; }
+.buehne .mac { width: 100%; border-radius: 14px; border: 1px solid #23495c; box-shadow: 0 50px 120px -40px rgba(0, 0, 0, .95); }
+.buehne .iphone { position: absolute; right: -3%; bottom: 0; width: 23%; border-radius: 30px; border: 6px solid #0b141c; box-shadow: 0 30px 80px -20px rgba(0, 0, 0, .95), 0 0 0 1px #23495c; }
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .buehne .mac { animation: anheben linear both; animation-timeline: view(); animation-range: entry 0% cover 40%; }
+    .buehne .iphone { animation: einschieben linear both; animation-timeline: view(); animation-range: entry 10% cover 50%; }
+  }
+}
+@keyframes einschieben { from { transform: translateY(30%) rotate(4deg); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (max-width: 700px) { .buehne .iphone { width: 30%; right: -2%; border-width: 3px; border-radius: 18px; } }
+.mac-bild { margin: 0 auto clamp(56px, 8vw, 96px); max-width: 1060px; }
+.mac-bild img { width: 100%; border-radius: 14px; border: 1px solid #23495c; box-shadow: 0 50px 120px -40px rgba(0, 0, 0, .95); }
