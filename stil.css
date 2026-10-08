@@ -112,8 +112,8 @@ body::after { content: ""; position: fixed; inset: 0; z-index: 200; pointer-even
 .kopf .rahmen { display: flex; align-items: center; justify-content: space-between; gap: 28px; }
 .marke { display: inline-flex; align-items: center; gap: 14px; text-decoration: none; color: #f1efea; }
 .marke i { display: block; width: 42px; height: 37px; background: currentColor; -webkit-mask: url(/assets/neu/marke-a-hell.png) center / contain no-repeat; mask: url(/assets/neu/marke-a-hell.png) center / contain no-repeat; flex: none; }
-.marke span { white-space: nowrap; display: flex; flex-direction: column; justify-content: center; font-family: var(--anzeige); font-weight: 800; font-stretch: 122%; font-size: 1.18rem; letter-spacing: .05em; text-transform: uppercase; line-height: 1; }
-.marke small { display: block; font-family: var(--schrift); font-weight: 600; font-stretch: 100%; font-size: .76rem; letter-spacing: .02em; text-transform: none; color: #a9a69f; margin-top: 6px; }
+.marke span { white-space: nowrap; display: flex; flex-direction: column; justify-content: center; font-family: var(--schrift); font-weight: 700; font-size: 1.32rem; letter-spacing: -.015em; line-height: 1; }
+.marke small { display: block; font-family: var(--schrift); font-weight: 500; font-size: .8rem; letter-spacing: 0; color: #a9a69f; margin-top: 5px; }
 .nav { display: flex; align-items: center; gap: 4px; }
 .nav a { text-decoration: none; font-size: 1.02rem; font-weight: 600; color: #d6d3cc; padding: 10px 14px; border-radius: 999px; transition: color .2s, background .2s; white-space: nowrap; }
 .nav a:hover { color: #fff; background: rgba(255, 255, 255, .06); }
@@ -136,7 +136,7 @@ body::after { content: ""; position: fixed; inset: 0; z-index: 200; pointer-even
   .nav .knopf { margin: 24px 0 0; justify-content: center; border: 0; font-family: var(--schrift); font-size: 1.05rem; padding: 0 24px; }
   .menue-offen { overflow: hidden; }
   .marke i { width: 36px; height: 31px; }
-  .marke span { font-size: 1.04rem; }
+  .marke span { font-size: 1.18rem; }
 }
 
 /* ── Knöpfe ───────────────────────────────────────────────────────────── */
