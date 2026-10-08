@@ -1,9 +1,9 @@
 # Alpha Blueprint
 
-> Alpha Blueprint (Alpha Blueprint Management and Consulting - FZCO) entwickelt KI-Lösungen für kleine und mittlere Unternehmen im deutschsprachigen Raum: den KI-Assistenten Jarvis, die iPhone-App Alpha Automation und Prozessautomatisierung nach Maß, dazu KI-Beratung. Inhaber und Entwickler ist Elia Nedvidek.
+> Alpha Blueprint (Alpha Blueprint Management and Consulting - FZCO) entwickelt KI-Lösungen für kleine und mittlere Unternehmen im deutschsprachigen Raum: den KI-Assistenten Alpha Prime, die iPhone-App Alpha Automation und Prozessautomatisierung nach Maß, dazu KI-Beratung. Inhaber und Entwickler ist Elia Nedvidek.
 
 ## Produkte
-- [Jarvis](https://alphablueprint.de/jarvis/): Persönlicher KI-Assistent für Unternehmen als native App für Mac und iPhone. Sprache mit Unterbrechen, Postfach mit Antwortentwürfen, Kalender, Merkzettel zum Nachfassen, Firmengedächtnis, Briefe aus Originalvorlagen, WhatsApp, Automationen am Server, Hintergrund-Agenten, Fachmodule für Hausverwaltung, Bildungsträger und Fahrschule. Nichts wird ohne Freigabe versendet; die Sperre sitzt im Code. Läuft auf eigenem Server je Kunde. Preis individuell nach Unternehmen.
+- [Alpha Prime](https://alphablueprint.de/alpha-prime/): Persönlicher KI-Assistent für Unternehmen als native App für Mac und iPhone. Sprache mit Unterbrechen, Postfach mit Antwortentwürfen, Kalender, Merkzettel zum Nachfassen, Firmengedächtnis, Briefe aus Originalvorlagen, WhatsApp, Automationen am Server, Hintergrund-Agenten, Fachmodule für Hausverwaltung, Bildungsträger und Fahrschule. Nichts wird ohne Freigabe versendet; die Sperre sitzt im Code. Läuft auf eigenem Server je Kunde. Preis individuell nach Unternehmen.
 - [Alpha Automation](https://alphablueprint.de/alpha-automation/): iPhone-App im Abo. Automatisierungen in Klartext beschreiben, die App baut daraus feste Wenn-Dann-Regeln für Postfach, Termine, Rechnungen, Anfragen und Zoom/Teams-Meetings. Pakete pro Firma: Start 39,99 €, Business 89,99 €, Pro 189,99 € im Monat. Status: Prototyp in der Testphase, Zugang auf Anfrage.
 
 ## Leistungen

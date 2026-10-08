@@ -29,7 +29,7 @@ FIRMA = {
     "url": DOMAIN + "/",
     "logo": DOMAIN + "/icon-512.png",
     "image": DOMAIN + "/og-image.jpg",
-    "description": "KI-Assistent Jarvis, die App Alpha Automation, KI-Beratung und Prozessautomatisierung für kleine und mittlere Unternehmen.",
+    "description": "KI-Assistent Alpha Prime, die App Alpha Automation, KI-Beratung und Prozessautomatisierung für kleine und mittlere Unternehmen.",
     "email": "info@alphablueprint.de",
     "telephone": "+49 174 6811322",
     "priceRange": "Auf Anfrage",
@@ -56,7 +56,7 @@ PERSON = {
 }
 
 NAV = [
-    ("jarvis", "/jarvis/", "Jarvis"),
+    ("jarvis", "/alpha-prime/", "Alpha Prime"),
     ("aa", "/alpha-automation/", "Alpha Automation"),
     ("beratung", "/ki-beratung.html", "KI-Beratung"),
     ("automatisierung", "/workflow-automationen.html", "Automatisierung"),
@@ -65,7 +65,7 @@ NAV = [
 ]
 
 FUSS_SPALTEN = [
-    ("Produkte", [("/jarvis/", "Jarvis"), ("/alpha-automation/", "Alpha Automation"), ("/leistungen.html", "Alle Leistungen")]),
+    ("Produkte", [("/alpha-prime/", "Alpha Prime"), ("/alpha-automation/", "Alpha Automation"), ("/leistungen.html", "Alle Leistungen")]),
     ("Leistungen", [("/ki-beratung.html", "KI-Beratung"), ("/workflow-automationen.html", "Prozessautomatisierung"),
                     ("/ablauf.html", "Ablauf"), ("/faq.html", "Häufige Fragen")]),
     ("Alpha Blueprint", [("/ueber-uns.html", "Über mich"), ("/ratgeber.html", "Ratgeber"), ("/checkliste.html", "KI-Checkliste"),
@@ -139,7 +139,7 @@ def fuss():
     <div class="raster">
       <div class="ueber">
         <a class="marke" href="/">{a_zeichen()}<span>Alpha Blueprint<small>KI, Automatisierung, Entwicklung</small></span></a>
-        <p>Jarvis, Alpha Automation und Automatisierungen nach Maß. Entwickelt und betreut von Elia Nedvidek.</p>
+        <p>Alpha Prime, Alpha Automation und Automatisierungen nach Maß. Entwickelt und betreut von Elia Nedvidek.</p>
         <ul class="kontakt-mini">
           <li><a href="mailto:info@alphablueprint.de">info@alphablueprint.de</a></li>
           <li><a href="tel:+491746811322">+49 174 6811322</a></li>

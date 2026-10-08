@@ -106,7 +106,7 @@
   if (feld) {
     var thema = new URLSearchParams(location.search).get("thema");
     var texte = {
-      "jarvis": "Ich interessiere mich für Jarvis und hätte gern ein Angebot für unseren Betrieb.\n\nUnser Betrieb: ",
+      "alpha-prime": "Ich interessiere mich für Alpha Prime und hätte gern ein Angebot für unseren Betrieb.\n\nUnser Betrieb: ",
       "alpha-automation": "Ich möchte Alpha Automation testen. Bitte schalten Sie uns den Zugang frei.\n\nUnser Betrieb: ",
       "beratung": "Ich möchte wissen, wo sich KI in unserem Betrieb lohnt.\n\nUnser Betrieb: ",
       "automatisierung": "Wir haben einen Ablauf, den wir automatisieren möchten: "
