@@ -18,7 +18,7 @@ WURZEL = Path(__file__).resolve().parent.parent
 QUELLEN = WURZEL / "_bau" / "seiten"
 SYMBOLE = WURZEL / "_bau" / "symbole"
 DOMAIN = "https://alphablueprint.de"
-VERSION = "20261008"
+VERSION = __import__("time").strftime("%Y%m%d%H%M")
 HEUTE = date.today().isoformat()
 
 FIRMA = {
@@ -80,7 +80,7 @@ def symbol(name, klasse=""):
 
 
 def a_zeichen():
-    return '<img src="/assets/logo-a-white.png" width="34" height="30" alt="">'
+    return '<i aria-hidden="true"></i>'
 
 
 AA_ZEICHEN = ('<svg viewBox="190 190 644 570" fill="currentColor" aria-hidden="true" focusable="false" class="{k}">'
@@ -138,7 +138,7 @@ def fuss():
   <div class="rahmen">
     <div class="raster">
       <div class="ueber">
-        <a class="marke" href="/">{a_zeichen()}<span>Alpha Blueprint<small>KI · Automatisierung · Entwicklung</small></span></a>
+        <a class="marke" href="/">{a_zeichen()}<span>Alpha Blueprint<small>KI, Automatisierung, Entwicklung</small></span></a>
         <p>Jarvis, Alpha Automation und Automatisierungen nach Maß. Entwickelt und betreut von Elia Nedvidek.</p>
         <ul class="kontakt-mini">
           <li><a href="mailto:info@alphablueprint.de">info@alphablueprint.de</a></li>
