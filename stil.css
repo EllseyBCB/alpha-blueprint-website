@@ -7,7 +7,7 @@
    - Alpha Blueprint selbst ist neutral: Tinte und Papier. Knöpfe sind
      Papier auf Dunkel bzw. Tinte auf Hell, ohne Leuchten.
    - Jede Marke bringt genau eine Farbe mit: Jarvis Cyan (der Reaktor),
-     Alpha Automation Bernstein, Beratung und Automatisierung Salbeigrün.
+     Alpha Automation Weiß und Schwarz wie die App, Beratung Salbeigrün.
      Die Farbe heißt im Code immer --akzent und hat je Untergrund einen
      eigenen Wert, damit der Kontrast auf Hell und Dunkel stimmt.
 
@@ -21,7 +21,7 @@
 :root {
   /* Markenfarben, je ein Wert für dunklen und hellen Grund */
   --jarvis-d: #5ad2e6;   --jarvis-h: #0b7c93;
-  --aa-d: #f2a83b;       --aa-h: #a35f00;
+  --aa-d: #ffffff;       --aa-h: #000000;
   --rat-d: #8fcca6;      --rat-h: #2d7a52;
 
   --a-d: var(--jarvis-d);
@@ -375,7 +375,7 @@ main { display: block; }
 .rollen { display: flex; flex-wrap: wrap; gap: 10px; margin: 26px 0 32px; padding: 0; list-style: none; }
 .rollen li { padding: 8px 15px; border-radius: 999px; border: 1px solid var(--linie-hell); font-size: .93rem; color: var(--text); }
 .rollen li:nth-child(2) { border-color: color-mix(in srgb, var(--jarvis-h) 50%, transparent); }
-.rollen li:nth-child(3) { border-color: color-mix(in srgb, var(--aa-h) 50%, transparent); }
+.rollen li:nth-child(3) { border-color: rgba(255, 255, 255, .45); }
 .rollen li:nth-child(4) { border-color: color-mix(in srgb, var(--rat-h) 50%, transparent); }
 @media (max-width: 860px) { .person { grid-template-columns: 1fr; } .person figure { max-width: 420px; } }
 
@@ -443,7 +443,7 @@ main { display: block; }
 /* Abschluss-Band */
 .abschluss { text-align: center; padding-block: clamp(96px, 13vw, 176px); position: relative; overflow: clip; background: var(--bg); color: var(--text); }
 .abschluss::before { content: ""; position: absolute; left: 50%; top: 50%; width: min(90vw, 760px); aspect-ratio: 1; translate: -50% -50%; background: url(/assets/neu/reaktor-kern.webp) center / contain no-repeat; opacity: .1; pointer-events: none; }
-.welt-aa .abschluss::before { background-image: url(/assets/neu/aa-zeichen-bernstein.svg); width: min(70vw, 520px); opacity: .1; }
+.welt-aa .abschluss::before { background-image: url(/assets/neu/aa-zeichen-weiss.svg); width: min(70vw, 520px); opacity: .1; }
 .welt-beratung .abschluss::before, .abschluss.ohne-reaktor::before { background-image: url(/assets/neu/marke-a-hell.png); aspect-ratio: 314 / 273; width: min(80vw, 640px); opacity: .05; }
 .abschluss .rahmen { position: relative; }
 .abschluss h2 { max-width: 18ch; margin-inline: auto; }
@@ -496,3 +496,27 @@ main { display: block; }
   .js .zeigen { opacity: 0; transform: translateY(26px); transition: opacity .8s ease, transform .9s var(--weich); transition-delay: calc(var(--i, 0) * 90ms); }
   .js .zeigen.da { opacity: 1; transform: none; }
 }
+
+/* ── Alpha Automation in den Farben der App ───────────────────────────
+   Die App ist Weiß und Schwarz: weiße Flächen auf iOS-Grau, schwarze
+   Tinte, Kacheln mit Symbol. Auf der dunklen Website erscheinen ihre
+   Bausteine deshalb als helle App-Flächen; Akzent ist reines Weiß. */
+.kacheln .kachel-aa, .preise .paket.mitte, .welt-aa .faehigkeiten .faehigkeit.getoent {
+  background: #ffffff; color: #000; border-color: transparent;
+  --text: #000; --leise: #5b5b60; --sehr-leise: #6e6e73; --linie: rgba(0, 0, 0, .08); --akzent: #000;
+}
+.kacheln .kachel-aa .textlink { color: #000; }
+.kacheln .kachel-aa .zeichen { color: #000; }
+.paket.mitte .betrag small { color: #6e6e73; }
+.paket.mitte .etikett, .kachel-aa .etikett { color: #000; background: #f2f2f7; }
+.welt-aa .faehigkeit .symbol { background: #ffffff; color: #000; }
+.welt-aa .faehigkeit.getoent .symbol { background: #000; color: #fff; }
+.regel-ansicht { background: #f2f2f7; color: #000; }
+.regel-ansicht .marke-klein, .regel-ansicht .regel-fuss { color: #6e6e73; }
+.regel-ansicht .marke-klein svg, .regel-ansicht .regel-fuss svg { color: #000; }
+.regel-ansicht .eingabe::after { background: #000; }
+.regel .zeile { background: #fff; border-color: rgba(0, 0, 0, .06); box-shadow: 0 6px 16px -10px rgba(0, 0, 0, .25); }
+.regel .zeile b { color: #6e6e73; }
+.regel .zeile.dann { border-color: rgba(0, 0, 0, .06); }
+.regel .zeile.dann b { color: #000; }
+.hinweis-prototyp { border-color: rgba(255, 255, 255, .35); background: rgba(255, 255, 255, .05); }
