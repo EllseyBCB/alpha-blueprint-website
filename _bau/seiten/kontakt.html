@@ -1,0 +1,40 @@
+<!--{
+ "titel": "Kontakt und kostenloses Erstgespräch | Alpha Blueprint",
+ "beschreibung": "Fragen zu Jarvis, Alpha Automation, KI-Beratung oder Automatisierung? Antwort werktags innerhalb von 24 Stunden. Das Erstgespräch ist kostenlos.",
+ "pfad": "/kontakt.html",
+ "prioritaet": "0.7",
+ "kette": [
+  [
+   "Kontakt",
+   "/kontakt.html"
+  ]
+ ],
+ "skripte": [
+  "/contact.js"
+ ]
+}-->
+<section class="seitenkopf" aria-labelledby="titel">
+  <div class="rahmen">
+    {{pfadkette}}
+    <p class="kennung">Kontakt</p>
+    <h1 id="titel">Erzählen Sie mir, wo es hakt.</h1>
+    <p class="unterzeile">Ich antworte werktags innerhalb von 24 Stunden, persönlich. Danach vereinbaren wir ein kostenloses Erstgespräch per Video oder Telefon.</p>
+  </div>
+</section>
+<section class="abschnitt" aria-label="Kontaktformular">
+  <div class="rahmen kontakt">
+    <div class="zeigen">
+      <h2 style="font-size:clamp(1.5rem,2.6vw,2rem)">Was im Erstgespräch passiert</h2>
+      <div class="punkte" style="margin-top:24px">
+        <div class="punkt"><h3>Sie erzählen, ich frage nach.</h3><p>Wie arbeitet Ihr Betrieb, welche Programme nutzen Sie, wo bleibt die Zeit hängen?</p></div>
+        <div class="punkt"><h3>Ich zeige, was möglich ist.</h3><p>Auf Wunsch live an Jarvis oder Alpha Automation, mit Beispielen aus Ihrer Branche.</p></div>
+        <div class="punkt"><h3>Sie bekommen eine ehrliche Einschätzung.</h3><p>Lohnt es sich, und wenn ja, womit fangen wir an?</p></div>
+      </div>
+      <ul class="wege">
+        <li><a href="mailto:info@alphablueprint.de">{{symbol:envelope-simple}}info@alphablueprint.de</a></li>
+        <li><a href="tel:+491746811322">{{symbol:phone}}+49 174 6811322</a></li>
+      </ul>
+    </div>
+    <div class="zeigen" style="--i:1">{{kontaktformular}}</div>
+  </div>
+</section>

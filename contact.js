@@ -31,7 +31,7 @@
     if (form.website && form.website.value.trim() !== "") {
       form.reset();
       btn.textContent = "Gesendet ✓";
-      set("✓ Angekommen! Antwort innerhalb von 24 Stunden werktags – von Elia Nedvidek persönlich.", "#1f9e57");
+      set("Angekommen. Sie bekommen werktags innerhalb von 24 Stunden eine Antwort, von Elia Nedvidek persönlich.", "#7ee2a8");
       return;
     }
 
@@ -42,11 +42,11 @@
       nachricht: form.nachricht.value.trim(),
     };
     if (!data.vorname || !data.nachname || !data.email || !data.nachricht) {
-      set("Bitte alle Felder ausfüllen.", "#ff6b5e", true);
+      set("Bitte alle Felder ausfüllen.", "#ff8a7e", true);
       return;
     }
     if (form.datenschutz && !form.datenschutz.checked) {
-      set("Bitte noch der Datenschutzerklärung zustimmen.", "#ff6b5e", true);
+      set("Bitte noch der Datenschutzerklärung zustimmen.", "#ff8a7e", true);
       return;
     }
     var original = btn.textContent;
@@ -67,13 +67,13 @@
       if (!res.ok) throw new Error("HTTP " + res.status);
       form.reset();
       btn.textContent = "Gesendet ✓";
-      set("✓ Angekommen! Antwort innerhalb von 24 Stunden werktags – von Elia Nedvidek persönlich.", "#1f9e57");
+      set("Angekommen. Sie bekommen werktags innerhalb von 24 Stunden eine Antwort, von Elia Nedvidek persönlich.", "#7ee2a8");
       // Google-Ads-Conversion melden (nur wenn Einwilligung erteilt und Tracking aktiv).
       if (window.abpTrackConversion) window.abpTrackConversion();
     } catch (err) {
       btn.disabled = false;
       btn.textContent = original;
-      set("Das Senden hat nicht geklappt. Bitte noch einmal versuchen – oder direkt an info@alphablueprint.de schreiben.", "#ff6b5e", true);
+      set("Das Senden hat nicht geklappt. Bitte noch einmal versuchen oder direkt an info@alphablueprint.de schreiben.", "#ff8a7e", true);
     }
   });
 })();

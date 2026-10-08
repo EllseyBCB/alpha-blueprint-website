@@ -26,7 +26,7 @@ jobs:
       - name: Statische Dateien sammeln (ohne .git/.github)
         run: |
           mkdir -p _site
-          rsync -a --exclude '.git' --exclude '.github' --exclude '_site' ./ _site/
+          rsync -a --exclude '.git' --exclude '.github' --exclude '_site' --exclude '_bau' --exclude '.agents' --exclude '.claude' --exclude 'skills-lock.json' ./ _site/
 
       - uses: actions/configure-pages@v4
 

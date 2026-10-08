@@ -1,0 +1,49 @@
+<!--{
+ "titel": "Kostenlose KI-Checkliste für KMU (PDF) | Alpha Blueprint",
+ "beschreibung": "Kostenlose KI-Checkliste für KMU: In 10 Schritten herausfinden, wo KI und Automatisierung in Ihrem Unternehmen Zeit und Geld sparen. Gratis als PDF.",
+ "pfad": "/checkliste.html",
+ "prioritaet": "0.6",
+ "kette": [
+  [
+   "KI-Checkliste",
+   "/checkliste.html"
+  ]
+ ],
+ "skripte": [
+  "/leadmagnet.js"
+ ]
+}-->
+<section class="seitenkopf" aria-labelledby="titel">
+  <div class="rahmen">
+    {{pfadkette}}
+    <p class="kennung">Kostenloser Download · PDF</p>
+    <h1 id="titel">KI-Checkliste für KMU.</h1>
+    <p class="unterzeile">In 10 einfachen Schritten finden Sie heraus, wo KI und Automatisierung in Ihrem Betrieb am meisten Zeit und Geld sparen. Ganz ohne Technikkenntnisse.</p>
+  </div>
+</section>
+<section class="abschnitt" aria-label="Checkliste anfordern">
+  <div class="rahmen kontakt">
+    <div class="zeigen">
+      <h2 style="font-size:clamp(1.5rem,2.6vw,2rem)">Was drinsteht</h2>
+      <div class="punkte" style="margin-top:24px">
+        <div class="punkt"><h3>Die größten Zeitfresser erkennen</h3><p>Welche Abläufe in Ihrem Betrieb am meisten Handarbeit kosten.</p></div>
+        <div class="punkt"><h3>Konkrete Ansatzpunkte</h3><p>Für E-Mails, Daten und Dokumente.</p></div>
+        <div class="punkt"><h3>Datenschutz</h3><p>Worauf Sie bei der DSGVO achten müssen.</p></div>
+        <div class="punkt"><h3>Klein starten, Erfolg messen</h3><p>Wie Sie den ersten Schritt wählen und sehen, ob er sich lohnt.</p></div>
+      </div>
+    </div>
+    <form class="formular zeigen" id="lead-form" novalidate style="--i:1">
+      <h2 style="font-size:1.4rem">Jetzt kostenlos herunterladen</h2>
+      <label>Vorname (optional)<input type="text" name="vorname" autocomplete="given-name" placeholder="Ihr Vorname"></label>
+      <label>E-Mail-Adresse<input type="email" name="email" autocomplete="email" inputmode="email" required placeholder="name@firma.de"></label>
+      <div class="falle" aria-hidden="true"><label>Bitte freilassen<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+      <label class="zustimmung"><input type="checkbox" name="datenschutz" required> <span>Ich möchte die Checkliste erhalten und habe die <a href="/datenschutz.html">Datenschutzerklärung</a> gelesen.</span></label>
+      <button class="knopf" type="submit">Checkliste herunterladen</button>
+      <p id="lead-status" role="status" aria-live="polite">Kein Newsletter. Sie erhalten ausschließlich die Checkliste.</p>
+      <div id="lead-success" style="display:none">
+        <p style="font-weight:700;color:var(--cyan-hell)">Vielen Dank. Ihr Download startet automatisch.</p>
+        <a class="knopf rand" id="lead-download" href="/downloads/ki-checkliste-kmu.pdf" download>Checkliste öffnen</a>
+      </div>
+    </form>
+  </div>
+</section>
