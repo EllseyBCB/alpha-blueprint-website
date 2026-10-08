@@ -261,10 +261,10 @@ main { display: block; }
 
 /* Angepinnte Bildstrecke */
 .strecke { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(32px, 6vw, 96px); }
-.strecke .bilder { position: sticky; top: calc(var(--kopf) + 24px); height: calc(100dvh - var(--kopf) - 56px); display: grid; place-items: center; }
+.strecke .bilder { position: sticky; top: calc(76px + 24px); height: calc(100dvh - 76px - 48px); display: grid; place-items: center; }
 .strecke .bilder figure { margin: 0; position: absolute; inset: 0; display: grid; place-items: center; opacity: 0; transform: translateY(18px) scale(.98); transition: opacity .6s ease, transform .7s var(--weich); }
 .strecke .bilder figure.an { opacity: 1; transform: none; }
-.strecke .bilder img { max-height: 100%; width: auto; max-width: 100%; border-radius: 30px; border: 6px solid #0b141c; box-shadow: 0 30px 90px -30px rgba(0, 0, 0, .9), 0 0 0 1px #23495c; }
+.strecke .bilder img { height: min(calc(100dvh - 76px - 88px), 900px); width: auto; max-width: 100%; object-fit: contain; border-radius: 30px; border: 6px solid #0b141c; box-shadow: 0 30px 90px -30px rgba(0, 0, 0, .9), 0 0 0 1px #23495c; }
 .strecke .schritte { padding-block: 10vh 30vh; }
 .strecke .schritt { min-height: 72vh; display: flex; flex-direction: column; justify-content: center; opacity: .3; transition: opacity .5s; }
 .strecke .schritt.an { opacity: 1; }
