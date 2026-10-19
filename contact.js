@@ -8,6 +8,8 @@
 
   var ENDPOINT = "https://gwoqublnvyefszckjyqh.supabase.co/rest/v1/kontakt_anfragen";
   var KEY = "sb_publishable_ErEYfc9_fLQ362TZ2ldzpg_BVgtndMw";
+  // Kopie jeder Anfrage an Alpha Automation (Website-Anschluss). Supabase bleibt die eigentliche Ablage.
+  var ALPHA = "https://api.alphablueprint.de/eingang/kusx2TdPHbP0GToF8k7X0dWH";
 
   /* Meldungen bewusst OHNE "du" und ohne "Sie": dieses Skript läuft auf der
      Startseite (gesiezt) und auf der Landingpage für Arbeitssuchende (geduzt).
@@ -65,6 +67,13 @@
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error("HTTP " + res.status);
+      // Erst nach erfolgreichem Speichern; klappt die Kopie nicht, merkt der Besucher nichts.
+      try {
+        fetch(ALPHA, { method: "POST", mode: "cors", keepalive: true, credentials: "omit",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ vorname: data.vorname, nachname: data.nachname, email: data.email, nachricht: data.nachricht, datenschutz: "ja" }) })
+          .catch(function () {});
+      } catch (_) {}
       form.reset();
       btn.textContent = "Gesendet ✓";
       set("Angekommen. Sie bekommen werktags innerhalb von 24 Stunden eine Antwort, von Elia Nedvidek persönlich.", "#7ee2a8");
