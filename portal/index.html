@@ -221,6 +221,24 @@ select{font:500 14.5px var(--schrift);color:var(--text);background:var(--karte);
 .zeitleiste .text{white-space:pre-wrap;word-wrap:break-word;font-size:14.5px}
 @media (max-width:900px){.kennzahlen{grid-template-columns:repeat(2,minmax(0,1fr))}.felder{grid-template-columns:1fr}.kontaktzeile{grid-template-columns:1fr 1fr}}
 
+/* ---------------- Vorschau */
+#vorschau{position:fixed;inset:0;z-index:80;background:rgba(16,24,40,.55);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);display:flex;padding:28px}
+#vorschau[hidden]{display:none}
+#vorschau .rahmen-v{flex:1;display:flex;flex-direction:column;background:var(--karte);border-radius:16px;overflow:hidden;box-shadow:var(--schatten2);max-width:1200px;margin:0 auto;width:100%}
+#vorschau .kopf-v{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid var(--linie)}
+#vorschau .kopf-v .name{font-weight:650;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#vorschau .inhalt-v{flex:1;min-height:0;overflow:auto;background:var(--grund);display:flex}
+#vorschau iframe{border:0;width:100%;height:100%;background:#fff}
+#vorschau img{max-width:100%;max-height:100%;margin:auto;object-fit:contain}
+#vorschau video{max-width:100%;max-height:100%;margin:auto}
+#vorschau audio{margin:auto;width:min(520px,90%)}
+#vorschau pre{margin:0;padding:18px 20px;font:13px/1.55 var(--mono);white-space:pre-wrap;word-wrap:break-word;width:100%;background:var(--karte)}
+#vorschau .ohne{margin:auto;text-align:center;padding:30px;color:var(--mittel);max-width:440px}
+#vorschau table{border-collapse:collapse;font-size:13px;background:var(--karte);margin:0;align-self:flex-start}
+#vorschau td,#vorschau th{border:1px solid var(--linie);padding:5px 8px;white-space:nowrap}
+#vorschau th{background:var(--karte2);position:sticky;top:0}
+@media (max-width:600px){#vorschau{padding:0}#vorschau .rahmen-v{border-radius:0}}
+
 </style>
 </head>
 <body>
@@ -371,6 +389,65 @@ function passwortVerdrahten(neuZeichnen) {
   try { var s = JSON.parse(sessionStorage.getItem(SITZUNG) || "null"); if (s) los(s.n, s.w, true); } catch (e) {}
 })();
 
+
+/* ===================================================================== Vorschau
+ * Jeder Link auf eine Datei im Speicher öffnet sich hier über der Seite statt als Download.
+ * PDF, Bilder, Text/CSV, Audio, Video lassen sich anzeigen. Word/Excel/PowerPoint kann
+ * ein Browser nicht selbst darstellen; ein Online-Betrachter (Microsoft, Google) würde
+ * die Kundendatei an Dritte geben, also gibt es dort nur Herunterladen.
+ * Cmd/Strg-Klick öffnet wie gewohnt einen neuen Tab.
+ */
+function dateinameAusLink(url) {
+  try { return decodeURIComponent(new URL(url).pathname.split("/").pop()).replace(/^\d{8}-\d{6}-/, ""); } catch (e) { return "Datei"; }
+}
+function vorschauArt(name) {
+  var e = (/\.([a-z0-9]{1,5})$/i.exec(name || "") || [0, ""])[1].toLowerCase();
+  if (e === "pdf") return "pdf";
+  if (["png", "jpg", "jpeg", "gif", "webp", "svg", "heic", "bmp"].indexOf(e) !== -1) return e === "heic" ? "ohne" : "bild";
+  if (["txt", "md", "json", "log", "xml", "rtf"].indexOf(e) !== -1) return "text";
+  if (e === "csv" || e === "tsv") return "csv";
+  if (["mp3", "m4a", "wav", "aac", "ogg"].indexOf(e) !== -1) return "audio";
+  if (["mp4", "mov", "webm"].indexOf(e) !== -1) return "video";
+  return "ohne";
+}
+function csvTabelle(t) {
+  var zeilen = t.replace(/^\ufeff/, "").split(/\r?\n/).filter(function (z) { return z.trim(); }).slice(0, 2000);
+  if (!zeilen.length) return "<pre>(leer)</pre>";
+  var trenn = [";", "\t", ","].map(function (k) { return [k, zeilen[0].split(k).length]; }).sort(function (a, b) { return b[1] - a[1]; })[0][0];
+  return "<table>" + zeilen.map(function (z, i) { var c = i ? "td" : "th"; return "<tr>" + z.split(trenn).map(function (x) { return "<" + c + ">" + esc(x.replace(/^"|"$/g, "")) + "</" + c + ">"; }).join("") + "</tr>"; }).join("") + "</table>";
+}
+function vorschauOeffnen(url, name) {
+  var v = document.getElementById("vorschau");
+  if (!v) { v = document.createElement("div"); v.id = "vorschau"; v.hidden = true; document.body.appendChild(v); }
+  name = name || dateinameAusLink(url);
+  var art = vorschauArt(name), laden = url + (url.indexOf("?") === -1 ? "?" : "&") + "download=" + encodeURIComponent(name);
+  var inhalt = art === "pdf" ? '<iframe src="' + esc(url) + '#view=FitH" title="' + esc(name) + '"></iframe>'
+    : art === "bild" ? '<img src="' + esc(url) + '" alt="' + esc(name) + '">'
+    : art === "audio" ? '<audio controls autoplay src="' + esc(url) + '"></audio>'
+    : art === "video" ? '<video controls src="' + esc(url) + '"></video>'
+    : art === "text" || art === "csv" ? '<pre>Lädt …</pre>'
+    : '<div class="ohne"><div style="font-size:34px;margin-bottom:8px">📄</div><b>' + esc(name) + '</b><p>Diese Dateiart kann der Browser nicht selbst anzeigen. Bitte herunterladen und mit Word, Excel oder dem passenden Programm öffnen.</p><a class="knopf haupt" href="' + esc(laden) + '">Herunterladen</a></div>';
+  v.innerHTML = '<div class="rahmen-v" role="dialog" aria-modal="true" aria-label="' + esc(name) + '"><div class="kopf-v"><span class="name">' + esc(name) + '</span>' +
+    '<a class="knopf klein" href="' + esc(laden) + '">Herunterladen</a><a class="knopf klein" href="' + esc(url) + '" target="_blank" rel="noopener">In neuem Tab</a>' +
+    '<button type="button" class="klein" data-vorschauzu>Schließen</button></div><div class="inhalt-v">' + inhalt + "</div></div>";
+  v.hidden = false; document.body.style.overflow = "hidden";
+  v.querySelector("[data-vorschauzu]").onclick = vorschauZu;
+  v.onclick = function (ev) { if (ev.target === v) vorschauZu(); };
+  if (art === "text" || art === "csv") {
+    fetch(url).then(function (r) { return r.text(); }).then(function (t) {
+      var ziel = v.querySelector(".inhalt-v"); if (!ziel) return;
+      ziel.innerHTML = art === "csv" ? csvTabelle(t) : "<pre>" + esc(t.slice(0, 500000)) + "</pre>";
+    }, function () { var p = v.querySelector("pre"); if (p) p.textContent = "Die Datei ließ sich nicht laden."; });
+  }
+}
+function vorschauZu() { var v = document.getElementById("vorschau"); if (v) { v.hidden = true; v.innerHTML = ""; } document.body.style.overflow = ""; }
+document.addEventListener("keydown", function (e) { if (e.key === "Escape") vorschauZu(); });
+document.addEventListener("click", function (e) {
+  var a = e.target.closest && e.target.closest('a[href*="/storage/v1/object/sign/"]');
+  if (!a || e.metaKey || e.ctrlKey || e.shiftKey || /[?&]download=/.test(a.href) || a.closest("#vorschau")) return;
+  e.preventDefault();
+  vorschauOeffnen(a.href, a.dataset.name || (a.textContent.trim() && !/^(Öffnen|Herunterladen)$/.test(a.textContent.trim()) ? a.textContent.trim() : dateinameAusLink(a.href)));
+});
 
 /* ===================================================================== Hilfen */
 function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
@@ -534,7 +611,7 @@ function dokZeile(d) {
     '<div class="klein leise">' + datum(d.angelegt) + " · " + groesse(d.groesse) + (d.rueckgabe ? (zurueck.length ? ' · <span class="pille gut">zurückgesendet</span>' : ' · <span class="pille warn">bitte unterschrieben zurücksenden</span>') : "") + "</div>" +
     (d.notiz ? '<div class="klein" style="margin-top:4px;color:var(--mittel)">' + esc(d.notiz) + "</div>" : "") +
     (d.rueckgabe && !S.admin ? dateiListe(zurueck, laufend) : "") + "</div>" +
-    '<div class="aktionen">' + (d.url ? '<a class="knopf klein" href="' + esc(d.url) + '" target="_blank" rel="noopener">Herunterladen</a>' : "") +
+    '<div class="aktionen">' + (d.url ? '<a class="knopf klein" href="' + esc(d.url) + '" target="_blank" rel="noopener" data-name="' + esc(d.dateiname || d.titel) + '">Öffnen</a>' : "") +
     (d.rueckgabe && !S.admin ? '<button type="button" class="klein haupt" data-waehlen="' + rpunkt + '">Unterschrieben hochladen</button><input type="file" multiple hidden data-eingabe="' + rpunkt + '">' : "") +
     (S.admin ? (S.bestaetigen === d.id ? '<button type="button" class="klein gefahr" data-zurueck="' + d.id + '">Wirklich zurückziehen?</button>' : '<button type="button" class="klein leise" data-zurueckfrage="' + d.id + '">Zurückziehen</button>') : "") +
     "</div></div>";
