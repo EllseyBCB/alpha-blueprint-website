@@ -1,0 +1,682 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f6f7f9">
+<title>CRM · Alpha Blueprint</title>
+<link rel="icon" href="/icon-192.png">
+<!--
+  ALPHA BLUEPRINT CRM
+  Erzeugt von ~/Projekte/kundenportal/bauen.mjs. Nicht von Hand ändern.
+  Nur Admin-Zugänge können sich anmelden. Was Kunden im Kundenportal
+  hochladen, schreiben und beantworten, erscheint hier beim jeweiligen Kunden
+  (Verbindung über die Portal-Kennung).
+-->
+<style>
+@font-face{font-family:"Manrope";font-style:normal;font-weight:200 800;font-display:swap;src:url(/assets/fonts/xn7gYHE41ni1AdIRggexSg.woff2) format("woff2")}
+@font-face{font-family:"Archivo";font-style:normal;font-weight:300 900;font-stretch:62% 125%;font-display:swap;src:url(/assets/fonts/neu/archivo-var.woff2) format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:400 500;font-display:swap;src:url(/assets/fonts/neu/jetbrains-mono.woff2) format("woff2")}
+:root{
+  --grund:#f6f7f9; --karte:#ffffff; --karte2:#fafbfc; --linie:#e6e8ec; --linie2:#d5d9df;
+  --text:#101828; --mittel:#344054; --leise:#667085; --hauch:#98a2b3;
+  --akzent:#0b7c93; --akzent-hell:#e7f4f7; --akzent-tief:#08606f;
+  --gut:#12805c; --gut-hell:#e8f5ef; --warn:#b54708; --warn-hell:#fef3e7; --schlecht:#c4320a; --schlecht-hell:#fdecea;
+  --schrift:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --anzeige:"Archivo","Manrope",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r:14px; --rk:10px;
+  --schatten:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.06);
+  --schatten2:0 12px 32px -12px rgba(16,24,40,.18);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--grund);color:var(--text);font:400 15.5px/1.6 var(--schrift);-webkit-font-smoothing:antialiased}
+a{color:var(--akzent)}
+h1,h2,h3{font-family:var(--anzeige);letter-spacing:-.01em;color:var(--text)}
+button,.knopf{font:600 14px var(--schrift);cursor:pointer;border-radius:999px;padding:9px 16px;border:1px solid var(--linie2);
+  background:var(--karte);color:var(--text);text-decoration:none;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+  transition:background .15s,border-color .15s,transform .1s}
+button:hover,.knopf:hover{border-color:var(--hauch);background:var(--karte2)}
+button:active,.knopf:active{transform:scale(.98)}
+button:disabled{opacity:.5;cursor:default;transform:none}
+button.haupt{background:var(--akzent);border-color:var(--akzent);color:#fff}
+button.haupt:hover{background:var(--akzent-tief)}
+button.leise{border-color:transparent;background:transparent;color:var(--leise)}
+button.leise:hover{background:var(--linie);color:var(--text)}
+button.gefahr{color:var(--schlecht)}
+button.klein,.knopf.klein{padding:6px 12px;font-size:13px}
+input[type=text],input[type=password],textarea{font:400 15px/1.5 var(--schrift);color:var(--text);background:var(--karte);border:1px solid var(--linie2);
+  border-radius:var(--rk);padding:10px 12px;width:100%;outline:none;transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus{border-color:var(--akzent);box-shadow:0 0 0 3px var(--akzent-hell)}
+textarea{resize:vertical;min-height:56px}
+label.check{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--mittel);cursor:pointer}
+.marke{display:inline-flex;align-items:center;gap:10px;font:700 15px var(--schrift);color:var(--text);text-decoration:none}
+.marke i{display:block;width:26px;height:23px;background:var(--text);-webkit-mask:url(/assets/neu/marke-a-hell.png) center/contain no-repeat;mask:url(/assets/neu/marke-a-hell.png) center/contain no-repeat}
+.etikett{font:500 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--leise)}
+.leise{color:var(--leise)} .klein{font-size:13px}
+.pille{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;background:var(--linie);color:var(--mittel)}
+.pille.gut{background:var(--gut-hell);color:var(--gut)} .pille.warn{background:var(--warn-hell);color:var(--warn)} .pille.akzent{background:var(--akzent-hell);color:var(--akzent)}
+.zahlpunkt{min-width:20px;height:20px;border-radius:10px;background:var(--akzent);color:#fff;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
+.balken{height:6px;border-radius:3px;background:var(--linie);overflow:hidden}
+.balken i{display:block;height:100%;background:var(--akzent);border-radius:3px;transition:width .4s}
+
+/* ---------------- Anmeldung */
+#tor{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;
+  background:radial-gradient(1200px 500px at 50% -10%,#e7f4f7 0,transparent 60%),var(--grund)}
+#tor[hidden],#app[hidden]{display:none}
+.tor{width:100%;max-width:400px;background:var(--karte);border:1px solid var(--linie);border-radius:20px;padding:32px 28px 24px;box-shadow:var(--schatten2)}
+.tor h1{font-size:28px;line-height:1.15;margin:22px 0 6px}
+.tor p.unter{color:var(--leise);margin:0 0 22px;font-size:14.5px}
+.tor label{display:block;font-size:13px;font-weight:600;color:var(--mittel);margin:0 0 6px}
+.tor input{margin-bottom:14px}
+.tor button{width:100%;justify-content:center;padding:12px;margin-top:4px}
+.tor .sagt{min-height:1.4em;margin:12px 0 0;font-size:14px;color:var(--leise)}
+.tor .sagt.schlecht{color:var(--schlecht)}
+.tor .fuss{margin:20px 0 0;padding-top:16px;border-top:1px solid var(--linie);font-size:13px;color:var(--leise)}
+
+/* ---------------- Gerüst */
+.kopf{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.88);-webkit-backdrop-filter:saturate(1.6) blur(14px);backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid var(--linie)}
+.kopf .innen{max-width:1180px;margin:0 auto;padding:0 20px;height:62px;display:flex;align-items:center;gap:18px}
+.kopf .firma{font-size:13.5px;color:var(--leise);padding-left:16px;border-left:1px solid var(--linie);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kopf .rechts{margin-left:auto;display:flex;align-items:center;gap:10px}
+.kopf .wer{font-size:13px;color:var(--leise)}
+.reiter{max-width:1180px;margin:0 auto;padding:0 20px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.reiter::-webkit-scrollbar{display:none}
+.reiter button{border:0;border-radius:0;background:none;padding:12px 12px 11px;color:var(--leise);font-weight:600;border-bottom:2px solid transparent}
+.reiter button:hover{color:var(--text);background:none}
+.reiter button[aria-current=true]{color:var(--text);border-bottom-color:var(--akzent)}
+.rahmen{max-width:1180px;margin:0 auto;padding:30px 20px 80px}
+.seitenkopf{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.seitenkopf h1{font-size:clamp(26px,3.4vw,34px);line-height:1.15;margin:6px 0 0}
+.seitenkopf p{margin:6px 0 0;color:var(--leise);max-width:680px}
+.karte{background:var(--karte);border:1px solid var(--linie);border-radius:var(--r);box-shadow:var(--schatten)}
+.karte.pad{padding:20px 22px}
+.raster{display:grid;gap:16px}
+.raster.drei{grid-template-columns:repeat(3,minmax(0,1fr))}
+.raster.zwei{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+.karte h2{font-size:17px;margin:0 0 4px}
+.karte .kartenkopf{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.leer{color:var(--leise);font-size:14px;padding:18px;text-align:center}
+.hinweis{display:flex;gap:10px;align-items:flex-start;background:var(--akzent-hell);border-radius:var(--rk);padding:12px 14px;font-size:14px;color:var(--mittel)}
+.hinweis b{color:var(--text)}
+
+/* Übersicht */
+.held{display:flex;gap:26px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.held .zahl{font:700 40px/1 var(--anzeige);color:var(--text)}
+.held .balken{width:min(360px,100%);height:8px;margin-top:10px}
+.nachrichtvorschau{border-left:3px solid var(--linie);padding:4px 0 4px 12px;margin:8px 0;font-size:14px;color:var(--mittel)}
+.nachrichtvorschau.admin{border-left-color:var(--akzent)}
+.doczeile{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--linie)}
+.doczeile:first-child{border-top:0}
+.docsymbol{flex:none;width:38px;height:44px;border-radius:7px;background:var(--akzent-hell);color:var(--akzent);display:flex;align-items:center;justify-content:center;font:600 10px var(--mono);letter-spacing:.04em}
+.doczeile .titel{font-weight:650}
+.doczeile .mehr{flex:1;min-width:0}
+.doczeile .aktionen{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+
+/* Unterlagen */
+.unterlagen{display:grid;grid-template-columns:250px minmax(0,1fr);gap:28px;align-items:start}
+.inhalt{position:sticky;top:130px}
+.inhalt a{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:8px;text-decoration:none;color:var(--mittel);font-size:14px}
+.inhalt a:hover{background:var(--karte)}
+.inhalt a .z{font:500 12px var(--mono);color:var(--hauch)}
+.inhalt a.fertig .z{color:var(--gut)}
+.abschnitt{margin-bottom:34px;scroll-margin-top:130px}
+.abschnitt>.kopfzeile{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.abschnitt>.kopfzeile h2{font-size:20px;margin:0}
+.punkt{padding:18px 20px;margin-bottom:10px}
+.punkt .zeile1{display:flex;gap:12px;align-items:flex-start}
+.status{flex:none;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--linie2);margin-top:2px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px}
+.punkt.fertig .status{background:var(--gut);border-color:var(--gut)}
+.punkt h3{font:650 16px/1.4 var(--schrift);margin:0}
+.punkt .warum{color:var(--leise);font-size:14px;margin:4px 0 0}
+.punkt .koerper{margin-left:34px}
+.punkt ul.details{margin:8px 0 0;padding-left:18px;font-size:14px;color:var(--mittel)}
+.punkt .feld{margin-top:12px;position:relative}
+.punkt .gespeichert{position:absolute;right:10px;bottom:9px;font-size:12px;color:var(--hauch);pointer-events:none}
+.werkzeuge{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.dateien{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.dateien li{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px;background:var(--karte2);border:1px solid var(--linie);border-radius:8px;padding:7px 10px}
+.dateien .n{font-weight:600;word-break:break-all;flex:1;min-width:120px}
+.dateien .g{color:var(--hauch);font:400 12px var(--mono)}
+.dateien .s{font-size:12.5px}
+.s.ok{color:var(--gut)} .s.laeuft{color:var(--akzent)} .s.fehler{color:var(--schlecht)}
+.dbalken{flex-basis:100%;height:3px;border-radius:2px;background:var(--linie);overflow:hidden}
+.dbalken i{display:block;height:100%;background:var(--akzent)}
+
+/* Nachrichten */
+.verlauf{display:flex;flex-direction:column;gap:10px;max-height:min(62vh,640px);overflow-y:auto;padding:18px}
+.blase{max-width:78%;padding:10px 14px;border-radius:16px;font-size:14.5px;white-space:pre-wrap;word-wrap:break-word}
+.blase .von{display:block;font-size:11.5px;color:var(--hauch);margin-bottom:2px}
+.blase.ich{align-self:flex-end;background:var(--akzent);color:#fff;border-bottom-right-radius:5px}
+.blase.ich .von{color:rgba(255,255,255,.75)}
+.blase.du{align-self:flex-start;background:var(--grund);border:1px solid var(--linie);border-bottom-left-radius:5px}
+.schreiben{display:flex;gap:10px;align-items:flex-end;border-top:1px solid var(--linie);padding:14px 18px}
+.schreiben textarea{min-height:46px;max-height:200px}
+
+/* Tabellen */
+.tabelle{width:100%;border-collapse:collapse;font-size:14px}
+.tabelle th{text-align:left;font-size:12px;font-weight:600;color:var(--leise);padding:10px 12px;border-bottom:1px solid var(--linie);background:var(--karte2)}
+.tabelle td{padding:10px 12px;border-bottom:1px solid var(--linie);vertical-align:top;word-break:break-word}
+.tabelle tr:last-child td{border-bottom:0}
+
+/* Admin */
+.verwaltung{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;align-items:start}
+.kundenliste{padding:8px}
+.kundenliste button{width:100%;justify-content:space-between;border:0;border-radius:9px;background:none;padding:10px 12px;text-align:left;white-space:normal}
+.kundenliste button[aria-current=true]{background:var(--akzent-hell);color:var(--akzent-tief)}
+.kundenliste .unter{display:block;font-size:12px;font-weight:500;color:var(--leise)}
+.formular{display:grid;gap:10px}
+.formular .reihe{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.dateiwahl{display:flex;align-items:center;gap:10px;border:1.5px dashed var(--linie2);border-radius:var(--rk);padding:14px;background:var(--karte2);font-size:14px;color:var(--leise)}
+
+#meldung{position:fixed;right:18px;bottom:18px;display:grid;gap:8px;z-index:50;max-width:380px}
+#meldung div{background:var(--text);color:#fff;border-radius:12px;padding:11px 15px;font-size:14px;box-shadow:var(--schatten2)}
+#meldung div.fehler{background:var(--schlecht)}
+
+@media (max-width:900px){
+  .raster.drei,.raster.zwei{grid-template-columns:1fr}
+  .unterlagen,.verwaltung{grid-template-columns:1fr}
+  .inhalt{position:static;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .inhalt a{white-space:nowrap;background:var(--karte);border:1px solid var(--linie)}
+  .kopf .firma{display:none}
+}
+@media (max-width:600px){
+  .punkt{padding:16px}
+  .punkt .koerper{margin-left:0}
+  .blase{max-width:90%}
+  .kopf .wer{display:none}
+  .rahmen{padding:22px 16px 70px}
+  .kopf .innen,.reiter{padding:0 16px}
+}
+
+/* ---------------- CRM */
+.kennzahlen{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.kennzahl{padding:16px 18px}
+.kennzahl .z{font:700 26px/1.1 var(--anzeige);margin-top:6px}
+.kennzahl .u{font-size:13px;color:var(--leise)}
+.werkzeugleiste{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.werkzeugleiste input[type=text]{max-width:300px}
+.chip{border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;border:1px solid var(--linie2);background:var(--karte);color:var(--mittel);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--text);border-color:var(--text);color:#fff}
+.tabelle tr.klick{cursor:pointer}
+.tabelle tr.klick:hover td{background:var(--karte2)}
+.st-lead{background:#eef2f6;color:#475467} .st-angebot{background:var(--warn-hell);color:var(--warn)}
+.st-kunde{background:var(--gut-hell);color:var(--gut)} .st-pausiert{background:#f2f0fb;color:#5b45b0} .st-verloren{background:var(--schlecht-hell);color:var(--schlecht)}
+.felder{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
+.felder label{display:block;font-size:12.5px;font-weight:600;color:var(--mittel);margin-bottom:5px}
+.felder .breit{grid-column:1/-1}
+select{font:500 14.5px var(--schrift);color:var(--text);background:var(--karte);border:1px solid var(--linie2);border-radius:var(--rk);padding:9px 10px;outline:none}
+.kontaktzeile{display:grid;grid-template-columns:1.2fr 1fr 1.3fr 1fr auto;gap:8px;margin-bottom:8px}
+.ereignis{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--linie)}
+.ereignis:first-child{border-top:0}
+.ereignis .icon{flex:none;width:32px;height:32px;border-radius:9px;background:var(--akzent-hell);color:var(--akzent);display:flex;align-items:center;justify-content:center;font-size:14px}
+.ereignis .icon.nachricht{background:#eef2f6;color:#344054} .ereignis .icon.antwort{background:var(--gut-hell);color:var(--gut)}
+.ereignis .was{flex:1;min-width:0;font-size:14px}
+.ereignis .was .text{color:var(--mittel);white-space:pre-wrap;word-wrap:break-word}
+.zeitleiste .eintrag{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--linie)}
+.zeitleiste .eintrag:first-child{border-top:0}
+.zeitleiste .text{white-space:pre-wrap;word-wrap:break-word;font-size:14.5px}
+@media (max-width:900px){.kennzahlen{grid-template-columns:repeat(2,minmax(0,1fr))}.felder{grid-template-columns:1fr}.kontaktzeile{grid-template-columns:1fr 1fr}}
+
+</style>
+</head>
+<body>
+
+<div id="tor">
+  <form class="tor" id="torForm" autocomplete="on">
+    <span class="marke"><i></i>Alpha Blueprint</span>
+    <h1>CRM</h1>
+    <p class="unter">Nur für Alpha Blueprint.</p>
+    <label for="wer">Zugangsname</label>
+    <input type="text" id="wer" name="username" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username" required>
+    <label for="wort">Passwort</label>
+    <input type="password" id="wort" name="password" autocomplete="current-password" required>
+    <button type="submit" class="haupt" id="oeffnen">Anmelden</button>
+    <p class="sagt" id="sagt" role="status" aria-live="polite"></p>
+  </form>
+</div>
+<div id="app" hidden></div>
+<div id="meldung" aria-live="polite"></div>
+
+<script>
+"use strict";
+var SEITE = "crm";
+var SITZUNG = "alpha-crm-sitzung";
+
+/* ===================================================================== Schloss
+ * Gemeinsam für Kundenportal und CRM (eingesetzt von bauen.mjs).
+ *
+ * Der verschlüsselte Block jedes Zugangs liegt beim Server. Die Seite holt ihn
+ * über die Kennung (Hash des Zugangsnamens) und öffnet ihn NUR hier im Browser
+ * mit dem Passwort (PBKDF2 → AES-256-GCM). Darin steht der Portalschlüssel, mit
+ * dem alle weiteren Anfragen laufen. Das Passwort verlässt den Browser nie.
+ * Passwort ändern = Block mit dem neuen Passwort neu verschlüsseln und tauschen.
+ */
+var API_URL = "https://vernkyijbvbfeqcuhxzp.supabase.co/functions/v1/kundenportal";
+var RUNDEN = 310000;
+function b64(s) { var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+function zuB64(buf) { var u = new Uint8Array(buf), s = ""; for (var i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); }
+function hex(buf) { return Array.prototype.map.call(new Uint8Array(buf), function (x) { return ("0" + x.toString(16)).slice(-2); }).join(""); }
+function kennungVon(name) {
+  return crypto.subtle.digest("SHA-256", new TextEncoder().encode("alpha-portal:" + String(name).trim().toLowerCase())).then(function (h) { return hex(h).slice(0, 24); });
+}
+function schluesselAus(wort, salz) {
+  return crypto.subtle.importKey("raw", new TextEncoder().encode(wort), "PBKDF2", false, ["deriveKey"])
+    .then(function (roh) { return crypto.subtle.deriveKey({ name: "PBKDF2", salt: salz, iterations: RUNDEN, hash: "SHA-256" }, roh, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]); });
+}
+function blockOeffnen(z, wort) {
+  return schluesselAus(wort, b64(z.s))
+    .then(function (k) { return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(z.iv) }, k, b64(z.b)); })
+    .then(function (klar) { return JSON.parse(new TextDecoder().decode(klar)); }, function () { throw new Error("Zugangsname oder Passwort stimmt nicht."); });
+}
+function blockSchliessen(obj, wort) {
+  var salz = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+  return schluesselAus(wort, salz)
+    .then(function (k) { return crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, k, new TextEncoder().encode(JSON.stringify(obj))); })
+    .then(function (c) { return { s: zuB64(salz), iv: zuB64(iv), b: zuB64(c) }; });
+}
+function ruf(daten, schluessel) {
+  var k = { "content-type": "application/json" }; if (schluessel) k["x-portal-schluessel"] = schluessel;
+  return fetch(API_URL, { method: "POST", headers: k, body: JSON.stringify(daten) })
+    .then(function (r) { return r.json().then(function (j) { if (!r.ok || j.fehler) throw new Error(j.fehler || ("Fehler " + r.status)); return j; }); },
+      function () { throw new Error("Keine Verbindung. Bitte später noch einmal versuchen."); });
+}
+function blockHolen(name) { return kennungVon(name).then(function (k) { return ruf({ aktion: "block", kennung: k }); }).then(function (j) { return j.block; }); }
+
+/* Anmelden: Block holen, öffnen, Inhalte holen, Seite starten. */
+function oeffnen(name, wort) {
+  var roh;
+  return blockHolen(name).then(function (b) { return blockOeffnen(b, wort); }).then(function (r) {
+    roh = r;
+    if (SEITE === "crm" && roh.rolle !== "admin") throw new Error("Zugangsname oder Passwort stimmt nicht.");
+    return ruf({ aktion: "inhalt" }, roh.schluessel);
+  }).then(function (inhalt) {
+    var P = { benutzer: roh.name, rolle: roh.rolle, api: { url: API_URL, schluessel: roh.schluessel } };
+    if (SEITE === "crm") { P.art = "crm"; P.portalKunden = inhalt.kunden || []; }
+    else if (roh.rolle === "admin") { P.art = "admin"; P.kunden = inhalt.kunden || []; }
+    else {
+      if (!inhalt.kunde) throw new Error("Für diesen Zugang ist noch nichts eingerichtet. Bitte rufen Sie uns an.");
+      P.art = "kunde"; P.kunde = inhalt.kunde; P.vorlagen = inhalt.kunde.vorlagenLinks || {};
+    }
+    return P;
+  });
+}
+
+/* Passwort ändern: altes prüfen (Block damit öffnen), neu verschlüsseln, Block tauschen. */
+function passwortAendern(alt, neu) {
+  var s = null;
+  try { s = JSON.parse(sessionStorage.getItem(SITZUNG) || "null"); } catch (e) {}
+  var name = s && s.n;
+  if (!name) return Promise.reject(new Error("Bitte einmal ab- und wieder anmelden."));
+  if (String(neu).length < 10) return Promise.reject(new Error("Das neue Passwort braucht mindestens 10 Zeichen."));
+  if (neu === alt) return Promise.reject(new Error("Das neue Passwort ist dasselbe wie das alte."));
+  return blockHolen(name).then(function (b) { return blockOeffnen(b, alt).catch(function () { throw new Error("Das aktuelle Passwort stimmt nicht."); }); })
+    .then(function (roh) { return blockSchliessen(roh, neu).then(function (nb) { return ruf({ aktion: "passwort_setzen", block: nb }, roh.schluessel); }); })
+    .then(function () { try { sessionStorage.setItem(SITZUNG, JSON.stringify({ n: name, w: neu })); } catch (e) {} });
+}
+
+/* Die Karte „Passwort ändern“, gleich in Portal und CRM. Zustand liegt in PW, nicht im DOM. */
+var PW = { alt: "", neu: "", neu2: "", laeuft: false };
+function passwortKarte(name, du) {
+  var stark = PW.neu.length >= 10, gleich = PW.neu && PW.neu === PW.neu2;
+  return '<div class="karte pad" style="max-width:560px"><h2>Passwort ändern</h2>' +
+    '<p class="klein leise" style="margin:2px 0 16px">Angemeldet als <b>' + esc(name) + '</b>. ' + (du ? "Das Passwort verlässt deinen Browser nie" : "Das Passwort verlässt Ihren Browser nie") + ', gespeichert wird nur eine damit verschlüsselte Fassung.</p>' +
+    '<form class="formular" autocomplete="on" onsubmit="return false">' +
+    '<input type="text" name="username" autocomplete="username" value="' + esc(name) + '" hidden>' +
+    '<label class="klein" style="font-weight:600">Aktuelles Passwort</label><input type="password" autocomplete="current-password" data-schluessel="pw-alt" data-pw="alt" value="' + esc(PW.alt) + '">' +
+    '<label class="klein" style="font-weight:600">Neues Passwort</label><input type="password" autocomplete="new-password" data-schluessel="pw-neu" data-pw="neu" value="' + esc(PW.neu) + '">' +
+    '<div class="klein ' + (PW.neu ? (stark ? "" : "leise") : "leise") + '" style="margin-top:-4px;color:' + (PW.neu && !stark ? "var(--warn)" : "") + '">' + (PW.neu ? (stark ? "✓ lang genug" : "noch " + (10 - PW.neu.length) + " Zeichen") : "mindestens 10 Zeichen") + "</div>" +
+    '<label class="klein" style="font-weight:600">Neues Passwort wiederholen</label><input type="password" autocomplete="new-password" data-schluessel="pw-neu2" data-pw="neu2" value="' + esc(PW.neu2) + '">' +
+    (PW.neu2 && !gleich ? '<div class="klein" style="margin-top:-4px;color:var(--warn)">Die beiden Eingaben stimmen nicht überein.</div>' : "") +
+    '<div class="reihe" style="margin-top:6px"><button type="button" class="haupt" data-pwspeichern' + (PW.alt && stark && gleich && !PW.laeuft ? "" : " disabled") + ">" + (PW.laeuft ? "Wird geändert …" : "Passwort ändern") + "</button></div></form></div>";
+}
+function passwortVerdrahten(neuZeichnen) {
+  document.querySelectorAll("[data-pw]").forEach(function (t) {
+    t.oninput = function () {
+      PW[t.dataset.pw] = t.value;
+      /* Nur den Knopf und die Hinweise neu, ohne den Fokus zu verlieren. */
+      neuZeichnen();
+    };
+  });
+  var b = document.querySelector("[data-pwspeichern]");
+  if (b) b.onclick = function () {
+    PW.laeuft = true; neuZeichnen();
+    passwortAendern(PW.alt, PW.neu).then(function () {
+      PW = { alt: "", neu: "", neu2: "", laeuft: false }; neuZeichnen(); melden("Passwort geändert. Ab sofort gilt das neue.");
+    }, function (f) { PW.laeuft = false; neuZeichnen(); melden(f.message, true); });
+  };
+}
+
+(function anmeldung() {
+  var form = document.getElementById("torForm"), sagt = document.getElementById("sagt"), knopf = document.getElementById("oeffnen");
+  function los(name, wort, still) {
+    knopf.disabled = true; sagt.className = "sagt"; sagt.textContent = "Wird geöffnet …";
+    oeffnen(name, wort).then(function (P) {
+      try { sessionStorage.setItem(SITZUNG, JSON.stringify({ n: name, w: wort })); } catch (e) {}
+      document.getElementById("tor").hidden = true;
+      document.getElementById("app").hidden = false;
+      starten(P);
+    }, function (f) {
+      knopf.disabled = false;
+      if (still) { sagt.textContent = ""; try { sessionStorage.removeItem(SITZUNG); } catch (e) {} return; }
+      sagt.className = "sagt schlecht"; sagt.textContent = f.message;
+    });
+  }
+  form.addEventListener("submit", function (ev) { ev.preventDefault(); los(document.getElementById("wer").value, document.getElementById("wort").value); });
+  try { var s = JSON.parse(sessionStorage.getItem(SITZUNG) || "null"); if (s) los(s.n, s.w, true); } catch (e) {}
+})();
+
+
+
+/* ===================================================================== Hilfen */
+function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function groesse(n) { n = n || 0; if (n < 1024) return n + " B"; if (n < 1048576) return Math.round(n / 1024) + " kB"; return (n / 1048576).toFixed(1).replace(".", ",") + " MB"; }
+function datum(t, mitZeit) { if (!t) return ""; var d = new Date(t); return d.toLocaleDateString("de-DE", { day: "numeric", month: "short", year: "numeric" }) + (mitZeit ? ", " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : ""); }
+function euro(n) { return (Number(n) || 0).toLocaleString("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }); }
+function melden(text, fehler) {
+  var m = document.createElement("div"); if (fehler) m.className = "fehler"; m.textContent = text;
+  document.getElementById("meldung").appendChild(m); setTimeout(function () { m.remove(); }, fehler ? 8000 : 3500);
+}
+var STATUS = { lead: "Lead", angebot: "Angebot", kunde: "Kunde", pausiert: "Pausiert", verloren: "Verloren" };
+var ARTEN = { notiz: "Notiz", anruf: "Anruf", mail: "E-Mail", termin: "Termin", angebot: "Angebot", vertrag: "Vertrag" };
+var ARTZEICHEN = { notiz: "✎", anruf: "☎", mail: "✉", termin: "◷", angebot: "€", vertrag: "§" };
+function statusPille(s) { return '<span class="pille st-' + esc(s) + '">' + esc(STATUS[s] || s) + "</span>"; }
+var DATEI_MAX = 50 * 1024 * 1024;
+
+/* ===================================================================== Zustand */
+var S = {
+  P: null, sicht: "start", liste: null, ereignisse: null,
+  suche: "", filter: "alle",
+  id: null, akte: null, portal: null, reiter: "stammdaten",
+  form: null, geaendert: false,
+  notiz: { art: "notiz", text: "" },
+  hoch: [], bestaetigen: null,
+};
+function api(aktion, daten) {
+  return fetch(S.P.api.url, {
+    method: "POST", headers: { "content-type": "application/json", "x-portal-schluessel": S.P.api.schluessel },
+    body: JSON.stringify(Object.assign({ aktion: aktion }, daten || {})),
+  }).then(function (r) { return r.json().then(function (j) { if (!r.ok || j.fehler) throw new Error(j.fehler || ("Fehler " + r.status)); return j; }); });
+}
+function hochladen(link, datei) {
+  return fetch(link, { method: "PUT", headers: { "content-type": String(datei.type || "application/octet-stream").split(";")[0] || "application/octet-stream", "x-upsert": "false" }, body: datei })
+    .then(function (r) { if (!r.ok) return r.text().then(function (t) { throw new Error(/mime/i.test(t) ? "Dateityp nicht zugelassen" : /size/i.test(t) ? "zu groß" : "Fehler " + r.status); }); });
+}
+function listeLaden() { return api("crm_liste").then(function (j) { S.liste = j.kunden; zeichnen(); }, function (f) { melden(f.message, true); }); }
+function aktivitaetLaden() { return api("crm_aktivitaet").then(function (j) { S.ereignisse = j.ereignisse; zeichnen(); }, function () {}); }
+function akteLaden(id) {
+  return api("crm_kunde", { id: id }).then(function (j) {
+    S.akte = j; if (!S.geaendert) S.form = JSON.parse(JSON.stringify(j.kunde));
+    zeichnen();
+    if (j.kunde.kennung) return api("stand", { kunde: j.kunde.kennung, gelesen: S.reiter === "portal" }).then(function (p) { S.portal = p; zeichnen(); }, function () { S.portal = null; zeichnen(); });
+  }, function (f) { melden(f.message, true); });
+}
+function kundeZuKennung(k) { return (S.liste || []).filter(function (x) { return x.kennung === k; })[0]; }
+function portalPunkte(kennung) {
+  var k = (S.P.portalKunden || []).filter(function (x) { return x.kennung === kennung; })[0];
+  var m = {}; if (k) k.abschnitte.forEach(function (a) { a.punkte.forEach(function (p) { m[p.id] = { frage: p.frage, abschnitt: a.titel }; }); });
+  return { kunde: k, punkte: m };
+}
+
+/* ===================================================================== Zeichnen */
+function zeichnen() {
+  var f = document.activeElement, schl = f && f.dataset ? f.dataset.schluessel : null, pos = schl && f.setSelectionRange ? [f.selectionStart, f.selectionEnd] : null;
+  document.getElementById("app").innerHTML = kopf() + '<main class="rahmen">' + (S.sicht === "kunden" ? kundenListe() : S.sicht === "akte" ? akte() : S.sicht === "einstellungen" ? einstellungen() : start()) + "</main>";
+  verdrahten();
+  if (schl) { var n = document.querySelector('[data-schluessel="' + schl + '"]'); if (n) { n.focus(); try { if (pos) n.setSelectionRange(pos[0], pos[1]); } catch (x) {} } }
+}
+function kopf() {
+  var neu = (S.liste || []).reduce(function (s, k) { return s + (k.portal ? k.portal.ungelesen : 0); }, 0);
+  return '<header class="kopf"><div class="innen"><span class="marke"><i></i>Alpha Blueprint</span><span class="firma">CRM</span>' +
+    '<span class="rechts"><a class="knopf klein" href="/portal/" target="_blank" rel="noopener">Kundenportal ↗</a><span class="wer">' + esc(S.P.benutzer) + '</span><button type="button" class="klein" data-tun="abmelden">Abmelden</button></span></div>' +
+    '<nav class="reiter"><button type="button" data-sicht="start" aria-current="' + (S.sicht === "start") + '">Start' + (neu ? ' <span class="zahlpunkt">' + neu + "</span>" : "") + "</button>" +
+    '<button type="button" data-sicht="kunden" aria-current="' + (S.sicht === "kunden" || S.sicht === "akte") + '">Kunden</button>' +
+    '<button type="button" data-sicht="einstellungen" aria-current="' + (S.sicht === "einstellungen") + '">Einstellungen</button></nav></header>';
+}
+
+/* ---------------------------------------------------------------- Start */
+function start() {
+  if (!S.liste) return '<div class="leer">Lädt …</div>';
+  var L = S.liste, zaehl = function (s) { return L.filter(function (k) { return k.status === s; }); };
+  var summe = function (a, f) { return a.reduce(function (s, k) { return s + (Number(k[f]) || 0); }, 0); };
+  var offen = zaehl("lead").concat(zaehl("angebot"));
+  var schritte = L.filter(function (k) { return k.naechster_schritt || k.naechster_termin; })
+    .filter(function (k) { return k.status !== "verloren"; })
+    .sort(function (a, b) { return (a.naechster_termin || "9999") < (b.naechster_termin || "9999") ? -1 : 1; }).slice(0, 8);
+  var heute = new Date().toISOString().slice(0, 10);
+  return '<div class="seitenkopf"><div><span class="etikett">CRM</span><h1>Guten Tag, Elia</h1><p>Deine Kunden, deine Pipeline und was aus dem Kundenportal hereinkommt.</p></div>' +
+    '<button type="button" class="haupt" data-tun="neu">+ Neuer Kunde</button></div>' +
+    '<div class="kennzahlen">' +
+    '<div class="karte kennzahl"><span class="etikett">Kunden</span><div class="z">' + zaehl("kunde").length + '</div><div class="u">' + euro(summe(zaehl("kunde"), "monatlich")) + " im Monat</div></div>" +
+    '<div class="karte kennzahl"><span class="etikett">Offene Angebote</span><div class="z">' + zaehl("angebot").length + '</div><div class="u">' + euro(summe(zaehl("angebot"), "wert")) + " Volumen</div></div>" +
+    '<div class="karte kennzahl"><span class="etikett">Leads</span><div class="z">' + zaehl("lead").length + '</div><div class="u">' + offen.length + " in der Pipeline</div></div>" +
+    '<div class="karte kennzahl"><span class="etikett">Pausiert</span><div class="z">' + zaehl("pausiert").length + '</div><div class="u">' + zaehl("verloren").length + " verloren</div></div></div>" +
+    '<div class="raster zwei"><div class="karte pad"><div class="kartenkopf"><h2>Neu aus dem Kundenportal</h2><button type="button" class="klein leise" data-tun="aktualisieren">Aktualisieren</button></div>' +
+    (S.ereignisse === null ? '<div class="leer">Lädt …</div>' : S.ereignisse.length ? S.ereignisse.slice(0, 15).map(ereignis).join("") : '<div class="leer">Noch nichts hereingekommen.</div>') + "</div>" +
+    '<div class="karte pad"><h2>Nächste Schritte</h2>' + (schritte.length ? schritte.map(function (k) {
+      var spaet = k.naechster_termin && k.naechster_termin < heute;
+      return '<div class="doczeile" style="cursor:pointer" data-akte="' + k.id + '"><div class="mehr"><div class="titel">' + esc(k.firma) + '</div><div class="klein" style="color:var(--mittel)">' + esc(k.naechster_schritt || "–") + "</div></div>" +
+        (k.naechster_termin ? '<span class="pille ' + (spaet ? "warn" : "") + '">' + datum(k.naechster_termin) + "</span>" : "") + "</div>";
+    }).join("") : '<div class="leer">Keine offenen Schritte.</div>') + "</div></div>";
+}
+function ereignis(e) {
+  var k = kundeZuKennung(e.kunde), name = k ? k.firma : e.kunde;
+  var pp = portalPunkte(e.kunde).punkte;
+  var was = e.art === "datei" ? '<b>' + esc(e.zugang) + "</b> hat eine Datei hochgeladen: " + (e.url ? '<a href="' + esc(e.url) + '" target="_blank" rel="noopener">' + esc(e.datei) + "</a>" : esc(e.datei)) + (e.punkt ? ' <span class="leise">· ' + esc((pp[e.punkt] || {}).frage || e.punkt) + "</span>" : "")
+    : e.art === "nachricht" ? "<b>" + esc(e.zugang) + "</b> schreibt" + (e.neu ? ' <span class="pille akzent">neu</span>' : "") + ':<div class="text">' + esc(e.text.length > 220 ? e.text.slice(0, 220) + " …" : e.text) + "</div>"
+    : "<b>" + esc(e.zugang) + "</b> hat geantwortet: " + esc((pp[e.punkt] || {}).frage || e.punkt) + '<div class="text">' + esc(e.text.length > 160 ? e.text.slice(0, 160) + " …" : e.text) + "</div>";
+  return '<div class="ereignis"><span class="icon ' + e.art + '">' + (e.art === "datei" ? "↑" : e.art === "nachricht" ? "✉" : "✓") + '</span><div class="was"><div class="klein leise">' +
+    (k ? '<a href="#" data-akte="' + k.id + '" data-zu="portal">' + esc(name) + "</a>" : esc(name)) + " · " + datum(e.wann, true) + "</div>" + was + "</div></div>";
+}
+
+function einstellungen() {
+  return '<div class="seitenkopf"><div><span class="etikett">Einstellungen</span><h1>Dein Zugang</h1><p>Gilt für CRM und Kundenportal, es ist derselbe Zugang.</p></div></div>' + passwortKarte(S.P.benutzer, true);
+}
+
+/* ---------------------------------------------------------------- Liste */
+function kundenListe() {
+  if (!S.liste) return '<div class="leer">Lädt …</div>';
+  var q = S.suche.trim().toLowerCase();
+  var l = S.liste.filter(function (k) { return (S.filter === "alle" || k.status === S.filter) && (!q || JSON.stringify(k).toLowerCase().indexOf(q) !== -1); });
+  return '<div class="seitenkopf"><div><span class="etikett">Kunden</span><h1>Alle Kunden</h1></div><button type="button" class="haupt" data-tun="neu">+ Neuer Kunde</button></div>' +
+    '<div class="werkzeugleiste"><input type="text" placeholder="Suchen: Firma, Ort, Ansprechpartner …" data-schluessel="suche" data-suche value="' + esc(S.suche) + '">' +
+    ["alle", "lead", "angebot", "kunde", "pausiert", "verloren"].map(function (s) { return '<button type="button" class="chip" data-filter="' + s + '" aria-pressed="' + (S.filter === s) + '">' + (s === "alle" ? "Alle" : STATUS[s]) + "</button>"; }).join("") +
+    '<span class="klein leise" style="margin-left:auto">' + l.length + " von " + S.liste.length + "</span></div>" +
+    '<div class="karte" style="overflow:auto">' + (l.length ? '<table class="tabelle"><thead><tr><th>Firma</th><th>Status</th><th>Ansprechpartner</th><th>Wert</th><th>Nächster Schritt</th><th>Portal</th></tr></thead><tbody>' +
+      l.map(function (k) {
+        var c = (k.kontakte || [])[0];
+        return '<tr class="klick" data-akte="' + k.id + '"><td><b>' + esc(k.firma) + '</b><div class="klein leise">' + esc([k.branche, k.ort].filter(Boolean).join(" · ")) + "</div></td><td>" + statusPille(k.status) + "</td>" +
+          "<td>" + (c ? esc(c.name) + '<div class="klein leise">' + esc(c.rolle || "") + "</div>" : '<span class="leise">–</span>') + "</td>" +
+          "<td>" + (k.wert ? euro(k.wert) : "") + (k.monatlich ? '<div class="klein leise">+ ' + euro(k.monatlich) + " / Monat</div>" : "") + "</td>" +
+          '<td class="klein">' + esc(k.naechster_schritt || "") + (k.naechster_termin ? '<div class="leise">' + datum(k.naechster_termin) + "</div>" : "") + "</td>" +
+          "<td>" + (k.portal ? (k.portal.ungelesen ? '<span class="zahlpunkt">' + k.portal.ungelesen + "</span> " : "") + '<span class="klein leise">' + k.portal.dateien + " Dateien</span>" : '<span class="klein leise">–</span>') + "</td></tr>";
+      }).join("") + "</tbody></table>" : '<div class="leer">Kein Kunde passt.</div>') + "</div>";
+}
+
+/* ---------------------------------------------------------------- Akte */
+function akte() {
+  var F = S.form;
+  if (!F) return '<div class="leer">Lädt …</div>';
+  var neu = !F.id, p = S.portal;
+  var reiter = [["stammdaten", "Stammdaten"], ["verlauf", "Verlauf" + (S.akte && S.akte.verlauf.length ? " · " + S.akte.verlauf.length : "")], ["dateien", "Dateien"], ["portal", "Kundenportal"]];
+  var ungelesen = p ? p.nachrichten.filter(function (n) { return n.von_rolle === "kunde" && !n.gelesen_admin; }).length : 0;
+  return '<div class="seitenkopf"><div><button type="button" class="klein leise" data-sicht="kunden">← Alle Kunden</button><h1>' + esc(F.firma || "Neuer Kunde") + "</h1>" +
+    '<p>' + (neu ? "Noch nicht gespeichert." : statusPille(F.status) + (F.kennung ? ' <span class="pille akzent">Portal: ' + esc(F.kennung) + "</span>" : "")) + "</p></div>" +
+    (S.geaendert || neu ? '<button type="button" class="haupt" data-tun="speichern">Speichern</button>' : "") + "</div>" +
+    (neu ? "" : '<nav class="reiter" style="padding:0;margin:-6px 0 18px;border-bottom:1px solid var(--linie)">' + reiter.map(function (r) {
+      return '<button type="button" data-reiter="' + r[0] + '" aria-current="' + (S.reiter === r[0]) + '">' + r[1] + (r[0] === "portal" && ungelesen ? ' <span class="zahlpunkt">' + ungelesen + "</span>" : "") + "</button>";
+    }).join("") + "</nav>") +
+    (neu || S.reiter === "stammdaten" ? stammdaten() : S.reiter === "verlauf" ? verlauf() : S.reiter === "dateien" ? dateien() : portalReiter());
+}
+function feld(name, titel, art) {
+  var v = S.form[name] == null ? "" : S.form[name];
+  return '<div class="' + (art === "breit" || art === "lang" ? "breit" : "") + '"><label>' + titel + "</label>" +
+    (art === "lang" ? '<textarea rows="5" data-schluessel="f-' + name + '" data-feld="' + name + '">' + esc(v) + "</textarea>"
+      : '<input type="' + (art === "datum" ? "date" : "text") + '" data-schluessel="f-' + name + '" data-feld="' + name + '" value="' + esc(v) + '">') + "</div>";
+}
+function stammdaten() {
+  var F = S.form;
+  return '<div class="raster zwei"><div class="karte pad"><h2 style="margin-bottom:14px">Firma</h2><div class="felder">' +
+    feld("firma", "Firma", "breit") +
+    '<div><label>Status</label><select data-feld="status">' + Object.keys(STATUS).map(function (s) { return '<option value="' + s + '"' + (F.status === s ? " selected" : "") + ">" + STATUS[s] + "</option>"; }).join("") + "</select></div>" +
+    feld("branche", "Branche") + feld("strasse", "Straße", "breit") + feld("plz", "PLZ") + feld("ort", "Ort") +
+    feld("telefon", "Telefon") + feld("mail", "E-Mail") + feld("webseite", "Webseite", "breit") +
+    "</div></div>" +
+    '<div class="karte pad"><h2 style="margin-bottom:14px">Auftrag</h2><div class="felder">' +
+    feld("wert", "Auftragswert einmalig (€)") + feld("monatlich", "Monatlich (€)") +
+    feld("naechster_schritt", "Nächster Schritt", "breit") + feld("naechster_termin", "Bis wann", "datum") +
+    '<div><label>Portal-Kennung</label><input type="text" data-schluessel="f-kennung" data-feld="kennung" value="' + esc(F.kennung || "") + '" placeholder="z. B. kas"><div class="klein leise" style="margin-top:4px">Verbindet den Kunden mit seinem Kundenportal.</div></div>' +
+    "</div></div></div>" +
+    '<div class="karte pad" style="margin-top:16px"><div class="kartenkopf"><h2>Ansprechpartner</h2><button type="button" class="klein" data-tun="kontaktNeu">+ Ansprechpartner</button></div>' +
+    ((F.kontakte || []).length ? (F.kontakte || []).map(function (c, i) {
+      return '<div class="kontaktzeile">' + ["name", "rolle", "mail", "telefon"].map(function (x) {
+        return '<input type="text" placeholder="' + { name: "Name", rolle: "Rolle", mail: "E-Mail", telefon: "Telefon" }[x] + '" data-schluessel="k-' + i + "-" + x + '" data-kontakt="' + i + '" data-teil="' + x + '" value="' + esc(c[x] || "") + '">';
+      }).join("") + '<button type="button" class="klein leise" data-kontaktweg="' + i + '">Entfernen</button></div>';
+    }).join("") : '<p class="leise klein">Noch niemand eingetragen.</p>') + "</div>" +
+    '<div class="karte pad" style="margin-top:16px"><div class="felder">' + feld("notizen", "Notizen", "lang") + "</div></div>";
+}
+function verlauf() {
+  var v = S.akte.verlauf;
+  return '<div class="karte pad" style="margin-bottom:16px"><div class="formular"><div class="reihe"><select data-notiz="art">' +
+    Object.keys(ARTEN).map(function (a) { return '<option value="' + a + '"' + (S.notiz.art === a ? " selected" : "") + ">" + ARTEN[a] + "</option>"; }).join("") +
+    '</select><span class="klein leise">Was ist passiert? Anruf, Termin, Absprache …</span></div>' +
+    '<textarea rows="3" data-schluessel="notiz" data-notiz="text" placeholder="Notiz">' + esc(S.notiz.text) + '</textarea><div class="reihe"><button type="button" class="haupt" data-tun="notiz" style="margin-left:auto">Eintragen</button></div></div></div>' +
+    '<div class="karte pad zeitleiste">' + (v.length ? v.map(function (e) {
+      return '<div class="eintrag"><span class="docsymbol" style="width:34px;height:34px;font-size:14px">' + (ARTZEICHEN[e.art] || "✎") + '</span><div style="flex:1;min-width:0"><div class="klein leise">' + esc(ARTEN[e.art] || e.art) + " · " + datum(e.angelegt, true) + '</div><div class="text">' + esc(e.text) + "</div></div>" +
+        (S.bestaetigen === "v" + e.id ? '<button type="button" class="klein gefahr" data-verlaufweg="' + e.id + '">Wirklich löschen?</button>' : '<button type="button" class="klein leise" data-frage="v' + e.id + '">Löschen</button>') + "</div>";
+    }).join("") : '<div class="leer">Noch keine Einträge.</div>') + "</div>";
+}
+function dateien() {
+  var d = S.akte.dateien, p = S.portal, laufend = S.hoch;
+  return '<div class="karte pad" style="margin-bottom:16px"><div class="kartenkopf"><h2>Deine Dateien</h2><button type="button" class="klein haupt" data-tun="dateiWaehlen">↑ Hochladen</button><input type="file" multiple hidden id="crmDatei"></div>' +
+    '<p class="klein leise" style="margin-top:-4px">Angebote, Verträge, Notizen. Nur im CRM sichtbar, nicht für den Kunden.</p>' +
+    (d.length || laufend.length ? '<ul class="dateien">' + d.map(function (x) {
+      return '<li><span class="n">' + (x.url ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.dateiname) + "</a>" : esc(x.dateiname)) + '</span><span class="g">' + groesse(x.groesse) + '</span><span class="s leise">' + datum(x.angelegt) + "</span>" +
+        (S.bestaetigen === "d" + x.id ? '<button type="button" class="klein gefahr" data-dateiweg="' + x.id + '">Wirklich löschen?</button>' : '<button type="button" class="klein leise" data-frage="d' + x.id + '">Löschen</button>') + "</li>";
+    }).join("") + laufend.map(function (u) { return '<li><span class="n">' + esc(u.name) + '</span><span class="s ' + (u.fehler ? "fehler" : "laeuft") + '">' + (u.fehler ? "✗ " + esc(u.fehler) : "wird hochgeladen …") + "</span></li>"; }).join("") + "</ul>"
+      : '<div class="leer">Noch keine Dateien.</div>') + "</div>" +
+    '<div class="karte pad"><h2>Aus dem Kundenportal</h2>' + (!S.form.kennung ? '<p class="leise klein">Dieser Kunde hat kein Kundenportal. Trag unter Stammdaten eine Portal-Kennung ein.</p>'
+      : !p ? '<div class="leer">Lädt …</div>' : p.uploads.length ? portalDateien(p) : '<div class="leer">Noch nichts hochgeladen.</div>') + "</div>";
+}
+function portalDateien(p) {
+  var pp = portalPunkte(S.form.kennung).punkte;
+  return '<table class="tabelle"><thead><tr><th>Datei</th><th>Zu</th><th>Von</th><th>Eingang</th></tr></thead><tbody>' + p.uploads.slice().reverse().map(function (u) {
+    var zu = u.punkt.indexOf("r-") === 0 ? "Rückgabe Dokument" : (pp[u.punkt] || {}).frage || u.punkt || "–";
+    return '<tr><td>' + (u.url ? '<a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.datei) + "</a>" : esc(u.datei)) + '<div class="klein leise">' + groesse(u.groesse) + "</div></td><td>" + esc(zu) + "</td><td>" + esc(u.zugang) + "</td><td>" + datum(u.angelegt, true) + "</td></tr>";
+  }).join("") + "</tbody></table>";
+}
+function portalReiter() {
+  var p = S.portal, kennung = S.form.kennung;
+  if (!kennung) return '<div class="karte pad leer">Dieser Kunde hat kein Kundenportal. Trag unter Stammdaten eine Portal-Kennung ein.</div>';
+  if (!p) return '<div class="leer">Lädt …</div>';
+  var info = portalPunkte(kennung), k = info.kunde;
+  var antworten = {}; p.antworten.forEach(function (a) { antworten[a.punkt] = a; });
+  var hoch = {}; p.uploads.forEach(function (u) { (hoch[u.punkt] = hoch[u.punkt] || []).push(u); });
+  var alle = k ? k.abschnitte.reduce(function (s, a) { return s + a.punkte.length; }, 0) : 0;
+  var fertig = k ? k.abschnitte.reduce(function (s, a) { return s + a.punkte.filter(function (x) { return (antworten[x.id] && antworten[x.id].text.trim()) || hoch[x.id]; }).length; }, 0) : 0;
+  return '<div class="raster zwei"><div>' +
+    (k ? '<div class="karte pad" style="margin-bottom:16px"><div class="held"><div><span class="etikett">Unterlagen im Portal</span><div style="margin-top:8px"><span class="zahl">' + fertig + '</span> <span class="leise">von ' + alle + ' Punkten</span></div><div class="balken"><i style="width:' + (alle ? fertig / alle * 100 : 0) + '%"></i></div></div>' +
+      '<a class="knopf klein" href="/portal/" target="_blank" rel="noopener">Im Portal öffnen ↗</a></div></div>' +
+      k.abschnitte.map(function (a) {
+        return '<div class="karte" style="margin-bottom:12px"><div style="padding:14px 18px 2px"><h2 style="font-size:15.5px">' + esc(a.titel) + '</h2></div><table class="tabelle"><tbody>' + a.punkte.map(function (x) {
+          var t = antworten[x.id] && antworten[x.id].text.trim(), f = hoch[x.id] || [];
+          return "<tr><td style=\"width:40%\">" + (t || f.length ? '<span class="pille gut">✓</span> ' : '<span class="pille">offen</span> ') + esc(x.frage) + "</td><td>" + (t ? '<div style="white-space:pre-wrap">' + esc(antworten[x.id].text) + "</div>" : "") +
+            f.map(function (u) { return '<div class="klein">' + (u.url ? '<a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.datei) + "</a>" : esc(u.datei)) + ' <span class="leise">' + groesse(u.groesse) + "</span></div>"; }).join("") +
+            (!t && !f.length ? '<span class="leise">–</span>' : "") + "</td></tr>";
+        }).join("") + "</tbody></table></div>";
+      }).join("") : '<div class="karte pad leer">Für die Kennung „' + esc(kennung) + '“ gibt es noch keine Portal-Liste.</div>') +
+    "</div><div>" +
+    '<div class="karte" style="margin-bottom:16px"><div style="padding:16px 18px 0"><div class="kartenkopf"><h2>Nachrichten</h2><a class="knopf klein" href="/portal/" target="_blank" rel="noopener">Antworten im Portal ↗</a></div></div><div class="verlauf" style="max-height:420px">' +
+    (p.nachrichten.length ? p.nachrichten.map(function (m) { return '<div class="blase ' + (m.von_rolle === "admin" ? "ich" : "du") + '"><span class="von">' + esc(m.von_name) + " · " + datum(m.angelegt, true) + "</span>" + esc(m.text) + "</div>"; }).join("") : '<div class="leer">Noch keine Nachrichten.</div>') + "</div></div>" +
+    '<div class="karte pad"><h2>Im Portal bereitgestellt</h2>' + (p.dokumente.length ? p.dokumente.map(function (d) {
+      var r = hoch["r-" + d.id.slice(0, 8)] || [];
+      return '<div class="doczeile"><span class="docsymbol">' + esc((/\.([a-z0-9]{1,5})$/i.exec(d.dateiname) || [0, "DOK"])[1].toUpperCase()) + '</span><div class="mehr"><div class="titel">' + esc(d.titel) + '</div><div class="klein leise">' + datum(d.angelegt) +
+        (d.rueckgabe ? (r.length ? ' · <span class="pille gut">zurückgesendet</span>' : ' · <span class="pille warn">Rückgabe offen</span>') : "") + "</div>" +
+        r.map(function (u) { return '<div class="klein">↩ ' + (u.url ? '<a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.datei) + "</a>" : esc(u.datei)) + "</div>"; }).join("") + "</div>" +
+        (d.url ? '<a class="knopf klein" href="' + esc(d.url) + '" target="_blank" rel="noopener">Öffnen</a>' : "") + "</div>";
+    }).join("") : '<p class="leise klein">Noch nichts bereitgestellt. Das geht im Kundenportal unter Verwaltung.</p>') + "</div></div></div>";
+}
+
+/* ===================================================================== Handeln */
+function akteOeffnen(id, zu) {
+  S.sicht = "akte"; S.id = id; S.akte = null; S.portal = null; S.form = null; S.geaendert = false; S.reiter = zu || "stammdaten"; S.bestaetigen = null; S.hoch = [];
+  zeichnen(); window.scrollTo(0, 0); akteLaden(id);
+}
+var TUN = {
+  abmelden: function () { try { sessionStorage.removeItem(SITZUNG); } catch (e) {} location.reload(); },
+  aktualisieren: function () { S.ereignisse = null; zeichnen(); aktivitaetLaden(); listeLaden(); },
+  neu: function () {
+    S.sicht = "akte"; S.id = null; S.akte = null; S.portal = null; S.geaendert = true; S.reiter = "stammdaten";
+    S.form = { firma: "", status: "lead", branche: "", strasse: "", plz: "", ort: "", telefon: "", mail: "", webseite: "", kontakte: [{ name: "", rolle: "", mail: "", telefon: "" }], wert: 0, monatlich: 0, naechster_schritt: "", naechster_termin: null, notizen: "", kennung: "" };
+    zeichnen(); var f = document.querySelector('[data-feld="firma"]'); if (f) f.focus();
+  },
+  speichern: function (b) {
+    if (!S.form.firma.trim()) return melden("Bitte einen Firmennamen eintragen.", true);
+    b.disabled = true;
+    api("crm_speichern", { daten: S.form }).then(function (j) {
+      var warNeu = !S.form.id; S.geaendert = false; S.form = JSON.parse(JSON.stringify(j.kunde)); melden("Gespeichert.");
+      listeLaden(); if (warNeu) akteOeffnen(j.kunde.id); else akteLaden(j.kunde.id);
+    }, function (f) { b.disabled = false; melden(f.message, true); });
+  },
+  kontaktNeu: function () { (S.form.kontakte = S.form.kontakte || []).push({ name: "", rolle: "", mail: "", telefon: "" }); S.geaendert = true; zeichnen(); },
+  notiz: function (b) {
+    if (!S.notiz.text.trim()) return;
+    b.disabled = true;
+    api("crm_verlauf", { kunde_id: S.id, art: S.notiz.art, text: S.notiz.text }).then(function (j) { S.akte.verlauf.unshift(j.eintrag); S.notiz.text = ""; zeichnen(); }, function (f) { b.disabled = false; melden(f.message, true); });
+  },
+  dateiWaehlen: function () { document.getElementById("crmDatei").click(); },
+};
+function geaendert() {
+  if (!S.geaendert) { S.geaendert = true; var k = document.querySelector(".seitenkopf"); if (k && !k.querySelector('[data-tun="speichern"]')) { zeichnen(); } }
+}
+function verdrahten() {
+  var w = document.getElementById("app");
+  w.querySelectorAll("[data-tun]").forEach(function (b) { b.onclick = function () { TUN[b.dataset.tun](b); }; });
+  w.querySelectorAll("[data-sicht]").forEach(function (b) { b.onclick = function () {
+    if (S.geaendert && S.sicht === "akte" && !b.dataset.weiter) { b.dataset.weiter = "1"; b.textContent = "Nicht gespeichert. Trotzdem verlassen?"; return; }
+    S.sicht = b.dataset.sicht; S.geaendert = false; zeichnen(); window.scrollTo(0, 0); }; });
+  w.querySelectorAll("[data-akte]").forEach(function (b) { b.onclick = function (ev) { ev.preventDefault(); akteOeffnen(b.dataset.akte, b.dataset.zu); }; });
+  w.querySelectorAll("[data-filter]").forEach(function (b) { b.onclick = function () { S.filter = b.dataset.filter; zeichnen(); }; });
+  w.querySelectorAll("[data-suche]").forEach(function (t) { t.oninput = function () { S.suche = t.value; zeichnen(); }; });
+  w.querySelectorAll("[data-reiter]").forEach(function (b) { b.onclick = function () {
+    S.reiter = b.dataset.reiter; S.bestaetigen = null; zeichnen();
+    if (S.reiter === "portal" && S.form && S.form.kennung) api("stand", { kunde: S.form.kennung }).then(function (p) { S.portal = p; zeichnen(); listeLaden(); }, function () {});
+  }; });
+  w.querySelectorAll("[data-feld]").forEach(function (t) {
+    var evt = t.tagName === "SELECT" ? "onchange" : "oninput";
+    t[evt] = function () { S.form[t.dataset.feld] = t.value; geaendert(); };
+  });
+  w.querySelectorAll("[data-kontakt]").forEach(function (t) { t.oninput = function () { S.form.kontakte[+t.dataset.kontakt][t.dataset.teil] = t.value; geaendert(); }; });
+  w.querySelectorAll("[data-kontaktweg]").forEach(function (b) { b.onclick = function () { S.form.kontakte.splice(+b.dataset.kontaktweg, 1); S.geaendert = true; zeichnen(); }; });
+  w.querySelectorAll("[data-notiz]").forEach(function (t) { t[t.tagName === "SELECT" ? "onchange" : "oninput"] = function () { S.notiz[t.dataset.notiz] = t.value; }; });
+  w.querySelectorAll("[data-frage]").forEach(function (b) { b.onclick = function () { S.bestaetigen = b.dataset.frage; zeichnen(); setTimeout(function () { if (S.bestaetigen === b.dataset.frage) { S.bestaetigen = null; zeichnen(); } }, 5000); }; });
+  w.querySelectorAll("[data-verlaufweg]").forEach(function (b) { b.onclick = function () { api("crm_verlauf_weg", { id: b.dataset.verlaufweg }).then(function () { S.bestaetigen = null; akteLaden(S.id); }, function (f) { melden(f.message, true); }); }; });
+  w.querySelectorAll("[data-dateiweg]").forEach(function (b) { b.onclick = function () { api("crm_datei_weg", { id: b.dataset.dateiweg }).then(function () { S.bestaetigen = null; akteLaden(S.id); }, function (f) { melden(f.message, true); }); }; });
+  passwortVerdrahten(zeichnen);
+  var cd = document.getElementById("crmDatei");
+  if (cd) cd.onchange = function () {
+    Array.prototype.forEach.call(cd.files, function (datei) {
+      var u = { name: datei.name }; S.hoch.push(u);
+      if (datei.size > DATEI_MAX) { u.fehler = "zu groß (höchstens 50 MB)"; return; }
+      api("crm_datei_link", { kunde_id: S.id, name: datei.name })
+        .then(function (l) { return hochladen(l.url, datei).then(function () { return api("crm_datei_fertig", { kunde_id: S.id, pfad: l.pfad, dateiname: datei.name, groesse: datei.size }); }); })
+        .then(function () { S.hoch = S.hoch.filter(function (x) { return x !== u; }); melden("„" + datei.name + "“ gespeichert."); akteLaden(S.id); },
+          function (f) { u.fehler = f.message; zeichnen(); });
+    });
+    cd.value = ""; zeichnen();
+  };
+}
+
+/* ===================================================================== Start */
+function starten(P) {
+  S.P = P;
+  zeichnen(); listeLaden(); aktivitaetLaden();
+  setInterval(function () { if (document.hidden || S.geaendert) return; listeLaden(); if (S.sicht === "start") aktivitaetLaden(); }, 45000);
+  window.addEventListener("beforeunload", function (e) { if (S.geaendert) { e.preventDefault(); e.returnValue = ""; } });
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,723 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f6f7f9">
+<title>Kundenportal · Alpha Blueprint</title>
+<link rel="icon" href="/icon-192.png">
+<!--
+  ALPHA BLUEPRINT KUNDENPORTAL
+  Erzeugt von ~/Projekte/kundenportal/bauen.mjs. Nicht von Hand ändern.
+  Jeder Zugang hat einen eigenen verschlüsselten Block (AES-256-GCM, Schlüssel
+  aus dem Passwort per PBKDF2). Darin steht sein Portalschlüssel; mit ihm
+  spricht die Seite mit der Edge Function "kundenportal".
+-->
+<style>
+@font-face{font-family:"Manrope";font-style:normal;font-weight:200 800;font-display:swap;src:url(/assets/fonts/xn7gYHE41ni1AdIRggexSg.woff2) format("woff2")}
+@font-face{font-family:"Archivo";font-style:normal;font-weight:300 900;font-stretch:62% 125%;font-display:swap;src:url(/assets/fonts/neu/archivo-var.woff2) format("woff2")}
+@font-face{font-family:"JetBrains Mono";font-style:normal;font-weight:400 500;font-display:swap;src:url(/assets/fonts/neu/jetbrains-mono.woff2) format("woff2")}
+:root{
+  --grund:#f6f7f9; --karte:#ffffff; --karte2:#fafbfc; --linie:#e6e8ec; --linie2:#d5d9df;
+  --text:#101828; --mittel:#344054; --leise:#667085; --hauch:#98a2b3;
+  --akzent:#0b7c93; --akzent-hell:#e7f4f7; --akzent-tief:#08606f;
+  --gut:#12805c; --gut-hell:#e8f5ef; --warn:#b54708; --warn-hell:#fef3e7; --schlecht:#c4320a; --schlecht-hell:#fdecea;
+  --schrift:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --anzeige:"Archivo","Manrope",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  --r:14px; --rk:10px;
+  --schatten:0 1px 2px rgba(16,24,40,.04),0 1px 3px rgba(16,24,40,.06);
+  --schatten2:0 12px 32px -12px rgba(16,24,40,.18);
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{margin:0;background:var(--grund);color:var(--text);font:400 15.5px/1.6 var(--schrift);-webkit-font-smoothing:antialiased}
+a{color:var(--akzent)}
+h1,h2,h3{font-family:var(--anzeige);letter-spacing:-.01em;color:var(--text)}
+button,.knopf{font:600 14px var(--schrift);cursor:pointer;border-radius:999px;padding:9px 16px;border:1px solid var(--linie2);
+  background:var(--karte);color:var(--text);text-decoration:none;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;
+  transition:background .15s,border-color .15s,transform .1s}
+button:hover,.knopf:hover{border-color:var(--hauch);background:var(--karte2)}
+button:active,.knopf:active{transform:scale(.98)}
+button:disabled{opacity:.5;cursor:default;transform:none}
+button.haupt{background:var(--akzent);border-color:var(--akzent);color:#fff}
+button.haupt:hover{background:var(--akzent-tief)}
+button.leise{border-color:transparent;background:transparent;color:var(--leise)}
+button.leise:hover{background:var(--linie);color:var(--text)}
+button.gefahr{color:var(--schlecht)}
+button.klein,.knopf.klein{padding:6px 12px;font-size:13px}
+input[type=text],input[type=password],textarea{font:400 15px/1.5 var(--schrift);color:var(--text);background:var(--karte);border:1px solid var(--linie2);
+  border-radius:var(--rk);padding:10px 12px;width:100%;outline:none;transition:border-color .15s,box-shadow .15s}
+input:focus,textarea:focus{border-color:var(--akzent);box-shadow:0 0 0 3px var(--akzent-hell)}
+textarea{resize:vertical;min-height:56px}
+label.check{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--mittel);cursor:pointer}
+.marke{display:inline-flex;align-items:center;gap:10px;font:700 15px var(--schrift);color:var(--text);text-decoration:none}
+.marke i{display:block;width:26px;height:23px;background:var(--text);-webkit-mask:url(/assets/neu/marke-a-hell.png) center/contain no-repeat;mask:url(/assets/neu/marke-a-hell.png) center/contain no-repeat}
+.etikett{font:500 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--leise)}
+.leise{color:var(--leise)} .klein{font-size:13px}
+.pille{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;background:var(--linie);color:var(--mittel)}
+.pille.gut{background:var(--gut-hell);color:var(--gut)} .pille.warn{background:var(--warn-hell);color:var(--warn)} .pille.akzent{background:var(--akzent-hell);color:var(--akzent)}
+.zahlpunkt{min-width:20px;height:20px;border-radius:10px;background:var(--akzent);color:#fff;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
+.balken{height:6px;border-radius:3px;background:var(--linie);overflow:hidden}
+.balken i{display:block;height:100%;background:var(--akzent);border-radius:3px;transition:width .4s}
+
+/* ---------------- Anmeldung */
+#tor{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px 16px;
+  background:radial-gradient(1200px 500px at 50% -10%,#e7f4f7 0,transparent 60%),var(--grund)}
+#tor[hidden],#app[hidden]{display:none}
+.tor{width:100%;max-width:400px;background:var(--karte);border:1px solid var(--linie);border-radius:20px;padding:32px 28px 24px;box-shadow:var(--schatten2)}
+.tor h1{font-size:28px;line-height:1.15;margin:22px 0 6px}
+.tor p.unter{color:var(--leise);margin:0 0 22px;font-size:14.5px}
+.tor label{display:block;font-size:13px;font-weight:600;color:var(--mittel);margin:0 0 6px}
+.tor input{margin-bottom:14px}
+.tor button{width:100%;justify-content:center;padding:12px;margin-top:4px}
+.tor .sagt{min-height:1.4em;margin:12px 0 0;font-size:14px;color:var(--leise)}
+.tor .sagt.schlecht{color:var(--schlecht)}
+.tor .fuss{margin:20px 0 0;padding-top:16px;border-top:1px solid var(--linie);font-size:13px;color:var(--leise)}
+
+/* ---------------- Gerüst */
+.kopf{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.88);-webkit-backdrop-filter:saturate(1.6) blur(14px);backdrop-filter:saturate(1.6) blur(14px);border-bottom:1px solid var(--linie)}
+.kopf .innen{max-width:1180px;margin:0 auto;padding:0 20px;height:62px;display:flex;align-items:center;gap:18px}
+.kopf .firma{font-size:13.5px;color:var(--leise);padding-left:16px;border-left:1px solid var(--linie);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kopf .rechts{margin-left:auto;display:flex;align-items:center;gap:10px}
+.kopf .wer{font-size:13px;color:var(--leise)}
+.reiter{max-width:1180px;margin:0 auto;padding:0 20px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.reiter::-webkit-scrollbar{display:none}
+.reiter button{border:0;border-radius:0;background:none;padding:12px 12px 11px;color:var(--leise);font-weight:600;border-bottom:2px solid transparent}
+.reiter button:hover{color:var(--text);background:none}
+.reiter button[aria-current=true]{color:var(--text);border-bottom-color:var(--akzent)}
+.rahmen{max-width:1180px;margin:0 auto;padding:30px 20px 80px}
+.seitenkopf{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+.seitenkopf h1{font-size:clamp(26px,3.4vw,34px);line-height:1.15;margin:6px 0 0}
+.seitenkopf p{margin:6px 0 0;color:var(--leise);max-width:680px}
+.karte{background:var(--karte);border:1px solid var(--linie);border-radius:var(--r);box-shadow:var(--schatten)}
+.karte.pad{padding:20px 22px}
+.raster{display:grid;gap:16px}
+.raster.drei{grid-template-columns:repeat(3,minmax(0,1fr))}
+.raster.zwei{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+.karte h2{font-size:17px;margin:0 0 4px}
+.karte .kartenkopf{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.leer{color:var(--leise);font-size:14px;padding:18px;text-align:center}
+.hinweis{display:flex;gap:10px;align-items:flex-start;background:var(--akzent-hell);border-radius:var(--rk);padding:12px 14px;font-size:14px;color:var(--mittel)}
+.hinweis b{color:var(--text)}
+
+/* Übersicht */
+.held{display:flex;gap:26px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.held .zahl{font:700 40px/1 var(--anzeige);color:var(--text)}
+.held .balken{width:min(360px,100%);height:8px;margin-top:10px}
+.nachrichtvorschau{border-left:3px solid var(--linie);padding:4px 0 4px 12px;margin:8px 0;font-size:14px;color:var(--mittel)}
+.nachrichtvorschau.admin{border-left-color:var(--akzent)}
+.doczeile{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--linie)}
+.doczeile:first-child{border-top:0}
+.docsymbol{flex:none;width:38px;height:44px;border-radius:7px;background:var(--akzent-hell);color:var(--akzent);display:flex;align-items:center;justify-content:center;font:600 10px var(--mono);letter-spacing:.04em}
+.doczeile .titel{font-weight:650}
+.doczeile .mehr{flex:1;min-width:0}
+.doczeile .aktionen{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+
+/* Unterlagen */
+.unterlagen{display:grid;grid-template-columns:250px minmax(0,1fr);gap:28px;align-items:start}
+.inhalt{position:sticky;top:130px}
+.inhalt a{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:8px;text-decoration:none;color:var(--mittel);font-size:14px}
+.inhalt a:hover{background:var(--karte)}
+.inhalt a .z{font:500 12px var(--mono);color:var(--hauch)}
+.inhalt a.fertig .z{color:var(--gut)}
+.abschnitt{margin-bottom:34px;scroll-margin-top:130px}
+.abschnitt>.kopfzeile{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.abschnitt>.kopfzeile h2{font-size:20px;margin:0}
+.punkt{padding:18px 20px;margin-bottom:10px}
+.punkt .zeile1{display:flex;gap:12px;align-items:flex-start}
+.status{flex:none;width:22px;height:22px;border-radius:50%;border:1.5px solid var(--linie2);margin-top:2px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px}
+.punkt.fertig .status{background:var(--gut);border-color:var(--gut)}
+.punkt h3{font:650 16px/1.4 var(--schrift);margin:0}
+.punkt .warum{color:var(--leise);font-size:14px;margin:4px 0 0}
+.punkt .koerper{margin-left:34px}
+.punkt ul.details{margin:8px 0 0;padding-left:18px;font-size:14px;color:var(--mittel)}
+.punkt .feld{margin-top:12px;position:relative}
+.punkt .gespeichert{position:absolute;right:10px;bottom:9px;font-size:12px;color:var(--hauch);pointer-events:none}
+.werkzeuge{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.dateien{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:6px}
+.dateien li{display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:13.5px;background:var(--karte2);border:1px solid var(--linie);border-radius:8px;padding:7px 10px}
+.dateien .n{font-weight:600;word-break:break-all;flex:1;min-width:120px}
+.dateien .g{color:var(--hauch);font:400 12px var(--mono)}
+.dateien .s{font-size:12.5px}
+.s.ok{color:var(--gut)} .s.laeuft{color:var(--akzent)} .s.fehler{color:var(--schlecht)}
+.dbalken{flex-basis:100%;height:3px;border-radius:2px;background:var(--linie);overflow:hidden}
+.dbalken i{display:block;height:100%;background:var(--akzent)}
+
+/* Nachrichten */
+.verlauf{display:flex;flex-direction:column;gap:10px;max-height:min(62vh,640px);overflow-y:auto;padding:18px}
+.blase{max-width:78%;padding:10px 14px;border-radius:16px;font-size:14.5px;white-space:pre-wrap;word-wrap:break-word}
+.blase .von{display:block;font-size:11.5px;color:var(--hauch);margin-bottom:2px}
+.blase.ich{align-self:flex-end;background:var(--akzent);color:#fff;border-bottom-right-radius:5px}
+.blase.ich .von{color:rgba(255,255,255,.75)}
+.blase.du{align-self:flex-start;background:var(--grund);border:1px solid var(--linie);border-bottom-left-radius:5px}
+.schreiben{display:flex;gap:10px;align-items:flex-end;border-top:1px solid var(--linie);padding:14px 18px}
+.schreiben textarea{min-height:46px;max-height:200px}
+
+/* Tabellen */
+.tabelle{width:100%;border-collapse:collapse;font-size:14px}
+.tabelle th{text-align:left;font-size:12px;font-weight:600;color:var(--leise);padding:10px 12px;border-bottom:1px solid var(--linie);background:var(--karte2)}
+.tabelle td{padding:10px 12px;border-bottom:1px solid var(--linie);vertical-align:top;word-break:break-word}
+.tabelle tr:last-child td{border-bottom:0}
+
+/* Admin */
+.verwaltung{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;align-items:start}
+.kundenliste{padding:8px}
+.kundenliste button{width:100%;justify-content:space-between;border:0;border-radius:9px;background:none;padding:10px 12px;text-align:left;white-space:normal}
+.kundenliste button[aria-current=true]{background:var(--akzent-hell);color:var(--akzent-tief)}
+.kundenliste .unter{display:block;font-size:12px;font-weight:500;color:var(--leise)}
+.formular{display:grid;gap:10px}
+.formular .reihe{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.dateiwahl{display:flex;align-items:center;gap:10px;border:1.5px dashed var(--linie2);border-radius:var(--rk);padding:14px;background:var(--karte2);font-size:14px;color:var(--leise)}
+
+#meldung{position:fixed;right:18px;bottom:18px;display:grid;gap:8px;z-index:50;max-width:380px}
+#meldung div{background:var(--text);color:#fff;border-radius:12px;padding:11px 15px;font-size:14px;box-shadow:var(--schatten2)}
+#meldung div.fehler{background:var(--schlecht)}
+
+@media (max-width:900px){
+  .raster.drei,.raster.zwei{grid-template-columns:1fr}
+  .unterlagen,.verwaltung{grid-template-columns:1fr}
+  .inhalt{position:static;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  .inhalt a{white-space:nowrap;background:var(--karte);border:1px solid var(--linie)}
+  .kopf .firma{display:none}
+}
+@media (max-width:600px){
+  .punkt{padding:16px}
+  .punkt .koerper{margin-left:0}
+  .blase{max-width:90%}
+  .kopf .wer{display:none}
+  .rahmen{padding:22px 16px 70px}
+  .kopf .innen,.reiter{padding:0 16px}
+}
+
+/* ---------------- CRM */
+.kennzahlen{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:16px}
+.kennzahl{padding:16px 18px}
+.kennzahl .z{font:700 26px/1.1 var(--anzeige);margin-top:6px}
+.kennzahl .u{font-size:13px;color:var(--leise)}
+.werkzeugleiste{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.werkzeugleiste input[type=text]{max-width:300px}
+.chip{border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;border:1px solid var(--linie2);background:var(--karte);color:var(--mittel);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--text);border-color:var(--text);color:#fff}
+.tabelle tr.klick{cursor:pointer}
+.tabelle tr.klick:hover td{background:var(--karte2)}
+.st-lead{background:#eef2f6;color:#475467} .st-angebot{background:var(--warn-hell);color:var(--warn)}
+.st-kunde{background:var(--gut-hell);color:var(--gut)} .st-pausiert{background:#f2f0fb;color:#5b45b0} .st-verloren{background:var(--schlecht-hell);color:var(--schlecht)}
+.felder{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
+.felder label{display:block;font-size:12.5px;font-weight:600;color:var(--mittel);margin-bottom:5px}
+.felder .breit{grid-column:1/-1}
+select{font:500 14.5px var(--schrift);color:var(--text);background:var(--karte);border:1px solid var(--linie2);border-radius:var(--rk);padding:9px 10px;outline:none}
+.kontaktzeile{display:grid;grid-template-columns:1.2fr 1fr 1.3fr 1fr auto;gap:8px;margin-bottom:8px}
+.ereignis{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--linie)}
+.ereignis:first-child{border-top:0}
+.ereignis .icon{flex:none;width:32px;height:32px;border-radius:9px;background:var(--akzent-hell);color:var(--akzent);display:flex;align-items:center;justify-content:center;font-size:14px}
+.ereignis .icon.nachricht{background:#eef2f6;color:#344054} .ereignis .icon.antwort{background:var(--gut-hell);color:var(--gut)}
+.ereignis .was{flex:1;min-width:0;font-size:14px}
+.ereignis .was .text{color:var(--mittel);white-space:pre-wrap;word-wrap:break-word}
+.zeitleiste .eintrag{display:flex;gap:12px;padding:12px 0;border-top:1px solid var(--linie)}
+.zeitleiste .eintrag:first-child{border-top:0}
+.zeitleiste .text{white-space:pre-wrap;word-wrap:break-word;font-size:14.5px}
+@media (max-width:900px){.kennzahlen{grid-template-columns:repeat(2,minmax(0,1fr))}.felder{grid-template-columns:1fr}.kontaktzeile{grid-template-columns:1fr 1fr}}
+
+</style>
+</head>
+<body>
+
+<div id="tor">
+  <form class="tor" id="torForm" autocomplete="on">
+    <span class="marke"><i></i>Alpha Blueprint</span>
+    <h1>Kundenportal</h1>
+    <p class="unter">Melden Sie sich mit dem Zugang an, den Sie von uns bekommen haben.</p>
+    <label for="wer">Zugangsname</label>
+    <input type="text" id="wer" name="username" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username" required>
+    <label for="wort">Passwort</label>
+    <input type="password" id="wort" name="password" autocomplete="current-password" required>
+    <button type="submit" class="haupt" id="oeffnen">Anmelden</button>
+    <p class="sagt" id="sagt" role="status" aria-live="polite"></p>
+    <p class="fuss">Zugang vergessen? <a href="tel:+491746811322">+49 174 6811322</a> · <a href="mailto:info@alphablueprint.de">info@alphablueprint.de</a></p>
+    <noscript><p class="sagt schlecht">Diese Seite braucht JavaScript.</p></noscript>
+  </form>
+</div>
+<div id="app" hidden></div>
+<div id="meldung" aria-live="polite"></div>
+
+<script>
+"use strict";
+var SEITE = "portal";
+var SITZUNG = "alpha-portal-sitzung";
+
+/* ===================================================================== Schloss
+ * Gemeinsam für Kundenportal und CRM (eingesetzt von bauen.mjs).
+ *
+ * Der verschlüsselte Block jedes Zugangs liegt beim Server. Die Seite holt ihn
+ * über die Kennung (Hash des Zugangsnamens) und öffnet ihn NUR hier im Browser
+ * mit dem Passwort (PBKDF2 → AES-256-GCM). Darin steht der Portalschlüssel, mit
+ * dem alle weiteren Anfragen laufen. Das Passwort verlässt den Browser nie.
+ * Passwort ändern = Block mit dem neuen Passwort neu verschlüsseln und tauschen.
+ */
+var API_URL = "https://vernkyijbvbfeqcuhxzp.supabase.co/functions/v1/kundenportal";
+var RUNDEN = 310000;
+function b64(s) { var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
+function zuB64(buf) { var u = new Uint8Array(buf), s = ""; for (var i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); }
+function hex(buf) { return Array.prototype.map.call(new Uint8Array(buf), function (x) { return ("0" + x.toString(16)).slice(-2); }).join(""); }
+function kennungVon(name) {
+  return crypto.subtle.digest("SHA-256", new TextEncoder().encode("alpha-portal:" + String(name).trim().toLowerCase())).then(function (h) { return hex(h).slice(0, 24); });
+}
+function schluesselAus(wort, salz) {
+  return crypto.subtle.importKey("raw", new TextEncoder().encode(wort), "PBKDF2", false, ["deriveKey"])
+    .then(function (roh) { return crypto.subtle.deriveKey({ name: "PBKDF2", salt: salz, iterations: RUNDEN, hash: "SHA-256" }, roh, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]); });
+}
+function blockOeffnen(z, wort) {
+  return schluesselAus(wort, b64(z.s))
+    .then(function (k) { return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64(z.iv) }, k, b64(z.b)); })
+    .then(function (klar) { return JSON.parse(new TextDecoder().decode(klar)); }, function () { throw new Error("Zugangsname oder Passwort stimmt nicht."); });
+}
+function blockSchliessen(obj, wort) {
+  var salz = crypto.getRandomValues(new Uint8Array(16)), iv = crypto.getRandomValues(new Uint8Array(12));
+  return schluesselAus(wort, salz)
+    .then(function (k) { return crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, k, new TextEncoder().encode(JSON.stringify(obj))); })
+    .then(function (c) { return { s: zuB64(salz), iv: zuB64(iv), b: zuB64(c) }; });
+}
+function ruf(daten, schluessel) {
+  var k = { "content-type": "application/json" }; if (schluessel) k["x-portal-schluessel"] = schluessel;
+  return fetch(API_URL, { method: "POST", headers: k, body: JSON.stringify(daten) })
+    .then(function (r) { return r.json().then(function (j) { if (!r.ok || j.fehler) throw new Error(j.fehler || ("Fehler " + r.status)); return j; }); },
+      function () { throw new Error("Keine Verbindung. Bitte später noch einmal versuchen."); });
+}
+function blockHolen(name) { return kennungVon(name).then(function (k) { return ruf({ aktion: "block", kennung: k }); }).then(function (j) { return j.block; }); }
+
+/* Anmelden: Block holen, öffnen, Inhalte holen, Seite starten. */
+function oeffnen(name, wort) {
+  var roh;
+  return blockHolen(name).then(function (b) { return blockOeffnen(b, wort); }).then(function (r) {
+    roh = r;
+    if (SEITE === "crm" && roh.rolle !== "admin") throw new Error("Zugangsname oder Passwort stimmt nicht.");
+    return ruf({ aktion: "inhalt" }, roh.schluessel);
+  }).then(function (inhalt) {
+    var P = { benutzer: roh.name, rolle: roh.rolle, api: { url: API_URL, schluessel: roh.schluessel } };
+    if (SEITE === "crm") { P.art = "crm"; P.portalKunden = inhalt.kunden || []; }
+    else if (roh.rolle === "admin") { P.art = "admin"; P.kunden = inhalt.kunden || []; }
+    else {
+      if (!inhalt.kunde) throw new Error("Für diesen Zugang ist noch nichts eingerichtet. Bitte rufen Sie uns an.");
+      P.art = "kunde"; P.kunde = inhalt.kunde; P.vorlagen = inhalt.kunde.vorlagenLinks || {};
+    }
+    return P;
+  });
+}
+
+/* Passwort ändern: altes prüfen (Block damit öffnen), neu verschlüsseln, Block tauschen. */
+function passwortAendern(alt, neu) {
+  var s = null;
+  try { s = JSON.parse(sessionStorage.getItem(SITZUNG) || "null"); } catch (e) {}
+  var name = s && s.n;
+  if (!name) return Promise.reject(new Error("Bitte einmal ab- und wieder anmelden."));
+  if (String(neu).length < 10) return Promise.reject(new Error("Das neue Passwort braucht mindestens 10 Zeichen."));
+  if (neu === alt) return Promise.reject(new Error("Das neue Passwort ist dasselbe wie das alte."));
+  return blockHolen(name).then(function (b) { return blockOeffnen(b, alt).catch(function () { throw new Error("Das aktuelle Passwort stimmt nicht."); }); })
+    .then(function (roh) { return blockSchliessen(roh, neu).then(function (nb) { return ruf({ aktion: "passwort_setzen", block: nb }, roh.schluessel); }); })
+    .then(function () { try { sessionStorage.setItem(SITZUNG, JSON.stringify({ n: name, w: neu })); } catch (e) {} });
+}
+
+/* Die Karte „Passwort ändern“, gleich in Portal und CRM. Zustand liegt in PW, nicht im DOM. */
+var PW = { alt: "", neu: "", neu2: "", laeuft: false };
+function passwortKarte(name, du) {
+  var stark = PW.neu.length >= 10, gleich = PW.neu && PW.neu === PW.neu2;
+  return '<div class="karte pad" style="max-width:560px"><h2>Passwort ändern</h2>' +
+    '<p class="klein leise" style="margin:2px 0 16px">Angemeldet als <b>' + esc(name) + '</b>. ' + (du ? "Das Passwort verlässt deinen Browser nie" : "Das Passwort verlässt Ihren Browser nie") + ', gespeichert wird nur eine damit verschlüsselte Fassung.</p>' +
+    '<form class="formular" autocomplete="on" onsubmit="return false">' +
+    '<input type="text" name="username" autocomplete="username" value="' + esc(name) + '" hidden>' +
+    '<label class="klein" style="font-weight:600">Aktuelles Passwort</label><input type="password" autocomplete="current-password" data-schluessel="pw-alt" data-pw="alt" value="' + esc(PW.alt) + '">' +
+    '<label class="klein" style="font-weight:600">Neues Passwort</label><input type="password" autocomplete="new-password" data-schluessel="pw-neu" data-pw="neu" value="' + esc(PW.neu) + '">' +
+    '<div class="klein ' + (PW.neu ? (stark ? "" : "leise") : "leise") + '" style="margin-top:-4px;color:' + (PW.neu && !stark ? "var(--warn)" : "") + '">' + (PW.neu ? (stark ? "✓ lang genug" : "noch " + (10 - PW.neu.length) + " Zeichen") : "mindestens 10 Zeichen") + "</div>" +
+    '<label class="klein" style="font-weight:600">Neues Passwort wiederholen</label><input type="password" autocomplete="new-password" data-schluessel="pw-neu2" data-pw="neu2" value="' + esc(PW.neu2) + '">' +
+    (PW.neu2 && !gleich ? '<div class="klein" style="margin-top:-4px;color:var(--warn)">Die beiden Eingaben stimmen nicht überein.</div>' : "") +
+    '<div class="reihe" style="margin-top:6px"><button type="button" class="haupt" data-pwspeichern' + (PW.alt && stark && gleich && !PW.laeuft ? "" : " disabled") + ">" + (PW.laeuft ? "Wird geändert …" : "Passwort ändern") + "</button></div></form></div>";
+}
+function passwortVerdrahten(neuZeichnen) {
+  document.querySelectorAll("[data-pw]").forEach(function (t) {
+    t.oninput = function () {
+      PW[t.dataset.pw] = t.value;
+      /* Nur den Knopf und die Hinweise neu, ohne den Fokus zu verlieren. */
+      neuZeichnen();
+    };
+  });
+  var b = document.querySelector("[data-pwspeichern]");
+  if (b) b.onclick = function () {
+    PW.laeuft = true; neuZeichnen();
+    passwortAendern(PW.alt, PW.neu).then(function () {
+      PW = { alt: "", neu: "", neu2: "", laeuft: false }; neuZeichnen(); melden("Passwort geändert. Ab sofort gilt das neue.");
+    }, function (f) { PW.laeuft = false; neuZeichnen(); melden(f.message, true); });
+  };
+}
+
+(function anmeldung() {
+  var form = document.getElementById("torForm"), sagt = document.getElementById("sagt"), knopf = document.getElementById("oeffnen");
+  function los(name, wort, still) {
+    knopf.disabled = true; sagt.className = "sagt"; sagt.textContent = "Wird geöffnet …";
+    oeffnen(name, wort).then(function (P) {
+      try { sessionStorage.setItem(SITZUNG, JSON.stringify({ n: name, w: wort })); } catch (e) {}
+      document.getElementById("tor").hidden = true;
+      document.getElementById("app").hidden = false;
+      starten(P);
+    }, function (f) {
+      knopf.disabled = false;
+      if (still) { sagt.textContent = ""; try { sessionStorage.removeItem(SITZUNG); } catch (e) {} return; }
+      sagt.className = "sagt schlecht"; sagt.textContent = f.message;
+    });
+  }
+  form.addEventListener("submit", function (ev) { ev.preventDefault(); los(document.getElementById("wer").value, document.getElementById("wort").value); });
+  try { var s = JSON.parse(sessionStorage.getItem(SITZUNG) || "null"); if (s) los(s.n, s.w, true); } catch (e) {}
+})();
+
+
+/* ===================================================================== Hilfen */
+function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+function groesse(n) { n = n || 0; if (n < 1024) return n + " B"; if (n < 1048576) return Math.round(n / 1024) + " kB"; return (n / 1048576).toFixed(1).replace(".", ",") + " MB"; }
+function datum(t, mitZeit) { var d = new Date(t); return d.toLocaleDateString("de-DE", { day: "numeric", month: "short", year: "numeric" }) + (mitZeit ? ", " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : ""); }
+function endung(n) { var m = /\.([a-z0-9]{1,5})$/i.exec(n || ""); return m ? m[1].toUpperCase() : "DATEI"; }
+function melden(text, fehler) {
+  var m = document.createElement("div"); if (fehler) m.className = "fehler"; m.textContent = text;
+  document.getElementById("meldung").appendChild(m); setTimeout(function () { m.remove(); }, fehler ? 8000 : 3500);
+}
+var DATEI_MAX = 50 * 1024 * 1024;
+
+/* ===================================================================== Zustand */
+var S = {
+  P: null, admin: false, sicht: "uebersicht", kunde: null,
+  stand: null, laedt: false, uebersicht: {},
+  entwurf: { nachricht: "", antworten: {}, titel: "", notiz: "", rueckgabe: false },
+  datei: null,            // Admin: gewählte Datei zum Bereitstellen
+  uploads: [],            // laufende Uploads {id, punkt, name, groesse, anteil, stand, grund}
+  bestaetigen: null,      // id, die gerade auf den zweiten Klick wartet
+};
+
+function api(aktion, daten) {
+  return fetch(S.P.api.url, {
+    method: "POST",
+    headers: { "content-type": "application/json", "x-portal-schluessel": S.P.api.schluessel },
+    body: JSON.stringify(Object.assign({ aktion: aktion }, S.admin ? { kunde: S.kunde } : {}, daten || {})),
+  }).then(function (r) { return r.json().then(function (j) { if (!r.ok || j.fehler) throw new Error(j.fehler || ("Fehler " + r.status)); return j; }); });
+}
+function hochladen(link, datei, fortschritt) {
+  return new Promise(function (ok, nein) {
+    var r = new XMLHttpRequest();
+    r.open("PUT", link, true);
+    r.setRequestHeader("Content-Type", String(datei.type || "application/octet-stream").split(";")[0] || "application/octet-stream");
+    r.setRequestHeader("x-upsert", "false");
+    if (r.upload && fortschritt) r.upload.onprogress = function (e) { if (e.lengthComputable) fortschritt(e.loaded / e.total); };
+    r.onload = function () {
+      if (r.status >= 200 && r.status < 300) return ok();
+      var g = "Fehler " + r.status; try { var a = JSON.parse(r.responseText); if (a.message) g = a.message; } catch (x) {}
+      if (r.status === 413 || /size/i.test(g)) g = "zu groß (höchstens 50 MB)";
+      if (r.status === 415 || /mime/i.test(g)) g = "Dateityp nicht zugelassen, bitte als PDF oder ZIP";
+      nein(new Error(g));
+    };
+    r.onerror = function () { nein(new Error("keine Verbindung")); };
+    r.send(datei);
+  });
+}
+function laden(still) {
+  if (!S.kunde && S.admin) return Promise.resolve();
+  if (!still) { S.laedt = true; zeichnen(); }
+  return api("stand").then(function (j) {
+    S.stand = j; S.laedt = false;
+    if (!S.admin) j.antworten.forEach(function (a) { if (!(a.punkt in S.entwurf.antworten)) S.entwurf.antworten[a.punkt] = a.text; });
+    zeichnen();
+  }, function (f) { S.laedt = false; melden(f.message, true); zeichnen(); });
+}
+function uebersichtLaden() { return api("uebersicht").then(function (j) { S.uebersicht = j.kunden || {}; zeichnen(); }, function () {}); }
+
+/* ===================================================================== Daten-Hilfen */
+function kundeJson() { return S.admin ? S.P.kunden.filter(function (k) { return k.kennung === S.kunde; })[0] : S.P.kunde; }
+function allePunkte() { var a = []; (kundeJson().abschnitte || []).forEach(function (x) { x.punkte.forEach(function (p) { a.push(p); }); }); return a; }
+function antwortVon(id) {
+  if (!S.admin && id in S.entwurf.antworten) return S.entwurf.antworten[id] || "";
+  var a = (S.stand && S.stand.antworten || []).filter(function (x) { return x.punkt === id; })[0];
+  return a ? a.text : "";
+}
+function uploadsVon(id) { return (S.stand && S.stand.uploads || []).filter(function (u) { return u.punkt === id; }); }
+function fertig(id) { return !!antwortVon(id).trim() || uploadsVon(id).length > 0; }
+function punktTitel(id) {
+  if (id.indexOf("r-") === 0) { var d = (S.stand.dokumente || []).filter(function (x) { return x.id.slice(0, 8) === id.slice(2); })[0]; return "Rückgabe: " + (d ? d.titel : "Dokument"); }
+  var p = allePunkte().filter(function (x) { return x.id === id; })[0]; return p ? p.frage : id;
+}
+function ungelesen() { return (S.stand && S.stand.nachrichten || []).filter(function (n) { return n.von_rolle !== (S.admin ? "admin" : "kunde") && !(S.admin ? n.gelesen_admin : n.gelesen_kunde); }).length; }
+
+/* ===================================================================== Zeichnen */
+function zeichnen() {
+  /* Fokus und Schreibposition retten: neu zeichnen darf niemandem das Wort unter den Fingern wegnehmen. */
+  var f = document.activeElement, schl = f && f.dataset ? f.dataset.schluessel : null, pos = schl ? [f.selectionStart, f.selectionEnd] : null;
+  var verlauf = document.querySelector(".verlauf"), unten = verlauf ? verlauf.scrollHeight - verlauf.scrollTop - verlauf.clientHeight < 40 : true;
+  document.getElementById("app").innerHTML = S.admin ? adminSeite() : kundenSeite();
+  verdrahten();
+  if (schl) { var n = document.querySelector('[data-schluessel="' + schl + '"]'); if (n) { n.focus(); try { n.setSelectionRange(pos[0], pos[1]); } catch (x) {} } }
+  var v = document.querySelector(".verlauf"); if (v && unten) v.scrollTop = v.scrollHeight;
+}
+
+function kopf(reiter) {
+  var K = S.admin ? null : S.P.kunde;
+  return '<header class="kopf"><div class="innen"><span class="marke"><i></i>Alpha Blueprint</span>' +
+    '<span class="firma">' + (S.admin ? "Kundenportal · Verwaltung" : esc(K.name)) + "</span>" +
+    '<span class="rechts"><span class="wer">' + esc(S.P.benutzer) + '</span>' + (S.admin ? '<button type="button" class="klein leise" data-tun="einstellungen">Einstellungen</button>' : "") + '<button type="button" class="klein" data-tun="abmelden">Abmelden</button></span></div>' +
+    (reiter ? '<nav class="reiter">' + reiter + "</nav>" : "") + "</header>";
+}
+function reiterKnopf(id, text, zahl) {
+  return '<button type="button" data-sicht="' + id + '" aria-current="' + (S.sicht === id) + '">' + text + (zahl ? ' <span class="zahlpunkt">' + zahl + "</span>" : "") + "</button>";
+}
+
+/* ---------------------------------------------------------------- Kunde */
+function kundenSeite() {
+  var neueDok = (S.stand && S.stand.dokumente || []).length;
+  var r = reiterKnopf("uebersicht", "Übersicht") + reiterKnopf("unterlagen", "Unterlagen") +
+    reiterKnopf("dokumente", "Dokumente", 0) + reiterKnopf("nachrichten", "Nachrichten", ungelesen()) + reiterKnopf("einstellungen", "Einstellungen");
+  var inhalt = S.sicht === "einstellungen" ? einstellungen() : !S.stand ? '<div class="leer">Lädt …</div>'
+    : S.sicht === "unterlagen" ? kUnterlagen() : S.sicht === "dokumente" ? kDokumente() : S.sicht === "nachrichten" ? nachrichtenKarte("Ihre Nachricht an Alpha Blueprint …") : kUebersicht();
+  void neueDok;
+  return kopf(r) + '<main class="rahmen">' + inhalt + "</main>";
+}
+function kUebersicht() {
+  var K = S.P.kunde, alle = allePunkte(), n = alle.filter(function (p) { return fertig(p.id); }).length;
+  var naechster = null;
+  K.abschnitte.forEach(function (a, i) { if (!naechster && a.punkte.some(function (p) { return !fertig(p.id); })) naechster = { a: a, i: i }; });
+  var dok = S.stand.dokumente.slice(0, 3), msg = S.stand.nachrichten.slice(-2);
+  return '<div class="seitenkopf"><div><span class="etikett">Kundenportal</span><h1>Willkommen, ' + esc(K.kurzname) + '</h1><p>' + esc(K.einleitung[0]) + "</p></div></div>" +
+    '<div class="karte pad" style="margin-bottom:16px"><div class="held"><div><span class="etikett">Ihre Unterlagen</span><div style="margin-top:8px"><span class="zahl">' + n + '</span> <span class="leise">von ' + alle.length + ' Punkten erledigt</span></div>' +
+    '<div class="balken"><i style="width:' + (n / alle.length * 100) + '%"></i></div></div>' +
+    (naechster ? '<div><div class="klein leise">Als Nächstes</div><div style="font-weight:650;margin:2px 0 10px">' + esc(naechster.a.titel) + '</div><button type="button" class="haupt" data-gehe="' + naechster.i + '">Weiter ausfüllen</button></div>'
+      : '<span class="pille gut">Alles erledigt, vielen Dank</span>') + "</div></div>" +
+    '<div class="raster zwei"><div class="karte pad"><div class="kartenkopf"><h2>Dokumente von Alpha Blueprint</h2><button type="button" class="klein leise" data-sicht="dokumente">Alle</button></div>' +
+    (dok.length ? dok.map(dokZeile).join("") : '<div class="leer">Noch keine Dokumente.</div>') + "</div>" +
+    '<div class="karte pad"><div class="kartenkopf"><h2>Nachrichten</h2>' + (ungelesen() ? '<span class="pille akzent">' + ungelesen() + " neu</span>" : "") + "</div>" +
+    (msg.length ? msg.map(function (m) { return '<div class="nachrichtvorschau ' + m.von_rolle + '"><span class="klein leise">' + esc(m.von_name) + " · " + datum(m.angelegt, true) + "</span><br>" + esc(m.text.length > 160 ? m.text.slice(0, 160) + " …" : m.text) + "</div>"; }).join("") : '<p class="leise klein">Fragen? Schreiben Sie uns hier, wir antworten persönlich.</p>') +
+    '<button type="button" class="klein" data-sicht="nachrichten" style="margin-top:8px">Nachricht schreiben</button></div></div>' +
+    '<p class="klein leise" style="margin-top:22px">Ihre Dateien liegen in einem Rechenzentrum in Frankfurt. Bitte tragen Sie keine Passwörter ein. Zugänge richten wir gemeinsam ein.</p>';
+}
+function kUnterlagen() {
+  var K = S.P.kunde;
+  var index = K.abschnitte.map(function (a, i) {
+    var f = a.punkte.filter(function (p) { return fertig(p.id); }).length;
+    return '<a href="#abschnitt-' + i + '" class="' + (f === a.punkte.length ? "fertig" : "") + '"><span>' + esc(a.titel.replace(/^\d+ · /, "")) + '</span><span class="z">' + f + "/" + a.punkte.length + "</span></a>";
+  }).join("");
+  return '<div class="seitenkopf"><div><span class="etikett">Unterlagen</span><h1>' + esc(K.titel) + '</h1><p>' + esc(K.einleitung[1] || "") + '</p></div></div>' +
+    '<div class="hinweis" style="margin-bottom:22px"><span>ⓘ</span><span><b>Antworten speichern sich selbst.</b> Dateien gehen sofort hinaus, sobald Sie sie auswählen. Höchstens 50 MB je Datei.</span></div>' +
+    '<div class="unterlagen"><nav class="inhalt">' + index + "</nav><div>" +
+    K.abschnitte.map(function (a, i) {
+      return '<section class="abschnitt" id="abschnitt-' + i + '"><div class="kopfzeile"><h2>' + esc(a.titel) + '</h2><span class="klein leise">' + esc(a.hinweis || "") + "</span></div>" + a.punkte.map(punktKarte).join("") + "</section>";
+    }).join("") + "</div></div>";
+}
+function dateiListe(liste, laufend) {
+  if (!liste.length && !laufend.length) return "";
+  return '<ul class="dateien">' + liste.map(function (u) {
+    return '<li><span class="n">' + (u.url ? '<a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.datei) + "</a>" : esc(u.datei)) + '</span><span class="g">' + groesse(u.groesse) + '</span><span class="s ok">✓ ' + datum(u.angelegt) + "</span></li>";
+  }).join("") + laufend.map(function (u) {
+    return '<li data-upload="' + u.id + '"><span class="n">' + esc(u.name) + '</span><span class="g">' + groesse(u.groesse) + "</span>" +
+      (u.stand === "fehler" ? '<span class="s fehler">✗ ' + esc(u.grund) + '</span><button type="button" class="klein leise" data-weg="' + u.id + '">Ausblenden</button>'
+        : '<span class="s laeuft">wird hochgeladen …</span><span class="dbalken"><i style="width:' + Math.round(u.anteil * 100) + '%"></i></span>') + "</li>";
+  }).join("") + "</ul>";
+}
+function punktKarte(p) {
+  var v = p.vorlage && S.P.vorlagen && S.P.vorlagen[p.vorlage];
+  var laufend = S.uploads.filter(function (u) { return u.punkt === p.id; });
+  return '<div class="karte punkt' + (fertig(p.id) ? " fertig" : "") + '" data-punkt="' + p.id + '"><div class="zeile1"><span class="status">✓</span><div><h3>' + esc(p.frage) + "</h3>" +
+    (p.warum ? '<p class="warum">' + esc(p.warum) + "</p>" : "") + '</div></div><div class="koerper">' +
+    (p.details ? '<ul class="details">' + p.details.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : "") +
+    '<div class="feld"><textarea rows="2" data-schluessel="a-' + p.id + '" data-antwort="' + p.id + '" placeholder="' + esc(p.feld || "Ihre Antwort") + '">' + esc(antwortVon(p.id)) + '</textarea><span class="gespeichert" data-gesp="' + p.id + '"></span></div>' +
+    '<div class="werkzeuge"><button type="button" class="klein" data-waehlen="' + p.id + '">↑ Dateien hochladen</button><input type="file" multiple hidden data-eingabe="' + p.id + '">' +
+    (v ? '<button type="button" class="klein leise" data-vorlage="' + esc(p.vorlage) + '">Excel-Vorlage herunterladen</button>' : "") + "</div>" +
+    dateiListe(uploadsVon(p.id), laufend) + "</div></div>";
+}
+function dokZeile(d) {
+  var rpunkt = "r-" + d.id.slice(0, 8), zurueck = uploadsVon(rpunkt), laufend = S.uploads.filter(function (u) { return u.punkt === rpunkt; });
+  return '<div class="doczeile"><span class="docsymbol">' + esc(endung(d.dateiname)) + '</span><div class="mehr"><div class="titel">' + esc(d.titel) + "</div>" +
+    '<div class="klein leise">' + datum(d.angelegt) + " · " + groesse(d.groesse) + (d.rueckgabe ? (zurueck.length ? ' · <span class="pille gut">zurückgesendet</span>' : ' · <span class="pille warn">bitte unterschrieben zurücksenden</span>') : "") + "</div>" +
+    (d.notiz ? '<div class="klein" style="margin-top:4px;color:var(--mittel)">' + esc(d.notiz) + "</div>" : "") +
+    (d.rueckgabe && !S.admin ? dateiListe(zurueck, laufend) : "") + "</div>" +
+    '<div class="aktionen">' + (d.url ? '<a class="knopf klein" href="' + esc(d.url) + '" target="_blank" rel="noopener">Herunterladen</a>' : "") +
+    (d.rueckgabe && !S.admin ? '<button type="button" class="klein haupt" data-waehlen="' + rpunkt + '">Unterschrieben hochladen</button><input type="file" multiple hidden data-eingabe="' + rpunkt + '">' : "") +
+    (S.admin ? (S.bestaetigen === d.id ? '<button type="button" class="klein gefahr" data-zurueck="' + d.id + '">Wirklich zurückziehen?</button>' : '<button type="button" class="klein leise" data-zurueckfrage="' + d.id + '">Zurückziehen</button>') : "") +
+    "</div></div>";
+}
+function kDokumente() {
+  var d = S.stand.dokumente, u = S.stand.uploads;
+  return '<div class="seitenkopf"><div><span class="etikett">Dokumente</span><h1>Ihre Dokumente</h1><p>Was wir Ihnen bereitstellen, etwa Verträge und Angebote, und alles, was Sie uns geschickt haben.</p></div></div>' +
+    '<div class="karte pad" style="margin-bottom:16px"><h2>Von Alpha Blueprint</h2>' + (d.length ? d.map(dokZeile).join("") : '<div class="leer">Noch keine Dokumente.</div>') + "</div>" +
+    '<div class="karte"><div class="pad" style="padding:20px 22px 6px"><h2>Von Ihnen hochgeladen</h2></div>' +
+    (u.length ? '<table class="tabelle"><thead><tr><th>Datei</th><th>Zu</th><th>Von</th><th>Datum</th></tr></thead><tbody>' +
+      u.slice().reverse().map(function (x) { return '<tr><td>' + (x.url ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.datei) + "</a>" : esc(x.datei)) + '<div class="klein leise">' + groesse(x.groesse) + '</div></td><td>' + esc(punktTitel(x.punkt)) + "</td><td>" + esc(x.zugang) + "</td><td>" + datum(x.angelegt, true) + "</td></tr>"; }).join("") + "</tbody></table>"
+      : '<div class="leer">Noch nichts hochgeladen.</div>') + "</div>";
+}
+function einstellungen() {
+  return '<div class="seitenkopf"><div><span class="etikett">Einstellungen</span><h1>' + (S.admin ? "Dein Zugang" : "Ihr Zugang") + '</h1></div></div>' + passwortKarte(S.P.benutzer, S.admin);
+}
+function nachrichtenKarte(platz) {
+  var n = S.stand.nachrichten, ich = S.admin ? "admin" : "kunde";
+  return (S.admin ? "" : '<div class="seitenkopf"><div><span class="etikett">Nachrichten</span><h1>Austausch mit Alpha Blueprint</h1><p>Elia Nedvidek liest jede Nachricht persönlich.</p></div></div>') +
+    '<div class="karte"><div class="verlauf">' + (n.length ? n.map(function (m) {
+      return '<div class="blase ' + (m.von_rolle === ich ? "ich" : "du") + '"><span class="von">' + esc(m.von_name) + " · " + datum(m.angelegt, true) + "</span>" + esc(m.text) + "</div>";
+    }).join("") : '<div class="leer">Noch keine Nachrichten.</div>') + "</div>" +
+    '<div class="schreiben"><textarea rows="2" data-schluessel="nachricht" data-entwurf="nachricht" placeholder="' + esc(platz) + '">' + esc(S.entwurf.nachricht) + '</textarea><button type="button" class="haupt" data-tun="senden">Senden</button></div></div>';
+}
+
+/* ---------------------------------------------------------------- Admin */
+function adminSeite() {
+  var liste = S.P.kunden.map(function (k) {
+    var u = S.uebersicht[k.kennung] || {};
+    return '<button type="button" data-kunde="' + esc(k.kennung) + '" aria-current="' + (S.kunde === k.kennung) + '"><span><b>' + esc(k.kurzname || k.name) + '</b><span class="unter">' + (u.dateien || 0) + " Dateien" + (u.zuletzt ? " · zuletzt " + datum(u.zuletzt) : "") + "</span></span>" + (u.ungelesen ? '<span class="zahlpunkt">' + u.ungelesen + "</span>" : "") + "</button>";
+  }).join("");
+  var haupt;
+  if (S.sicht === "einstellungen") haupt = einstellungen();
+  else if (!S.kunde) haupt = '<div class="karte pad leer">Links einen Kunden wählen.</div>';
+  else if (!S.stand) haupt = '<div class="leer">Lädt …</div>';
+  else {
+    var k = kundeJson();
+    haupt = '<div class="seitenkopf"><div><span class="etikett">Kunde</span><h1>' + esc(k.name) + "</h1></div></div>" +
+      '<nav class="reiter" style="padding:0;margin:-8px 0 18px;border-bottom:1px solid var(--linie)">' + reiterKnopf("nachrichten", "Nachrichten", ungelesen()) + reiterKnopf("dokumente", "Dokumente") + reiterKnopf("eingaenge", "Eingänge", S.stand.uploads.length) + reiterKnopf("liste", "Unterlagen-Stand") + "</nav>" +
+      (S.sicht === "dokumente" ? aDokumente() : S.sicht === "eingaenge" ? aEingaenge() : S.sicht === "liste" ? aListe() : nachrichtenKarte("Nachricht an " + (k.kurzname || k.name) + " …"));
+  }
+  return kopf("") + '<main class="rahmen"><div class="verwaltung"><div class="karte kundenliste"><div class="etikett" style="padding:10px 12px">Kunden</div>' + liste + "</div><div>" + haupt + "</div></div></main>";
+}
+function aDokumente() {
+  var d = S.stand.dokumente;
+  return '<div class="karte pad" style="margin-bottom:16px"><h2>Dokument bereitstellen</h2><p class="klein leise" style="margin:0 0 12px">Zum Beispiel Vertrag, Angebot oder Auftragsverarbeitungsvertrag. Der Kunde sieht es sofort unter „Dokumente“.</p>' +
+    '<div class="formular"><div class="dateiwahl"><button type="button" class="klein" data-tun="dateiWaehlen">Datei wählen</button><input type="file" hidden id="bereitDatei"><span>' + (S.datei ? esc(S.datei.name) + " · " + groesse(S.datei.size) : "Noch keine Datei gewählt") + "</span></div>" +
+    '<input type="text" data-schluessel="titel" data-entwurf="titel" placeholder="Titel, z. B. Dienstleistungsvertrag" value="' + esc(S.entwurf.titel) + '">' +
+    '<textarea rows="2" data-schluessel="notiz" data-entwurf="notiz" placeholder="Notiz für den Kunden (freiwillig)">' + esc(S.entwurf.notiz) + "</textarea>" +
+    '<div class="reihe"><label class="check"><input type="checkbox" data-tun="rueckgabe"' + (S.entwurf.rueckgabe ? " checked" : "") + "> Bitte unterschrieben zurücksenden</label>" +
+    '<button type="button" class="haupt" data-tun="bereitstellen" style="margin-left:auto"' + (S.datei ? "" : " disabled") + ">Bereitstellen</button></div></div></div>" +
+    '<div class="karte pad"><h2>Bereitgestellt</h2>' + (d.length ? d.map(function (x) {
+      var zur = uploadsVon("r-" + x.id.slice(0, 8));
+      return dokZeile(x) + (zur.length ? '<div style="margin:-6px 0 8px 50px">' + dateiListe(zur, []) + "</div>" : "");
+    }).join("") : '<div class="leer">Noch nichts bereitgestellt.</div>') + "</div>";
+}
+function aEingaenge() {
+  var u = S.stand.uploads, gruppen = {};
+  u.forEach(function (x) { (gruppen[x.punkt] = gruppen[x.punkt] || []).push(x); });
+  var keys = Object.keys(gruppen);
+  if (!keys.length) return '<div class="karte pad leer">Noch nichts eingegangen.</div>';
+  return '<p class="klein leise" style="margin:0 0 12px">Im Terminal holt <code>node abholen.mjs ' + esc(S.kunde) + '</code> alles auf den Mac. Links gelten 30 Minuten.</p>' +
+    keys.map(function (k) { return '<div class="karte pad" style="margin-bottom:12px"><h2 style="font-size:15.5px">' + esc(punktTitel(k)) + "</h2>" + dateiListe(gruppen[k].slice().reverse(), []) + "</div>"; }).join("");
+}
+function aListe() {
+  var k = kundeJson(), alle = allePunkte(), n = alle.filter(function (p) { return fertig(p.id); }).length;
+  return '<div class="karte pad" style="margin-bottom:16px"><div class="held"><div><span class="zahl">' + n + '</span> <span class="leise">von ' + alle.length + ' Punkten erledigt</span><div class="balken"><i style="width:' + (n / alle.length * 100) + '%"></i></div></div></div></div>' +
+    k.abschnitte.map(function (a) {
+      return '<div class="karte" style="margin-bottom:14px"><div style="padding:16px 20px 4px"><h2>' + esc(a.titel) + '</h2></div><table class="tabelle"><tbody>' + a.punkte.map(function (p) {
+        var t = antwortVon(p.id), f = uploadsVon(p.id).length;
+        return "<tr><td style=\"width:38%\">" + (fertig(p.id) ? '<span class="pille gut">✓</span> ' : '<span class="pille">offen</span> ') + esc(p.frage) + "</td><td>" + (t ? esc(t) : '<span class="leise">–</span>') + (f ? '<div class="klein leise">' + f + " Datei" + (f === 1 ? "" : "en") + "</div>" : "") + "</td></tr>";
+      }).join("") + "</tbody></table></div>";
+    }).join("");
+}
+
+/* ===================================================================== Handeln */
+var speichernUhr = {};
+function antwortSpeichern(punkt) {
+  clearTimeout(speichernUhr[punkt]);
+  speichernUhr[punkt] = setTimeout(function () {
+    var g = document.querySelector('[data-gesp="' + punkt + '"]'); if (g) g.textContent = "speichert …";
+    api("antwort", { punkt: punkt, text: S.entwurf.antworten[punkt] || "" }).then(function () {
+      var a = S.stand.antworten.filter(function (x) { return x.punkt === punkt; })[0];
+      if (a) a.text = S.entwurf.antworten[punkt]; else S.stand.antworten.push({ punkt: punkt, text: S.entwurf.antworten[punkt] });
+      var g2 = document.querySelector('[data-gesp="' + punkt + '"]'); if (g2) g2.textContent = "✓ gespeichert";
+    }, function (f) { var g3 = document.querySelector('[data-gesp="' + punkt + '"]'); if (g3) g3.textContent = "nicht gespeichert"; melden(f.message, true); });
+  }, 900);
+}
+function dateienHoch(punkt, liste) {
+  Array.prototype.forEach.call(liste, function (datei) {
+    var u = { id: "u" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), punkt: punkt, name: datei.name, groesse: datei.size, anteil: 0, stand: "laeuft" };
+    S.uploads.push(u);
+    if (datei.size > DATEI_MAX) { u.stand = "fehler"; u.grund = "zu groß (höchstens 50 MB)"; return; }
+    api("hochladen", { punkt: punkt, name: datei.name }).then(function (l) {
+      return hochladen(l.url, datei, function (x) { u.anteil = x; var b = document.querySelector('[data-upload="' + u.id + '"] .dbalken i'); if (b) b.style.width = Math.round(x * 100) + "%"; });
+    }).then(function () {
+      S.uploads = S.uploads.filter(function (x) { return x !== u; }); melden("„" + datei.name + "“ ist angekommen."); laden(true);
+    }, function (f) { u.stand = "fehler"; u.grund = f.message; zeichnen(); });
+  });
+  zeichnen();
+}
+function vorlageHolen(name) {
+  /* Die Links gelten 30 Minuten, also vor dem Herunterladen frisch holen. */
+  api("inhalt").then(function (j) {
+    var v = j.kunde && j.kunde.vorlagenLinks && j.kunde.vorlagenLinks[name];
+    if (!v || !v.url) throw new Error("Die Vorlage ist gerade nicht verfügbar.");
+    var a = document.createElement("a"); a.href = v.url; a.download = v.name; document.body.appendChild(a); a.click(); a.remove();
+  }).catch(function (f) { melden(f.message, true); });
+}
+var TUN = {
+  abmelden: function () { try { sessionStorage.removeItem(SITZUNG); } catch (e) {} location.reload(); },
+  einstellungen: function () { S.sicht = "einstellungen"; zeichnen(); window.scrollTo(0, 0); },
+  senden: function (b) {
+    var t = S.entwurf.nachricht.trim(); if (!t) return;
+    b.disabled = true;
+    api("nachricht", { text: t }).then(function (j) { S.entwurf.nachricht = ""; S.stand.nachrichten.push(j.nachricht); zeichnen(); var f = document.querySelector('[data-entwurf="nachricht"]'); if (f) f.focus(); },
+      function (f) { b.disabled = false; melden(f.message, true); });
+  },
+  dateiWaehlen: function () { document.getElementById("bereitDatei").click(); },
+  rueckgabe: function (b) { S.entwurf.rueckgabe = b.checked; },
+  bereitstellen: function (b) {
+    var d = S.datei; if (!d) return;
+    if (d.size > DATEI_MAX) return melden("Höchstens 50 MB je Datei.", true);
+    b.disabled = true; b.textContent = "Wird hochgeladen …";
+    api("bereitstellen", { name: d.name }).then(function (l) {
+      return hochladen(l.url, d).then(function () {
+        return api("bereitgestellt", { pfad: l.pfad, titel: S.entwurf.titel || d.name.replace(/\.[^.]+$/, ""), notiz: S.entwurf.notiz, rueckgabe: S.entwurf.rueckgabe, dateiname: d.name, groesse: d.size });
+      });
+    }).then(function () {
+      melden("Bereitgestellt. Der Kunde sieht es jetzt unter „Dokumente“.");
+      S.datei = null; S.entwurf.titel = ""; S.entwurf.notiz = ""; S.entwurf.rueckgabe = false; laden(true);
+    }, function (f) { melden(f.message, true); zeichnen(); });
+  },
+};
+function verdrahten() {
+  var w = document.getElementById("app");
+  w.querySelectorAll("[data-tun]").forEach(function (b) {
+    if (b.type === "checkbox") b.onchange = function () { TUN[b.dataset.tun](b); };
+    else b.onclick = function () { TUN[b.dataset.tun](b); };
+  });
+  w.querySelectorAll("[data-sicht]").forEach(function (b) { b.onclick = function () { S.sicht = b.dataset.sicht; S.bestaetigen = null; zeichnen(); window.scrollTo(0, 0); }; });
+  w.querySelectorAll("[data-gehe]").forEach(function (b) { b.onclick = function () { S.sicht = "unterlagen"; zeichnen(); var z = document.getElementById("abschnitt-" + b.dataset.gehe); if (z) z.scrollIntoView(); }; });
+  w.querySelectorAll("[data-kunde]").forEach(function (b) { b.onclick = function () { S.kunde = b.dataset.kunde; S.stand = null; S.sicht = "nachrichten"; S.bestaetigen = null; laden(); uebersichtLaden(); }; });
+  w.querySelectorAll("[data-antwort]").forEach(function (t) {
+    t.oninput = function () {
+      var p = t.dataset.antwort; S.entwurf.antworten[p] = t.value;
+      var k = t.closest(".punkt"); if (k) k.classList.toggle("fertig", fertig(p));
+      var g = document.querySelector('[data-gesp="' + p + '"]'); if (g) g.textContent = "";
+      antwortSpeichern(p);
+    };
+  });
+  w.querySelectorAll("[data-entwurf]").forEach(function (t) {
+    t.oninput = function () { S.entwurf[t.dataset.entwurf] = t.value; };
+    if (t.dataset.entwurf === "nachricht") t.onkeydown = function (e) { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); TUN.senden(w.querySelector('[data-tun="senden"]')); } };
+  });
+  w.querySelectorAll("[data-waehlen]").forEach(function (b) {
+    var i = w.querySelector('[data-eingabe="' + b.dataset.waehlen + '"]');
+    b.onclick = function () { i.click(); };
+    i.onchange = function () { dateienHoch(i.dataset.eingabe, i.files); i.value = ""; };
+  });
+  w.querySelectorAll("[data-vorlage]").forEach(function (b) { b.onclick = function () { vorlageHolen(b.dataset.vorlage); }; });
+  w.querySelectorAll("[data-weg]").forEach(function (b) { b.onclick = function () { S.uploads = S.uploads.filter(function (u) { return u.id !== b.dataset.weg; }); zeichnen(); }; });
+  w.querySelectorAll("[data-zurueckfrage]").forEach(function (b) { b.onclick = function () { S.bestaetigen = b.dataset.zurueckfrage; zeichnen(); setTimeout(function () { if (S.bestaetigen === b.dataset.zurueckfrage) { S.bestaetigen = null; zeichnen(); } }, 5000); }; });
+  w.querySelectorAll("[data-zurueck]").forEach(function (b) { b.onclick = function () {
+    b.disabled = true; api("zurueckziehen", { id: b.dataset.zurueck }).then(function () { S.bestaetigen = null; melden("Zurückgezogen."); laden(true); }, function (f) { melden(f.message, true); }); }; });
+  passwortVerdrahten(zeichnen);
+  var bd = document.getElementById("bereitDatei");
+  if (bd) bd.onchange = function () { S.datei = bd.files[0] || null; if (S.datei && !S.entwurf.titel) S.entwurf.titel = S.datei.name.replace(/\.[^.]+$/, ""); zeichnen(); };
+}
+
+/* ===================================================================== Start */
+function starten(P) {
+  S.P = P; S.admin = P.art === "admin";
+  document.title = S.admin ? "Kundenportal · Verwaltung" : "Kundenportal · " + P.kunde.kurzname;
+  if (S.admin) { S.sicht = "nachrichten"; zeichnen(); uebersichtLaden(); if (P.kunden.length === 1) { S.kunde = P.kunden[0].kennung; laden(); } }
+  else { zeichnen(); laden(); }
+  /* Neue Nachrichten und Dateien ohne Neuladen: alle 30 Sekunden, solange das Fenster sichtbar ist. */
+  setInterval(function () {
+    if (document.hidden || S.uploads.some(function (u) { return u.stand === "laeuft"; })) return;
+    laden(true); if (S.admin) uebersichtLaden();
+  }, 30000);
+  window.addEventListener("beforeunload", function (e) { if (S.uploads.some(function (u) { return u.stand === "laeuft"; })) { e.preventDefault(); e.returnValue = ""; } });
+}
+</script>
+</body>
+</html>
