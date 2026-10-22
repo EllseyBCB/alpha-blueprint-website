@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="crm" data-glas data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-BqJj5WsGP0jZlv98i/bbV0Elnzwc90rv5jzdsgYnTKo='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-uS/8XXgSxx5YhjMUvmk5k6PDDKbIP+VV4txsD13EGDw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -1133,13 +1133,14 @@ function rechnen(d, sz) {
   var zaehlt = function (k) { return k && (k.status === "kunde" || (mitAngeboten && k.status !== "verloren" && wahl(sz, k).dabei)); };
   var mitMonat = function (k) { return !sz || wahl(sz, k).monatlich; };
   var r = { monate: monate, ein: {}, fix: {}, bezahlt: 0, gezahltGesamt: 0, offen: 0, ueberfaellig: 0, ohneTermin: 0, spaeter: 0,
-    monatlich: 0, monatlichRest: 0, monatVoll: 0, laufend: 0, fix12: 0, fixMonat: 0, gross12: 0, grossListe: [], startOffen: [], angenommen: [] };
+    monatlich: 0, monatlichRest: 0, monatVoll: 0, laufend: 0, fix12: 0, fixMonat: 0, gross12: 0, eingegangen: 0, grossListe: [], startOffen: [], angenommen: [] };
   monate.forEach(function (m) { r.ein[m] = 0; r.fix[m] = 0; });
   d.zahlungen.forEach(function (z) {
     var k = K[z.kunde_id], b = betrag(z.betrag);
     if (z.bezahlt_am) {
       r.gezahltGesamt += b;
       var mb = z.bezahlt_am.slice(0, 7);
+      if (mb >= erster && mb <= letzter) r.eingegangen += b;
       if (!istMonatsposten(z) && mb >= erster && mb <= letzter) { r.bezahlt += b; r.ein[mb] += b; }
       return;
     }
@@ -1185,7 +1186,9 @@ function rechnen(d, sz) {
   r.verfuegbar = r.start + r.gesamt - r.ruecklage - r.fix12 - r.gross12;
   r.rahmen = r.verfuegbar / 12;
   /* Verlauf: Startguthaben, dann Monat für Monat + Einnahmen − Fixkosten. Raten ohne Termin sind im Verlauf nicht verteilt. */
-  var stand = r.start; r.verlauf = monate.map(function (m) { stand += r.ein[m] - r.fix[m]; return stand; });
+  /* Steuern: der eingetragene Anteil jeder Einnahme gehört dem Finanzamt und zählt nicht als dein Geld. */
+  r.steuerBisher = r.eingegangen * r.ruecklageProzent / 100;
+  var stand = r.start; r.verlauf = monate.map(function (m) { stand += r.ein[m] * (1 - r.ruecklageProzent / 100) - r.fix[m]; return stand; });
   return r;
 }
 
@@ -1203,7 +1206,7 @@ function zustand(titel, sub, r, vergleich) {
     zeile("+ im Planungsjahr schon bezahlt", r.bezahlt) + zeile("+ noch offen, fällig im Planungsjahr", r.offen) +
     (FZ.ohneTermin && r.ohneTermin ? zeile("+ Raten ohne Termin", r.ohneTermin) : "") + zeile("+ Monatsbeträge im Planungsjahr", r.monatlich) +
     zeile("= Gesamtbetrag der Kunden", r.gesamt, false, true) +
-    zeile("− Rücklage " + String(r.ruecklageProzent).replace(".", ",") + " %", r.ruecklage, true) + zeile("− deine Fixkosten", r.fix12, true) + (r.gross12 ? zeile("− geplante größere Ausgaben", r.gross12, true) : "") +
+    zeile("− für Steuern zurücklegen " + String(r.ruecklageProzent).replace(".", ",") + " %", r.ruecklage, true) + zeile("− deine Fixkosten", r.fix12, true) + (r.gross12 ? zeile("− geplante größere Ausgaben", r.gross12, true) : "") +
     zeile("= verfügbar, ÷ 12", r.verfuegbar, false, true) + "</tbody></table>" : "") +
     (vergleich && r.angenommen.length ? '<div class="klein leise" style="margin-top:8px">Ohne Startdatum, angenommen ab nächstem Monat: ' + r.angenommen.map(function (k) { return esc(k.firma) + (betrag(k.monatlich) ? " " + euro2(betrag(k.monatlich)) + "/Monat" : ""); }).join(", ") + "</div>" : "") + "</div>";
 }
@@ -1238,7 +1241,7 @@ function diagramm(r, m) {
   s += "</svg>";
   var ende = function (v) { return euro2(Math.round(v[11])); };
   var T = {
-    ist: ["Geld Ist (durchgezogene Linie)", "So viel Geld hättest du am Ende jedes Monats, wenn nur zahlt, was unterschrieben ist: Kunden mit Status „Kunde“, Monatsbeträge erst ab ihrem Startdatum. Gerechnet: Startguthaben " + euro2(r.start) + ", plus Einnahmen des Monats, minus deine Fixkosten. Am Jahresende: " + ende(r.verlauf) + "."],
+    ist: ["Geld Ist (durchgezogene Linie)", "So viel Geld hättest du am Ende jedes Monats, wenn nur zahlt, was unterschrieben ist: Kunden mit Status „Kunde“, Monatsbeträge erst ab ihrem Startdatum. Gerechnet: Startguthaben " + euro2(r.start) + ", plus Einnahmen des Monats, minus " + (r.ruecklageProzent ? String(r.ruecklageProzent).replace(".", ",") + " % davon für Steuern, minus " : "") + "deine Fixkosten. Am Jahresende: " + ende(r.verlauf) + "."],
     koennte: ["Geld mit Auswahl (gestrichelte Linie)", "Dasselbe, aber mit deiner Auswahl aus „Was wäre, wenn“: " + esc(FZ.auswahlText || "") + ". Monatsbeträge ohne Startdatum zählen ab nächstem Monat. Am Jahresende: " + ende(m.verlauf) + ", das sind " + euro2(Math.round(m.verlauf[11] - r.verlauf[11])) + " mehr als Ist."],
     ein: ["Einnahmen Ist (dunkle Balken)", "Was im jeweiligen Monat sicher hereinkommt: bezahlte und fällige Raten unterschriebener Kunden plus ihre Monatsbeträge. Überfälliges steht im aktuellen Monat."],
     dazu: ["Dazu mit Auswahl (helle Balken)", "Die Einnahmen, wenn deine Auswahl so eintritt. Der helle Teil über dem dunklen Balken ist, was die ausgewählten Kunden zusätzlich bringen."],
@@ -1295,9 +1298,9 @@ function finanzen() {
     '<label class="klein" style="font-weight:600">Planungsjahr ab</label><input type="date" data-schluessel="fz-jahr" data-fz="jahrAb" value="' + esc(FZ.jahrAb) + '">' +
     '<label class="klein" style="font-weight:600">Startguthaben (€)</label><input type="text" inputmode="decimal" data-schluessel="fz-konto" data-fz="konto" value="' + esc(FZ.konto) + '">' +
     '<div class="klein leise" style="margin-top:-4px">Geld zu Beginn des Planungsjahres, ohne die hier erfassten Kundenzahlungen.</div>' +
-    '<label class="klein" style="font-weight:600">Rücklage für Steuern und Puffer (%)</label><input type="text" inputmode="decimal" data-schluessel="fz-ruecklage" data-fz="ruecklage" value="' + esc(FZ.ruecklage) + '">' +
+    '<label class="klein" style="font-weight:600">Steuern zurücklegen (% der Einnahmen)</label><input type="text" inputmode="decimal" data-schluessel="fz-ruecklage" data-fz="ruecklage" value="' + esc(FZ.ruecklage) + '">' +
     '<label class="check"><input type="checkbox" data-fzohne' + (FZ.ohneTermin ? " checked" : "") + "> Raten ohne Termin mitrechnen (" + euro2(r.ohneTermin) + ")</label>" +
-    '<div class="reihe"><button type="button" class="haupt" data-fzspeichern>Werte speichern</button><span class="klein leise">Die Rücklage setzt du selbst, ich rate keine Steuerquote.</span></div></div>' +
+    '<div class="reihe"><button type="button" class="haupt" data-fzspeichern>Werte speichern</button><span class="klein leise">Den Prozentsatz setzt du selbst, ich rate keine Steuerquote.</span></div></div>' +
     '<p class="klein leise" style="margin:14px 0 0">Server- und Betriebskosten, die der Kunde trägt, sind nicht abgezogen, nur deine eigenen Fixkosten. Bezahltes bleibt im Gesamtbetrag: „Bezahlt“ verschiebt nur, wo das Geld steht.</p></div>' +
     '<div class="karte"><div style="padding:18px 20px 4px" class="kartenkopf"><h2>Deine Fixkosten</h2><span class="klein leise">' + euro2(r.fixMonat) + " im Monat · " + euro2(r.fix12) + " im Jahr</span></div>" +
     '<p class="klein leise" style="margin:0 20px 8px">Was jeden Monat von dir abgeht: Software, Versicherungen, Miete … Kosten, die der Kunde trägt, gehören nicht hierher.</p>' +
@@ -1321,9 +1324,25 @@ function finanzen() {
     (Math.abs(mehr) > 0.5 ? '<span class="pille ' + (mehr > 0 ? "gut" : "") + '">' + (mehr > 0 ? "+ " : "− ") + euro2(Math.round(Math.abs(mehr))) + " zum Ist (" + euro2(Math.round(r.rahmen)) + ")</span>" : '<span class="pille">gleich wie Ist</span>') + "</div>" +
     '<div class="minizahlen">' + mini("Gesamtbetrag Jahr", euro2(m.gesamt)) + mini("Schon bezahlt", euro2(m.bezahlt), "var(--gut)") + mini("Kunden zahlen noch", euro2(m.nochOffen)) +
     mini("Wiederkehrend", euro2(m.monatVoll) + '<span class="klein leise"> /Monat</span>') + mini("Geld am Jahresende", euro2(Math.round(m.verlauf[11])), m.verlauf[11] < 0 ? "var(--schlecht)" : "") +
-    (m.gross12 ? mini("Geplante Ausgaben", "− " + euro2(m.gross12), "var(--schlecht)") : "") + "</div>" +
+    (m.gross12 ? mini("Geplante Ausgaben", "− " + euro2(m.gross12), "var(--schlecht)") : "") +
+    (m.ruecklageProzent ? mini("Für Steuern im Jahr", "− " + euro2(Math.round(m.ruecklage)), "var(--warn)") : "") + "</div>" +
     '<div class="kartenkopf" style="margin-top:18px"><h2 style="font-size:15px">Geldverlauf</h2>' + legende + "</div>" + diagramm(r, m) + "</div>";
-  return kopf + stand + wasWaereWenn(d, sz, m);
+  return kopf + stand + steuerKarte(r, m) + wasWaereWenn(d, sz, m);
+}
+
+/** Steuern zurücklegen: Prozent der Einnahmen, der beiseite gehört. Elia trägt den Satz selbst ein. */
+function steuerKarte(r, m) {
+  var p = r.ruecklageProzent, pT = String(p).replace(".", ",");
+  return '<div class="karte pad" style="margin-bottom:16px"><div class="kartenkopf"><h2>Für Steuern zurücklegen</h2>' +
+    '<div class="reihe" style="gap:8px;flex-wrap:nowrap"><input type="text" inputmode="decimal" style="width:72px;text-align:right" data-schluessel="fz-steuer" data-fz="ruecklage" value="' + esc(FZ.ruecklage) + '"><span>% der Einnahmen</span>' +
+    '<button type="button" class="klein haupt" data-fzspeichern>Speichern</button></div></div>' +
+    (p ? '<div class="minizahlen">' +
+      '<div><div class="klein leise">Schon eingenommen (Planungsjahr)</div><div style="font-weight:700">' + euro2(r.eingegangen) + "</div></div>" +
+      '<div><div class="klein leise">Davon jetzt beiseitelegen</div><div style="font-weight:700;color:var(--warn)">' + euro2(Math.round(r.steuerBisher)) + "</div></div>" +
+      '<div><div class="klein leise">Aufs ganze Jahr, Ist</div><div style="font-weight:700">' + euro2(Math.round(r.ruecklage)) + "</div></div>" +
+      '<div><div class="klein leise">Aufs ganze Jahr, mit Auswahl</div><div style="font-weight:700">' + euro2(Math.round(m.ruecklage)) + "</div></div></div>" +
+      '<p class="klein leise" style="margin:10px 0 0">' + pT + " % jeder Einnahme gehören nicht dir: Sie sind vom Monatsrahmen und von der Geldlinie im Diagramm schon abgezogen. Am besten auf ein eigenes Konto legen, sobald eine Zahlung eingeht.</p>"
+      : '<p class="klein leise" style="margin:10px 0 0">Trag ein, wie viel Prozent jeder Einnahme du fürs Finanzamt beiseitelegen willst, z. B. 20. Das wird dann vom Monatsrahmen und von der Geldlinie abgezogen.</p>') + "</div>";
 }
 
 /** Geplante größere Ausgaben: einmalige Beträge mit Datum, jede einzeln ein- und ausschaltbar. */
