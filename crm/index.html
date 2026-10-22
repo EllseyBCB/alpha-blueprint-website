@@ -1,6 +1,8 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" data-app="crm" data-thema="system">
 <head>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-UgtsSF0zrxw5OSW8sq8f4Yq/A6Jn1zGEgjxalGqErUA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
@@ -239,19 +241,104 @@ select{font:500 14.5px var(--schrift);color:var(--text);background:var(--karte);
 #vorschau th{background:var(--karte2);position:sticky;top:0}
 @media (max-width:600px){#vorschau{padding:0}#vorschau .rahmen-v{border-radius:0}}
 
+/* ---------------- Logo groß, QR, Anmeldung */
+.marke.gross{font-size:19px;gap:13px}
+.marke.gross i{width:40px;height:35px}
+.qr{background:#fff;border-radius:14px;padding:10px;width:220px;max-width:100%;margin:6px 0 4px;border:1px solid var(--linie)}
+.qr svg{display:block;width:100%;height:auto}
+.thema{font-size:16px;min-width:34px;justify-content:center}
+
+/* ---------------- Finanzen: Ist / Könnte, Diagramm */
+.zustaende{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-top:6px}
+.zustand{border:1px solid var(--linie);border-radius:var(--r);padding:16px 18px;background:var(--karte2)}
+.zustand.koennte{border-style:dashed}
+.diagramm{width:100%;height:auto;display:block;margin-top:6px;overflow:visible}
+.diagramm .gitter{stroke:var(--linie);stroke-width:1}
+.diagramm .null{stroke:var(--schlecht);stroke-width:1;stroke-dasharray:4 4}
+.diagramm .b-ein{fill:var(--akzent)}
+.diagramm .b-koennte{fill:var(--akzent);opacity:.28}
+.diagramm .b-fix{fill:var(--linie2)}
+.diagramm .l-ist{fill:none;stroke:var(--text);stroke-width:3;stroke-linejoin:round;stroke-linecap:round}
+.diagramm .l-ist-p{fill:var(--karte);stroke:var(--text);stroke-width:2.5}
+.diagramm .l-koennte{fill:none;stroke:var(--akzent);stroke-width:2.5;stroke-dasharray:7 6;stroke-linejoin:round}
+.diagramm .l-koennte-p{fill:var(--karte);stroke:var(--akzent);stroke-width:2}
+.diagramm text{font:500 15px var(--schrift);fill:var(--leise)}
+.diagramm .wert{font-weight:700;fill:var(--text)}
+.diagramm .wert.koennte{fill:var(--akzent)}
+.legende{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--leise);align-items:center}
+.legende i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:-8px;vertical-align:-1px}
+.legende .lg-ein{background:var(--akzent)} .legende .lg-koennte{background:var(--akzent);opacity:.28} .legende .lg-fix{background:var(--linie2)}
+.legende .lg-linie{height:3px;border-radius:2px;background:var(--text)} .legende .lg-linie2{height:0;border-top:3px dashed var(--akzent);border-radius:0}
+.feedknoepfe{display:flex;gap:4px;flex:none;align-items:flex-start}
+@media (max-width:900px){.zustaende{grid-template-columns:1fr}}
+
+/* ================================================================ CRM: Liquid Glass + Hell/Dunkel
+   Gilt nur für das CRM (html[data-app=crm]); das Kundenportal bleibt schlicht hell. */
+html[data-app="crm"]{
+  --glas:rgba(255,255,255,.58); --glas2:rgba(255,255,255,.42); --glaskante:rgba(255,255,255,.75); --glasschatten:0 1px 0 rgba(255,255,255,.7) inset,0 10px 30px -12px rgba(16,24,40,.22),0 1px 3px rgba(16,24,40,.06);
+  --grund:#e9eef3;
+}
+html[data-app="crm"] body{background:
+  radial-gradient(900px 600px at 8% -5%,rgba(11,124,147,.20),transparent 60%),
+  radial-gradient(800px 600px at 95% 10%,rgba(124,92,255,.14),transparent 60%),
+  radial-gradient(900px 700px at 60% 110%,rgba(18,128,92,.12),transparent 60%),
+  var(--grund);background-attachment:fixed;min-height:100vh}
+html[data-app="crm"] .karte,html[data-app="crm"] .tor{background:var(--glas);border:1px solid var(--glaskante);box-shadow:var(--glasschatten);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%)}
+html[data-app="crm"] .kopf{background:var(--glas2);border-bottom:1px solid var(--glaskante);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%)}
+html[data-app="crm"] .zustand{background:var(--glas2);border-color:var(--glaskante)}
+html[data-app="crm"] button:not(.haupt):not(.leise),html[data-app="crm"] .knopf,html[data-app="crm"] .chip:not([aria-pressed=true]){background:var(--glas2);border-color:var(--glaskante);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+html[data-app="crm"] button.haupt{box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 6px 16px -6px rgba(11,124,147,.6)}
+html[data-app="crm"] input[type=text],html[data-app="crm"] input[type=password],html[data-app="crm"] input[type=date],html[data-app="crm"] textarea,html[data-app="crm"] select{background:rgba(255,255,255,.55);border-color:var(--glaskante)}
+html[data-app="crm"] .tabelle th{background:transparent}
+html[data-app="crm"] .dateien li,html[data-app="crm"] .inhalt a:hover{background:var(--glas2)}
+html[data-app="crm"] #tor{background:transparent}
+
+/* Dunkel: per Schalter, oder „System“ und das Gerät steht auf dunkel. */
+html[data-app="crm"][data-thema="dunkel"]{color-scheme:dark;
+  --grund:#070b12; --karte:#111826; --karte2:rgba(255,255,255,.04); --linie:rgba(255,255,255,.09); --linie2:rgba(255,255,255,.18);
+  --text:#eef2f7; --mittel:#c3cbd6; --leise:#8d98a8; --hauch:#6b7685;
+  --akzent:#4cc9de; --akzent-hell:rgba(76,201,222,.14); --akzent-tief:#7fdbea;
+  --gut:#4ad89a; --gut-hell:rgba(74,216,154,.14); --warn:#f5b04c; --warn-hell:rgba(245,176,76,.14); --schlecht:#ff7a66; --schlecht-hell:rgba(255,122,102,.14);
+  --glas:rgba(22,30,44,.55); --glas2:rgba(255,255,255,.05); --glaskante:rgba(255,255,255,.10);
+  --glasschatten:0 1px 0 rgba(255,255,255,.07) inset,0 18px 40px -16px rgba(0,0,0,.7)}
+@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"]{color-scheme:dark;
+  --grund:#070b12; --karte:#111826; --karte2:rgba(255,255,255,.04); --linie:rgba(255,255,255,.09); --linie2:rgba(255,255,255,.18);
+  --text:#eef2f7; --mittel:#c3cbd6; --leise:#8d98a8; --hauch:#6b7685;
+  --akzent:#4cc9de; --akzent-hell:rgba(76,201,222,.14); --akzent-tief:#7fdbea;
+  --gut:#4ad89a; --gut-hell:rgba(74,216,154,.14); --warn:#f5b04c; --warn-hell:rgba(245,176,76,.14); --schlecht:#ff7a66; --schlecht-hell:rgba(255,122,102,.14);
+  --glas:rgba(22,30,44,.55); --glas2:rgba(255,255,255,.05); --glaskante:rgba(255,255,255,.10);
+  --glasschatten:0 1px 0 rgba(255,255,255,.07) inset,0 18px 40px -16px rgba(0,0,0,.7)}}
+html[data-app="crm"][data-thema="dunkel"] body{background:radial-gradient(900px 600px at 8% -5%,rgba(76,201,222,.16),transparent 60%),radial-gradient(800px 600px at 95% 10%,rgba(124,92,255,.16),transparent 60%),radial-gradient(900px 700px at 60% 110%,rgba(74,216,154,.08),transparent 60%),var(--grund);background-attachment:fixed}
+@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"] body{background:radial-gradient(900px 600px at 8% -5%,rgba(76,201,222,.16),transparent 60%),radial-gradient(800px 600px at 95% 10%,rgba(124,92,255,.16),transparent 60%),radial-gradient(900px 700px at 60% 110%,rgba(74,216,154,.08),transparent 60%),var(--grund);background-attachment:fixed}}
+html[data-app="crm"][data-thema="dunkel"] input,html[data-app="crm"][data-thema="dunkel"] textarea,html[data-app="crm"][data-thema="dunkel"] select{background:rgba(255,255,255,.06)}
+@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"] input,html[data-app="crm"][data-thema="system"] textarea,html[data-app="crm"][data-thema="system"] select{background:rgba(255,255,255,.06)}}
+html[data-app="crm"][data-thema="dunkel"] .marke i,html[data-app="crm"][data-thema="dunkel"] .marke{color:var(--text)}
+html[data-app="crm"] .marke i{background:currentColor}
+html[data-app="crm"] .chip[aria-pressed=true]{background:var(--text);color:var(--grund)}
+html[data-app="crm"] button.haupt{color:#fff}
+html[data-app="crm"][data-thema="dunkel"] button.haupt{color:#04141a}
+@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"] button.haupt{color:#04141a}}
+html[data-app="crm"][data-thema="dunkel"] #meldung div{background:#1d2738}
+@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"] #meldung div{background:#1d2738}}
+/* Reiter und Kundenliste ohne Glas-Kasten: Unterstrich wie gehabt. */
+html[data-app="crm"] .reiter button,html[data-app="crm"] .kundenliste button{background:none !important;border-color:transparent !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;box-shadow:none}
+html[data-app="crm"] .reiter button[aria-current=true]{border-bottom-color:var(--akzent) !important}
+
 </style>
 </head>
 <body>
 
 <div id="tor">
   <form class="tor" id="torForm" autocomplete="on">
-    <span class="marke"><i></i>Alpha Blueprint</span>
+    <span class="marke gross"><i></i>Alpha Blueprint</span>
     <h1>CRM</h1>
     <p class="unter">Nur für Alpha Blueprint.</p>
     <label for="wer">Zugangsname</label>
     <input type="text" id="wer" name="username" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username" required>
     <label for="wort">Passwort</label>
     <input type="password" id="wort" name="password" autocomplete="current-password" required>
+    <label class="check" style="margin:2px 0 14px"><input type="checkbox" id="merken"> Auf diesem Gerät angemeldet bleiben</label>
     <button type="submit" class="haupt" id="oeffnen">Anmelden</button>
     <p class="sagt" id="sagt" role="status" aria-live="polite"></p>
   </form>
@@ -262,19 +349,27 @@ select{font:500 14.5px var(--schrift);color:var(--text);background:var(--karte);
 <script>
 "use strict";
 var SEITE = "crm";
-var SITZUNG = "alpha-crm-sitzung";
+/* Darstellung: system (wie das Gerät), hell, dunkel. Nur eine Bequemlichkeit, liegt im Gerät. */
+var THEMA = "system";
+function themaSetzen(t) { THEMA = t; document.documentElement.dataset.thema = t; try { localStorage.setItem("alpha-crm-thema", t); } catch (e) {} }
+try { themaSetzen(localStorage.getItem("alpha-crm-thema") || "system"); } catch (e) {}
 
+var qrcode=function(){function i(t,r){function a(t,r){g=function(t){for(var r=new Array(t),e=0;e<t;e+=1){r[e]=new Array(t);for(var n=0;n<t;n+=1)r[e][n]=null}return r}(l=4*u+17),e(0,0),e(l-7,0),e(0,l-7),i(),o(),v(t,r),7<=u&&h(t),null==n&&(n=w(u,f,c)),d(n,r)}var u=t,f=y[r],g=null,l=0,n=null,c=[],s={},e=function(t,r){for(var e=-1;e<=7;e+=1)if(!(t+e<=-1||l<=t+e))for(var n=-1;n<=7;n+=1)r+n<=-1||l<=r+n||(g[t+e][r+n]=0<=e&&e<=6&&(0==n||6==n)||0<=n&&n<=6&&(0==e||6==e)||2<=e&&e<=4&&2<=n&&n<=4)},o=function(){for(var t=8;t<l-8;t+=1)null==g[t][6]&&(g[t][6]=t%2==0);for(var r=8;r<l-8;r+=1)null==g[6][r]&&(g[6][r]=r%2==0)},i=function(){for(var t=B.getPatternPosition(u),r=0;r<t.length;r+=1)for(var e=0;e<t.length;e+=1){var n=t[r],o=t[e];if(null==g[n][o])for(var i=-2;i<=2;i+=1)for(var a=-2;a<=2;a+=1)g[n+i][o+a]=-2==i||2==i||-2==a||2==a||0==i&&0==a}},h=function(t){for(var r=B.getBCHTypeNumber(u),e=0;e<18;e+=1){var n=!t&&1==(r>>e&1);g[Math.floor(e/3)][e%3+l-8-3]=n}for(e=0;e<18;e+=1){n=!t&&1==(r>>e&1);g[e%3+l-8-3][Math.floor(e/3)]=n}},v=function(t,r){for(var e=f<<3|r,n=B.getBCHTypeInfo(e),o=0;o<15;o+=1){var i=!t&&1==(n>>o&1);o<6?g[o][8]=i:o<8?g[o+1][8]=i:g[l-15+o][8]=i}for(o=0;o<15;o+=1){i=!t&&1==(n>>o&1);o<8?g[8][l-o-1]=i:o<9?g[8][15-o-1+1]=i:g[8][15-o-1]=i}g[l-8][8]=!t},d=function(t,r){for(var e=-1,n=l-1,o=7,i=0,a=B.getMaskFunction(r),u=l-1;0<u;u-=2)for(6==u&&(u-=1);;){for(var f=0;f<2;f+=1)if(null==g[n][u-f]){var c=!1;i<t.length&&(c=1==(t[i]>>>o&1)),a(n,u-f)&&(c=!c),g[n][u-f]=c,-1==(o-=1)&&(i+=1,o=7)}if((n+=e)<0||l<=n){n-=e,e=-e;break}}},w=function(t,r,e){for(var n=b.getRSBlocks(t,r),o=M(),i=0;i<e.length;i+=1){var a=e[i];o.put(a.getMode(),4),o.put(a.getLength(),B.getLengthInBits(a.getMode(),t)),a.write(o)}var u=0;for(i=0;i<n.length;i+=1)u+=n[i].dataCount;if(o.getLengthInBits()>8*u)throw"code length overflow. ("+o.getLengthInBits()+">"+8*u+")";for(o.getLengthInBits()+4<=8*u&&o.put(0,4);o.getLengthInBits()%8!=0;)o.putBit(!1);for(;!(o.getLengthInBits()>=8*u||(o.put(236,8),o.getLengthInBits()>=8*u));)o.put(17,8);return function(t,r){for(var e=0,n=0,o=0,i=new Array(r.length),a=new Array(r.length),u=0;u<r.length;u+=1){var f=r[u].dataCount,c=r[u].totalCount-f;n=Math.max(n,f),o=Math.max(o,c),i[u]=new Array(f);for(var g=0;g<i[u].length;g+=1)i[u][g]=255&t.getBuffer()[g+e];e+=f;var l=B.getErrorCorrectPolynomial(c),h=C(i[u],l.getLength()-1).mod(l);a[u]=new Array(l.getLength()-1);for(g=0;g<a[u].length;g+=1){var s=g+h.getLength()-a[u].length;a[u][g]=0<=s?h.getAt(s):0}}var v=0;for(g=0;g<r.length;g+=1)v+=r[g].totalCount;var d=new Array(v),w=0;for(g=0;g<n;g+=1)for(u=0;u<r.length;u+=1)g<i[u].length&&(d[w]=i[u][g],w+=1);for(g=0;g<o;g+=1)for(u=0;u<r.length;u+=1)g<a[u].length&&(d[w]=a[u][g],w+=1);return d}(o,n)};s.addData=function(t,r){var e=null;switch(r=r||"Byte"){case"Numeric":e=x(t);break;case"Alphanumeric":e=m(t);break;case"Byte":e=L(t);break;case"Kanji":e=D(t);break;default:throw"mode:"+r}c.push(e),n=null},s.isDark=function(t,r){if(t<0||l<=t||r<0||l<=r)throw t+","+r;return g[t][r]},s.getModuleCount=function(){return l},s.make=function(){if(u<1){for(var t=1;t<40;t++){for(var r=b.getRSBlocks(t,f),e=M(),n=0;n<c.length;n++){var o=c[n];e.put(o.getMode(),4),e.put(o.getLength(),B.getLengthInBits(o.getMode(),t)),o.write(e)}var i=0;for(n=0;n<r.length;n++)i+=r[n].dataCount;if(e.getLengthInBits()<=8*i)break}u=t}a(!1,function(){for(var t=0,r=0,e=0;e<8;e+=1){a(!0,e);var n=B.getLostPoint(s);(0==e||n<t)&&(t=n,r=e)}return r}())},s.createTableTag=function(t,r){t=t||2;var e="";e+='<table style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: "+(r=void 0===r?4*t:r)+"px;",e+='">',e+="<tbody>";for(var n=0;n<s.getModuleCount();n+=1){e+="<tr>";for(var o=0;o<s.getModuleCount();o+=1)e+='<td style="',e+=" border-width: 0px; border-style: none;",e+=" border-collapse: collapse;",e+=" padding: 0px; margin: 0px;",e+=" width: "+t+"px;",e+=" height: "+t+"px;",e+=" background-color: ",e+=s.isDark(n,o)?"#000000":"#ffffff",e+=";",e+='"/>';e+="</tr>"}return e+="</tbody>",e+="</table>"},s.createSvgTag=function(t,r,e,n){var o={};"object"==typeof t&&(t=(o=t).cellSize,r=o.margin,e=o.alt,n=o.title),t=t||2,r=void 0===r?4*t:r,(e="string"==typeof e?{text:e}:e||{}).text=e.text||null,e.id=e.text?e.id||"qrcode-description":null,(n="string"==typeof n?{text:n}:n||{}).text=n.text||null,n.id=n.text?n.id||"qrcode-title":null;var i,a,u,f,c=s.getModuleCount()*t+2*r,g="";for(f="l"+t+",0 0,"+t+" -"+t+",0 0,-"+t+"z ",g+='<svg version="1.1" xmlns="http://www.w3.org/2000/svg"',g+=o.scalable?"":' width="'+c+'px" height="'+c+'px"',g+=' viewBox="0 0 '+c+" "+c+'" ',g+=' preserveAspectRatio="xMinYMin meet"',g+=n.text||e.text?' role="img" aria-labelledby="'+p([n.id,e.id].join(" ").trim())+'"':"",g+=">",g+=n.text?'<title id="'+p(n.id)+'">'+p(n.text)+"</title>":"",g+=e.text?'<description id="'+p(e.id)+'">'+p(e.text)+"</description>":"",g+='<rect width="100%" height="100%" fill="white" cx="0" cy="0"/>',g+='<path d="',a=0;a<s.getModuleCount();a+=1)for(u=a*t+r,i=0;i<s.getModuleCount();i+=1)s.isDark(a,i)&&(g+="M"+(i*t+r)+","+u+f);return g+='" stroke="transparent" fill="black"/>',g+="</svg>"},s.createDataURL=function(o,t){o=o||2,t=void 0===t?4*o:t;var r=s.getModuleCount()*o+2*t,i=t,a=r-t;return I(r,r,function(t,r){if(i<=t&&t<a&&i<=r&&r<a){var e=Math.floor((t-i)/o),n=Math.floor((r-i)/o);return s.isDark(n,e)?0:1}return 1})},s.createImgTag=function(t,r,e){t=t||2,r=void 0===r?4*t:r;var n=s.getModuleCount()*t+2*r,o="";return o+="<img",o+=' src="',o+=s.createDataURL(t,r),o+='"',o+=' width="',o+=n,o+='"',o+=' height="',o+=n,o+='"',e&&(o+=' alt="',o+=p(e),o+='"'),o+="/>"};var p=function(t){for(var r="",e=0;e<t.length;e+=1){var n=t.charAt(e);switch(n){case"<":r+="&lt;";break;case">":r+="&gt;";break;case"&":r+="&amp;";break;case'"':r+="&quot;";break;default:r+=n}}return r};return s.createASCII=function(t,r){if((t=t||1)<2)return function(t){t=void 0===t?2:t;var r,e,n,o,i,a=1*s.getModuleCount()+2*t,u=t,f=a-t,c={"██":"█","█ ":"▀"," █":"▄","  ":" "},g={"██":"▀","█ ":"▀"," █":" ","  ":" "},l="";for(r=0;r<a;r+=2){for(n=Math.floor((r-u)/1),o=Math.floor((r+1-u)/1),e=0;e<a;e+=1)i="█",u<=e&&e<f&&u<=r&&r<f&&s.isDark(n,Math.floor((e-u)/1))&&(i=" "),u<=e&&e<f&&u<=r+1&&r+1<f&&s.isDark(o,Math.floor((e-u)/1))?i+=" ":i+="█",l+=t<1&&f<=r+1?g[i]:c[i];l+="\n"}return a%2&&0<t?l.substring(0,l.length-a-1)+Array(1+a).join("▀"):l.substring(0,l.length-1)}(r);t-=1,r=void 0===r?2*t:r;var e,n,o,i,a=s.getModuleCount()*t+2*r,u=r,f=a-r,c=Array(t+1).join("██"),g=Array(t+1).join("  "),l="",h="";for(e=0;e<a;e+=1){for(o=Math.floor((e-u)/t),h="",n=0;n<a;n+=1)i=1,u<=n&&n<f&&u<=e&&e<f&&s.isDark(o,Math.floor((n-u)/t))&&(i=0),h+=i?c:g;for(o=0;o<t;o+=1)l+=h+"\n"}return l.substring(0,l.length-1)},s.renderTo2dContext=function(t,r){r=r||2;for(var e=s.getModuleCount(),n=0;n<e;n++)for(var o=0;o<e;o++)t.fillStyle=s.isDark(n,o)?"black":"white",t.fillRect(n*r,o*r,r,r)},s}i.stringToBytes=(i.stringToBytesFuncs={default:function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);r.push(255&n)}return r}}).default,i.createStringToBytes=function(u,f){var i=function(){function t(){var t=r.read();if(-1==t)throw"eof";return t}for(var r=S(u),e=0,n={};;){var o=r.read();if(-1==o)break;var i=t(),a=t()<<8|t();n[String.fromCharCode(o<<8|i)]=a,e+=1}if(e!=f)throw e+" != "+f;return n}(),a="?".charCodeAt(0);return function(t){for(var r=[],e=0;e<t.length;e+=1){var n=t.charCodeAt(e);if(n<128)r.push(n);else{var o=i[t.charAt(e)];"number"==typeof o?(255&o)==o?r.push(o):(r.push(o>>>8),r.push(255&o)):r.push(a)}}return r}};var r,t,a=1,u=2,o=4,f=8,y={L:1,M:0,Q:3,H:2},e=0,n=1,c=2,g=3,l=4,h=5,s=6,v=7,B=(r=[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],(t={}).getBCHTypeInfo=function(t){for(var r=t<<10;0<=d(r)-d(1335);)r^=1335<<d(r)-d(1335);return 21522^(t<<10|r)},t.getBCHTypeNumber=function(t){for(var r=t<<12;0<=d(r)-d(7973);)r^=7973<<d(r)-d(7973);return t<<12|r},t.getPatternPosition=function(t){return r[t-1]},t.getMaskFunction=function(t){switch(t){case e:return function(t,r){return(t+r)%2==0};case n:return function(t,r){return t%2==0};case c:return function(t,r){return r%3==0};case g:return function(t,r){return(t+r)%3==0};case l:return function(t,r){return(Math.floor(t/2)+Math.floor(r/3))%2==0};case h:return function(t,r){return t*r%2+t*r%3==0};case s:return function(t,r){return(t*r%2+t*r%3)%2==0};case v:return function(t,r){return(t*r%3+(t+r)%2)%2==0};default:throw"bad maskPattern:"+t}},t.getErrorCorrectPolynomial=function(t){for(var r=C([1],0),e=0;e<t;e+=1)r=r.multiply(C([1,w.gexp(e)],0));return r},t.getLengthInBits=function(t,r){if(1<=r&&r<10)switch(t){case a:return 10;case u:return 9;case o:case f:return 8;default:throw"mode:"+t}else if(r<27)switch(t){case a:return 12;case u:return 11;case o:return 16;case f:return 10;default:throw"mode:"+t}else{if(!(r<41))throw"type:"+r;switch(t){case a:return 14;case u:return 13;case o:return 16;case f:return 12;default:throw"mode:"+t}}},t.getLostPoint=function(t){for(var r=t.getModuleCount(),e=0,n=0;n<r;n+=1)for(var o=0;o<r;o+=1){for(var i=0,a=t.isDark(n,o),u=-1;u<=1;u+=1)if(!(n+u<0||r<=n+u))for(var f=-1;f<=1;f+=1)o+f<0||r<=o+f||0==u&&0==f||a==t.isDark(n+u,o+f)&&(i+=1);5<i&&(e+=3+i-5)}for(n=0;n<r-1;n+=1)for(o=0;o<r-1;o+=1){var c=0;t.isDark(n,o)&&(c+=1),t.isDark(n+1,o)&&(c+=1),t.isDark(n,o+1)&&(c+=1),t.isDark(n+1,o+1)&&(c+=1),0!=c&&4!=c||(e+=3)}for(n=0;n<r;n+=1)for(o=0;o<r-6;o+=1)t.isDark(n,o)&&!t.isDark(n,o+1)&&t.isDark(n,o+2)&&t.isDark(n,o+3)&&t.isDark(n,o+4)&&!t.isDark(n,o+5)&&t.isDark(n,o+6)&&(e+=40);for(o=0;o<r;o+=1)for(n=0;n<r-6;n+=1)t.isDark(n,o)&&!t.isDark(n+1,o)&&t.isDark(n+2,o)&&t.isDark(n+3,o)&&t.isDark(n+4,o)&&!t.isDark(n+5,o)&&t.isDark(n+6,o)&&(e+=40);var g=0;for(o=0;o<r;o+=1)for(n=0;n<r;n+=1)t.isDark(n,o)&&(g+=1);return e+=Math.abs(100*g/r/r-50)/5*10},t);function d(t){for(var r=0;0!=t;)r+=1,t>>>=1;return r}var w=function(){for(var r=new Array(256),e=new Array(256),t=0;t<8;t+=1)r[t]=1<<t;for(t=8;t<256;t+=1)r[t]=r[t-4]^r[t-5]^r[t-6]^r[t-8];for(t=0;t<255;t+=1)e[r[t]]=t;var n={glog:function(t){if(t<1)throw"glog("+t+")";return e[t]},gexp:function(t){for(;t<0;)t+=255;for(;256<=t;)t-=255;return r[t]}};return n}();function C(n,o){if(void 0===n.length)throw n.length+"/"+o;var r=function(){for(var t=0;t<n.length&&0==n[t];)t+=1;for(var r=new Array(n.length-t+o),e=0;e<n.length-t;e+=1)r[e]=n[e+t];return r}(),i={getAt:function(t){return r[t]},getLength:function(){return r.length},multiply:function(t){for(var r=new Array(i.getLength()+t.getLength()-1),e=0;e<i.getLength();e+=1)for(var n=0;n<t.getLength();n+=1)r[e+n]^=w.gexp(w.glog(i.getAt(e))+w.glog(t.getAt(n)));return C(r,0)},mod:function(t){if(i.getLength()-t.getLength()<0)return i;for(var r=w.glog(i.getAt(0))-w.glog(t.getAt(0)),e=new Array(i.getLength()),n=0;n<i.getLength();n+=1)e[n]=i.getAt(n);for(n=0;n<t.getLength();n+=1)e[n]^=w.gexp(w.glog(t.getAt(n))+r);return C(e,0).mod(t)}};return i}function p(){var e=[],o={writeByte:function(t){e.push(255&t)},writeShort:function(t){o.writeByte(t),o.writeByte(t>>>8)},writeBytes:function(t,r,e){r=r||0,e=e||t.length;for(var n=0;n<e;n+=1)o.writeByte(t[n+r])},writeString:function(t){for(var r=0;r<t.length;r+=1)o.writeByte(t.charCodeAt(r))},toByteArray:function(){return e},toString:function(){var t="";t+="[";for(var r=0;r<e.length;r+=1)0<r&&(t+=","),t+=e[r];return t+="]"}};return o}var k,A,b=(k=[[1,26,19],[1,26,16],[1,26,13],[1,26,9],[1,44,34],[1,44,28],[1,44,22],[1,44,16],[1,70,55],[1,70,44],[2,35,17],[2,35,13],[1,100,80],[2,50,32],[2,50,24],[4,25,9],[1,134,108],[2,67,43],[2,33,15,2,34,16],[2,33,11,2,34,12],[2,86,68],[4,43,27],[4,43,19],[4,43,15],[2,98,78],[4,49,31],[2,32,14,4,33,15],[4,39,13,1,40,14],[2,121,97],[2,60,38,2,61,39],[4,40,18,2,41,19],[4,40,14,2,41,15],[2,146,116],[3,58,36,2,59,37],[4,36,16,4,37,17],[4,36,12,4,37,13],[2,86,68,2,87,69],[4,69,43,1,70,44],[6,43,19,2,44,20],[6,43,15,2,44,16],[4,101,81],[1,80,50,4,81,51],[4,50,22,4,51,23],[3,36,12,8,37,13],[2,116,92,2,117,93],[6,58,36,2,59,37],[4,46,20,6,47,21],[7,42,14,4,43,15],[4,133,107],[8,59,37,1,60,38],[8,44,20,4,45,21],[12,33,11,4,34,12],[3,145,115,1,146,116],[4,64,40,5,65,41],[11,36,16,5,37,17],[11,36,12,5,37,13],[5,109,87,1,110,88],[5,65,41,5,66,42],[5,54,24,7,55,25],[11,36,12,7,37,13],[5,122,98,1,123,99],[7,73,45,3,74,46],[15,43,19,2,44,20],[3,45,15,13,46,16],[1,135,107,5,136,108],[10,74,46,1,75,47],[1,50,22,15,51,23],[2,42,14,17,43,15],[5,150,120,1,151,121],[9,69,43,4,70,44],[17,50,22,1,51,23],[2,42,14,19,43,15],[3,141,113,4,142,114],[3,70,44,11,71,45],[17,47,21,4,48,22],[9,39,13,16,40,14],[3,135,107,5,136,108],[3,67,41,13,68,42],[15,54,24,5,55,25],[15,43,15,10,44,16],[4,144,116,4,145,117],[17,68,42],[17,50,22,6,51,23],[19,46,16,6,47,17],[2,139,111,7,140,112],[17,74,46],[7,54,24,16,55,25],[34,37,13],[4,151,121,5,152,122],[4,75,47,14,76,48],[11,54,24,14,55,25],[16,45,15,14,46,16],[6,147,117,4,148,118],[6,73,45,14,74,46],[11,54,24,16,55,25],[30,46,16,2,47,17],[8,132,106,4,133,107],[8,75,47,13,76,48],[7,54,24,22,55,25],[22,45,15,13,46,16],[10,142,114,2,143,115],[19,74,46,4,75,47],[28,50,22,6,51,23],[33,46,16,4,47,17],[8,152,122,4,153,123],[22,73,45,3,74,46],[8,53,23,26,54,24],[12,45,15,28,46,16],[3,147,117,10,148,118],[3,73,45,23,74,46],[4,54,24,31,55,25],[11,45,15,31,46,16],[7,146,116,7,147,117],[21,73,45,7,74,46],[1,53,23,37,54,24],[19,45,15,26,46,16],[5,145,115,10,146,116],[19,75,47,10,76,48],[15,54,24,25,55,25],[23,45,15,25,46,16],[13,145,115,3,146,116],[2,74,46,29,75,47],[42,54,24,1,55,25],[23,45,15,28,46,16],[17,145,115],[10,74,46,23,75,47],[10,54,24,35,55,25],[19,45,15,35,46,16],[17,145,115,1,146,116],[14,74,46,21,75,47],[29,54,24,19,55,25],[11,45,15,46,46,16],[13,145,115,6,146,116],[14,74,46,23,75,47],[44,54,24,7,55,25],[59,46,16,1,47,17],[12,151,121,7,152,122],[12,75,47,26,76,48],[39,54,24,14,55,25],[22,45,15,41,46,16],[6,151,121,14,152,122],[6,75,47,34,76,48],[46,54,24,10,55,25],[2,45,15,64,46,16],[17,152,122,4,153,123],[29,74,46,14,75,47],[49,54,24,10,55,25],[24,45,15,46,46,16],[4,152,122,18,153,123],[13,74,46,32,75,47],[48,54,24,14,55,25],[42,45,15,32,46,16],[20,147,117,4,148,118],[40,75,47,7,76,48],[43,54,24,22,55,25],[10,45,15,67,46,16],[19,148,118,6,149,119],[18,75,47,31,76,48],[34,54,24,34,55,25],[20,45,15,61,46,16]],(A={}).getRSBlocks=function(t,r){var e=function(t,r){switch(r){case y.L:return k[4*(t-1)+0];case y.M:return k[4*(t-1)+1];case y.Q:return k[4*(t-1)+2];case y.H:return k[4*(t-1)+3];default:return}}(t,r);if(void 0===e)throw"bad rs block @ typeNumber:"+t+"/errorCorrectionLevel:"+r;for(var n,o,i=e.length/3,a=[],u=0;u<i;u+=1)for(var f=e[3*u+0],c=e[3*u+1],g=e[3*u+2],l=0;l<f;l+=1)a.push((n=g,o=void 0,(o={}).totalCount=c,o.dataCount=n,o));return a},A),M=function(){var e=[],n=0,o={getBuffer:function(){return e},getAt:function(t){var r=Math.floor(t/8);return 1==(e[r]>>>7-t%8&1)},put:function(t,r){for(var e=0;e<r;e+=1)o.putBit(1==(t>>>r-e-1&1))},getLengthInBits:function(){return n},putBit:function(t){var r=Math.floor(n/8);e.length<=r&&e.push(0),t&&(e[r]|=128>>>n%8),n+=1}};return o},x=function(t){var r=a,n=t,e={getMode:function(){return r},getLength:function(t){return n.length},write:function(t){for(var r=n,e=0;e+2<r.length;)t.put(o(r.substring(e,e+3)),10),e+=3;e<r.length&&(r.length-e==1?t.put(o(r.substring(e,e+1)),4):r.length-e==2&&t.put(o(r.substring(e,e+2)),7))}},o=function(t){for(var r=0,e=0;e<t.length;e+=1)r=10*r+i(t.charAt(e));return r},i=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);throw"illegal char :"+t};return e},m=function(t){var r=u,n=t,e={getMode:function(){return r},getLength:function(t){return n.length},write:function(t){for(var r=n,e=0;e+1<r.length;)t.put(45*o(r.charAt(e))+o(r.charAt(e+1)),11),e+=2;e<r.length&&t.put(o(r.charAt(e)),6)}},o=function(t){if("0"<=t&&t<="9")return t.charCodeAt(0)-"0".charCodeAt(0);if("A"<=t&&t<="Z")return t.charCodeAt(0)-"A".charCodeAt(0)+10;switch(t){case" ":return 36;case"$":return 37;case"%":return 38;case"*":return 39;case"+":return 40;case"-":return 41;case".":return 42;case"/":return 43;case":":return 44;default:throw"illegal char :"+t}};return e},L=function(t){var r=o,e=i.stringToBytes(t),n={getMode:function(){return r},getLength:function(t){return e.length},write:function(t){for(var r=0;r<e.length;r+=1)t.put(e[r],8)}};return n},D=function(t){var r=f,e=i.stringToBytesFuncs.SJIS;if(!e)throw"sjis not supported.";!function(){var t=e("友");if(2!=t.length||38726!=(t[0]<<8|t[1]))throw"sjis not supported."}();var o=e(t),n={getMode:function(){return r},getLength:function(t){return~~(o.length/2)},write:function(t){for(var r=o,e=0;e+1<r.length;){var n=(255&r[e])<<8|255&r[e+1];if(33088<=n&&n<=40956)n-=33088;else{if(!(57408<=n&&n<=60351))throw"illegal char at "+(e+1)+"/"+n;n-=49472}n=192*(n>>>8&255)+(255&n),t.put(n,13),e+=2}if(e<r.length)throw"illegal char at "+(e+1)}};return n},S=function(t){var e=t,n=0,o=0,i=0,r={read:function(){for(;i<8;){if(n>=e.length){if(0==i)return-1;throw"unexpected end of file./"+i}var t=e.charAt(n);if(n+=1,"="==t)return i=0,-1;t.match(/^\s$/)||(o=o<<6|a(t.charCodeAt(0)),i+=6)}var r=o>>>i-8&255;return i-=8,r}},a=function(t){if(65<=t&&t<=90)return t-65;if(97<=t&&t<=122)return t-97+26;if(48<=t&&t<=57)return t-48+52;if(43==t)return 62;if(47==t)return 63;throw"c:"+t};return r},I=function(t,r,e){for(var n=function(t,r){var n=t,o=r,l=new Array(t*r),e={setPixel:function(t,r,e){l[r*n+t]=e},write:function(t){t.writeString("GIF87a"),t.writeShort(n),t.writeShort(o),t.writeByte(128),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(0),t.writeByte(255),t.writeByte(255),t.writeByte(255),t.writeString(","),t.writeShort(0),t.writeShort(0),t.writeShort(n),t.writeShort(o),t.writeByte(0);var r=i(2);t.writeByte(2);for(var e=0;255<r.length-e;)t.writeByte(255),t.writeBytes(r,e,255),e+=255;t.writeByte(r.length-e),t.writeBytes(r,e,r.length-e),t.writeByte(0),t.writeString(";")}},i=function(t){for(var r=1<<t,e=1+(1<<t),n=t+1,o=h(),i=0;i<r;i+=1)o.add(String.fromCharCode(i));o.add(String.fromCharCode(r)),o.add(String.fromCharCode(e));var a=p(),u=function(t){var e=t,n=0,o=0,r={write:function(t,r){if(t>>>r!=0)throw"length over";for(;8<=n+r;)e.writeByte(255&(t<<n|o)),r-=8-n,t>>>=8-n,n=o=0;o|=t<<n,n+=r},flush:function(){0<n&&e.writeByte(o)}};return r}(a);u.write(r,n);var f=0,c=String.fromCharCode(l[f]);for(f+=1;f<l.length;){var g=String.fromCharCode(l[f]);f+=1,o.contains(c+g)?c+=g:(u.write(o.indexOf(c),n),o.size()<4095&&(o.size()==1<<n&&(n+=1),o.add(c+g)),c=g)}return u.write(o.indexOf(c),n),u.write(e,n),u.flush(),a.toByteArray()},h=function(){var r={},e=0,n={add:function(t){if(n.contains(t))throw"dup key:"+t;r[t]=e,e+=1},size:function(){return e},indexOf:function(t){return r[t]},contains:function(t){return void 0!==r[t]}};return n};return e}(t,r),o=0;o<r;o+=1)for(var i=0;i<t;i+=1)n.setPixel(i,o,e(i,o));var a=p();n.write(a);for(var u=function(){function e(t){a+=String.fromCharCode(r(63&t))}var n=0,o=0,i=0,a="",t={},r=function(t){if(t<0);else{if(t<26)return 65+t;if(t<52)return t-26+97;if(t<62)return t-52+48;if(62==t)return 43;if(63==t)return 47}throw"n:"+t};return t.writeByte=function(t){for(n=n<<8|255&t,o+=8,i+=1;6<=o;)e(n>>>o-6),o-=6},t.flush=function(){if(0<o&&(e(n<<6-o),o=n=0),i%3!=0)for(var t=3-i%3,r=0;r<t;r+=1)a+="="},t.toString=function(){return a},t}(),f=a.toByteArray(),c=0;c<f.length;c+=1)u.writeByte(f[c]);return u.flush(),"data:image/gif;base64,"+u};return i}();qrcode.stringToBytesFuncs["UTF-8"]=function(t){return function(t){for(var r=[],e=0;e<t.length;e++){var n=t.charCodeAt(e);n<128?r.push(n):n<2048?r.push(192|n>>6,128|63&n):n<55296||57344<=n?r.push(224|n>>12,128|n>>6&63,128|63&n):(e++,n=65536+((1023&n)<<10|1023&t.charCodeAt(e)),r.push(240|n>>18,128|n>>12&63,128|n>>6&63,128|63&n))}return r}(t)},function(t){"function"==typeof define&&define.amd?define([],t):"object"==typeof exports&&(module.exports=t())}(function(){return qrcode});
 /* ===================================================================== Schloss
- * Gemeinsam für Kundenportal und CRM (eingesetzt von bauen.mjs).
+ * Gemeinsam für Kundenportal und CRM (eingesetzt von bauen.mjs). Stand 22.10.2026.
  *
- * Der verschlüsselte Block jedes Zugangs liegt beim Server. Die Seite holt ihn
- * über die Kennung (Hash des Zugangsnamens) und öffnet ihn NUR hier im Browser
- * mit dem Passwort (PBKDF2 → AES-256-GCM). Darin steht der Portalschlüssel, mit
- * dem alle weiteren Anfragen laufen. Das Passwort verlässt den Browser nie.
- * Passwort ändern = Block mit dem neuen Passwort neu verschlüsseln und tauschen.
+ * 1. Der verschlüsselte Block des Zugangs kommt vom Server und wird NUR hier mit
+ *    dem Passwort geöffnet (PBKDF2 → AES-256-GCM). Darin steht der Portalschlüssel.
+ * 2. Mit ihm (und dem Code aus der Authenticator-App, wenn eingerichtet) gibt der
+ *    Server eine SITZUNG. Nur die liegt danach im Browser, nie das Passwort und
+ *    nie der Portalschlüssel. „Angemeldet bleiben“ = Sitzung 30 Tage in diesem
+ *    Gerät; sonst endet sie mit dem Tab (höchstens 12 Stunden).
+ * 3. Alpha-Blueprint-Zugänge (Admin) müssen die Zwei-Faktor-Anmeldung einrichten,
+ *    bevor sie irgendetwas sehen. Für Kunden ist sie freiwillig (Einstellungen).
  */
 var API_URL = "https://vernkyijbvbfeqcuhxzp.supabase.co/functions/v1/kundenportal";
 var RUNDEN = 310000;
+var SITZ_SCHLUESSEL = "alpha-" + SEITE + "-sitzung";
 function b64(s) { var b = atob(s), u = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return u; }
 function zuB64(buf) { var u = new Uint8Array(buf), s = ""; for (var i = 0; i < u.length; i++) s += String.fromCharCode(u[i]); return btoa(s); }
 function hex(buf) { return Array.prototype.map.call(new Uint8Array(buf), function (x) { return ("0" + x.toString(16)).slice(-2); }).join(""); }
@@ -296,97 +391,196 @@ function blockSchliessen(obj, wort) {
     .then(function (k) { return crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, k, new TextEncoder().encode(JSON.stringify(obj))); })
     .then(function (c) { return { s: zuB64(salz), iv: zuB64(iv), b: zuB64(c) }; });
 }
-function ruf(daten, schluessel) {
-  var k = { "content-type": "application/json" }; if (schluessel) k["x-portal-schluessel"] = schluessel;
+
+/* ---------------------------------------------------------------- Sitzung */
+function sitzungLesen() { try { return localStorage.getItem(SITZ_SCHLUESSEL) || sessionStorage.getItem(SITZ_SCHLUESSEL) || ""; } catch (e) { return ""; } }
+function sitzungMerken(t, merken) {
+  try { localStorage.removeItem(SITZ_SCHLUESSEL); sessionStorage.removeItem(SITZ_SCHLUESSEL); (merken ? localStorage : sessionStorage).setItem(SITZ_SCHLUESSEL, t); } catch (e) {}
+}
+function sitzungWeg() { try { localStorage.removeItem(SITZ_SCHLUESSEL); sessionStorage.removeItem(SITZ_SCHLUESSEL); } catch (e) {} }
+/** Ruf an die Schnittstelle. kopf: { sitzung } oder { schluessel }. */
+function ruf(daten, kopf) {
+  var k = { "content-type": "application/json" };
+  if (kopf && kopf.sitzung) k["x-portal-sitzung"] = kopf.sitzung;
+  if (kopf && kopf.schluessel) k["x-portal-schluessel"] = kopf.schluessel;
   return fetch(API_URL, { method: "POST", headers: k, body: JSON.stringify(daten) })
-    .then(function (r) { return r.json().then(function (j) { if (!r.ok || j.fehler) throw new Error(j.fehler || ("Fehler " + r.status)); return j; }); },
+    .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { j._status = r.status; if (!r.ok && !j.zweiterFaktor && !j.totpEinrichten) { var f = new Error(j.fehler || ("Fehler " + r.status)); f.status = r.status; throw f; } return j; }); },
       function () { throw new Error("Keine Verbindung. Bitte später noch einmal versuchen."); });
 }
 function blockHolen(name) { return kennungVon(name).then(function (k) { return ruf({ aktion: "block", kennung: k }); }).then(function (j) { return j.block; }); }
-
-/* Anmelden: Block holen, öffnen, Inhalte holen, Seite starten. */
-function oeffnen(name, wort) {
-  var roh;
-  return blockHolen(name).then(function (b) { return blockOeffnen(b, wort); }).then(function (r) {
-    roh = r;
-    if (SEITE === "crm" && roh.rolle !== "admin") throw new Error("Zugangsname oder Passwort stimmt nicht.");
-    return ruf({ aktion: "inhalt" }, roh.schluessel);
+function geraetName() {
+  var u = navigator.userAgent, b = /Edg\//.test(u) ? "Edge" : /Chrome\//.test(u) ? "Chrome" : /Firefox\//.test(u) ? "Firefox" : /Safari\//.test(u) ? "Safari" : "Browser";
+  var s = /iPhone/.test(u) ? "iPhone" : /iPad/.test(u) ? "iPad" : /Android/.test(u) ? "Android" : /Mac OS X/.test(u) ? "Mac" : /Windows/.test(u) ? "Windows" : "Gerät";
+  return b + " auf " + s;
+}
+/** Nach erfolgreicher Anmeldung: wer bin ich, was darf ich sehen → Seite starten. */
+function weiter(token) {
+  var ich;
+  return ruf({ aktion: "ich" }, { sitzung: token }).then(function (j) {
+    ich = j;
+    if (SEITE === "crm" && ich.rolle !== "admin") { sitzungWeg(); throw new Error("Zugangsname oder Passwort stimmt nicht."); }
+    if (ich.eingeschraenkt) return { einrichten: true };
+    return ruf({ aktion: "inhalt" }, { sitzung: token });
   }).then(function (inhalt) {
-    var P = { benutzer: roh.name, rolle: roh.rolle, api: { url: API_URL, schluessel: roh.schluessel } };
+    if (inhalt.einrichten) return totpEinrichtenZeigen(token, true);
+    var P = { benutzer: ich.name, rolle: ich.rolle, zweiFaktor: ich.zweiFaktor, api: { url: API_URL, sitzung: token } };
     if (SEITE === "crm") { P.art = "crm"; P.portalKunden = inhalt.kunden || []; }
-    else if (roh.rolle === "admin") { P.art = "admin"; P.kunden = inhalt.kunden || []; }
+    else if (ich.rolle === "admin") { P.art = "admin"; P.kunden = inhalt.kunden || []; }
     else {
       if (!inhalt.kunde) throw new Error("Für diesen Zugang ist noch nichts eingerichtet. Bitte rufen Sie uns an.");
       P.art = "kunde"; P.kunde = inhalt.kunde; P.vorlagen = inhalt.kunde.vorlagenLinks || {};
     }
-    return P;
+    document.getElementById("tor").hidden = true;
+    document.getElementById("app").hidden = false;
+    starten(P);
+  });
+}
+function abmeldenUeberall() {
+  var t = sitzungLesen();
+  sitzungWeg();
+  (t ? ruf({ aktion: "abmelden" }, { sitzung: t }).catch(function () {}) : Promise.resolve()).then(function () { location.reload(); });
+}
+
+/* ---------------------------------------------------------------- Anmeldemaske */
+var TOR = { schritt: "passwort", roh: null, merken: false };
+function torSagen(text, schlecht) { var s = document.getElementById("sagt"); if (s) { s.className = "sagt" + (schlecht ? " schlecht" : ""); s.textContent = text || ""; } }
+function anmelden(name, wort, merken) {
+  TOR.merken = merken;
+  torSagen("Wird geöffnet …");
+  return blockHolen(name).then(function (b) { return blockOeffnen(b, wort); }).then(function (roh) {
+    if (SEITE === "crm" && roh.rolle !== "admin") throw new Error("Zugangsname oder Passwort stimmt nicht.");
+    TOR.roh = roh;
+    return ruf({ aktion: "anmelden", merken: merken, geraet: geraetName() }, { schluessel: roh.schluessel });
+  }).then(nachAnmelden);
+}
+function nachAnmelden(j) {
+  if (j.zweiterFaktor) { codeSchrittZeigen(j.fehler); return; }
+  if (j.totpEinrichten) { sitzungMerken(j.sitzung, false); return totpEinrichtenZeigen(j.sitzung, true); }
+  TOR.roh = null;
+  sitzungMerken(j.sitzung, TOR.merken);
+  return weiter(j.sitzung);
+}
+function codeSchrittZeigen(fehlerText) {
+  var f = document.getElementById("torForm");
+  f.innerHTML = '<span class="marke gross"><i></i>Alpha Blueprint</span><h1>Bestätigung</h1>' +
+    '<p class="unter">Bitte den 6-stelligen Code aus Ihrer Authenticator-App eingeben.</p>' +
+    '<label for="code">Code</label><input type="text" id="code" name="one-time-code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>' +
+    '<button type="submit" class="haupt" id="oeffnen">Bestätigen</button><p class="sagt" id="sagt" role="status" aria-live="polite"></p>' +
+    '<p class="fuss"><a href="#" id="zurueck">Zurück zur Anmeldung</a></p>';
+  if (fehlerText) torSagen(fehlerText, true);
+  var c = document.getElementById("code"); c.focus();
+  document.getElementById("zurueck").onclick = function (ev) { ev.preventDefault(); location.reload(); };
+  f.onsubmit = function (ev) {
+    ev.preventDefault();
+    var knopf = document.getElementById("oeffnen"); knopf.disabled = true; torSagen("Wird geprüft …");
+    ruf({ aktion: "anmelden", merken: TOR.merken, geraet: geraetName(), code: c.value.replace(/\s/g, "") }, { schluessel: TOR.roh.schluessel })
+      .then(nachAnmelden).catch(function (x) { torSagen(x.message, true); }).then(function () { knopf.disabled = false; });
+  };
+}
+function qrSvg(text) {
+  var q = qrcode(0, "M"); q.addData(text); q.make();
+  return q.createSvgTag({ cellSize: 5, margin: 2, scalable: true });
+}
+/** Einrichtung der Authenticator-App. pflicht = beim Anmelden (Admin), sonst aus den Einstellungen. */
+function totpEinrichtenZeigen(token, pflicht, ziel, fertig) {
+  return ruf({ aktion: "totp_start" }, { sitzung: token }).then(function (j) {
+    var box = ziel || document.getElementById("torForm");
+    if (!ziel) { document.getElementById("tor").hidden = false; document.getElementById("app").hidden = true; }
+    box.innerHTML = (ziel ? "" : '<span class="marke gross"><i></i>Alpha Blueprint</span>') +
+      '<h1 style="' + (ziel ? "font-size:20px;margin:0 0 6px" : "") + '">Zwei-Faktor einrichten</h1>' +
+      '<p class="unter">' + (pflicht ? "Für diesen Zugang ist ein zweiter Faktor Pflicht. " : "") + 'Scannen Sie den Code mit einer Authenticator-App (Apple Passwörter, Google Authenticator, 1Password …) und geben Sie den angezeigten Code ein.</p>' +
+      '<div class="qr">' + qrSvg(j.uri) + '</div>' +
+      '<p class="klein leise" style="margin:8px 0 14px;word-break:break-all">Oder von Hand eintragen: <code>' + esc(j.geheim.replace(/(.{4})/g, "$1 ").trim()) + "</code></p>" +
+      '<label for="tcode">Code aus der App</label><input type="text" id="tcode" inputmode="numeric" autocomplete="one-time-code" maxlength="7">' +
+      (pflicht ? '<label class="check" style="margin:2px 0 12px"><input type="checkbox" id="tmerken"' + (TOR.merken ? " checked" : "") + "> Auf diesem Gerät angemeldet bleiben (30 Tage)</label>" : "") +
+      '<button type="button" class="haupt" id="tok">Einrichten</button><p class="sagt" id="tsagt" role="status" aria-live="polite"></p>';
+    var c = box.querySelector("#tcode"); c.focus();
+    box.querySelector("#tok").onclick = function () {
+      var merken = pflicht && box.querySelector("#tmerken") && box.querySelector("#tmerken").checked;
+      var s = box.querySelector("#tsagt"); s.className = "sagt"; s.textContent = "Wird geprüft …";
+      ruf({ aktion: "totp_bestaetigen", code: c.value.replace(/\s/g, ""), merken: !!merken }, { sitzung: token }).then(function () {
+        if (pflicht) { sitzungMerken(token, !!merken); return weiter(token); }
+        melden("Zwei-Faktor-Anmeldung eingerichtet. Ab jetzt fragt die Anmeldung nach dem Code.");
+        if (fertig) fertig();
+      }).catch(function (x) { s.className = "sagt schlecht"; s.textContent = x.message; });
+    };
   });
 }
 
-/* Passwort ändern: altes prüfen (Block damit öffnen), neu verschlüsseln, Block tauschen. */
+/* ---------------------------------------------------------------- Passwort ändern */
 function passwortAendern(alt, neu) {
-  var s = null;
-  try { s = JSON.parse(sessionStorage.getItem(SITZUNG) || "null"); } catch (e) {}
-  var name = s && s.n;
-  if (!name) return Promise.reject(new Error("Bitte einmal ab- und wieder anmelden."));
+  var name = S.P.benutzer;
   if (String(neu).length < 10) return Promise.reject(new Error("Das neue Passwort braucht mindestens 10 Zeichen."));
   if (neu === alt) return Promise.reject(new Error("Das neue Passwort ist dasselbe wie das alte."));
   return blockHolen(name).then(function (b) { return blockOeffnen(b, alt).catch(function () { throw new Error("Das aktuelle Passwort stimmt nicht."); }); })
-    .then(function (roh) { return blockSchliessen(roh, neu).then(function (nb) { return ruf({ aktion: "passwort_setzen", block: nb }, roh.schluessel); }); })
-    .then(function () { try { sessionStorage.setItem(SITZUNG, JSON.stringify({ n: name, w: neu })); } catch (e) {} });
+    .then(function (roh) { return blockSchliessen(roh, neu).then(function (nb) { return ruf({ aktion: "passwort_setzen", block: nb }, { sitzung: S.P.api.sitzung, schluessel: roh.schluessel }); }); });
 }
-
-/* Die Karte „Passwort ändern“, gleich in Portal und CRM. Zustand liegt in PW, nicht im DOM. */
 var PW = { alt: "", neu: "", neu2: "", laeuft: false };
 function passwortKarte(name, du) {
   var stark = PW.neu.length >= 10, gleich = PW.neu && PW.neu === PW.neu2;
-  return '<div class="karte pad" style="max-width:560px"><h2>Passwort ändern</h2>' +
-    '<p class="klein leise" style="margin:2px 0 16px">Angemeldet als <b>' + esc(name) + '</b>. ' + (du ? "Das Passwort verlässt deinen Browser nie" : "Das Passwort verlässt Ihren Browser nie") + ', gespeichert wird nur eine damit verschlüsselte Fassung.</p>' +
-    '<form class="formular" autocomplete="on" onsubmit="return false">' +
-    '<input type="text" name="username" autocomplete="username" value="' + esc(name) + '" hidden>' +
+  return '<div class="karte pad"><h2>Passwort ändern</h2>' +
+    '<p class="klein leise" style="margin:2px 0 16px">Angemeldet als <b>' + esc(name) + "</b>. " + (du ? "Das Passwort verlässt deinen Browser nie" : "Das Passwort verlässt Ihren Browser nie") + ", gespeichert wird nur eine damit verschlüsselte Fassung. Danach werden alle anderen Geräte abgemeldet.</p>" +
+    '<div class="formular">' +
     '<label class="klein" style="font-weight:600">Aktuelles Passwort</label><input type="password" autocomplete="current-password" data-schluessel="pw-alt" data-pw="alt" value="' + esc(PW.alt) + '">' +
     '<label class="klein" style="font-weight:600">Neues Passwort</label><input type="password" autocomplete="new-password" data-schluessel="pw-neu" data-pw="neu" value="' + esc(PW.neu) + '">' +
-    '<div class="klein ' + (PW.neu ? (stark ? "" : "leise") : "leise") + '" style="margin-top:-4px;color:' + (PW.neu && !stark ? "var(--warn)" : "") + '">' + (PW.neu ? (stark ? "✓ lang genug" : "noch " + (10 - PW.neu.length) + " Zeichen") : "mindestens 10 Zeichen") + "</div>" +
+    '<div class="klein" style="margin-top:-4px;color:' + (PW.neu && !stark ? "var(--warn)" : "var(--leise)") + '">' + (PW.neu ? (stark ? "✓ lang genug" : "noch " + (10 - PW.neu.length) + " Zeichen") : "mindestens 10 Zeichen") + "</div>" +
     '<label class="klein" style="font-weight:600">Neues Passwort wiederholen</label><input type="password" autocomplete="new-password" data-schluessel="pw-neu2" data-pw="neu2" value="' + esc(PW.neu2) + '">' +
     (PW.neu2 && !gleich ? '<div class="klein" style="margin-top:-4px;color:var(--warn)">Die beiden Eingaben stimmen nicht überein.</div>' : "") +
-    '<div class="reihe" style="margin-top:6px"><button type="button" class="haupt" data-pwspeichern' + (PW.alt && stark && gleich && !PW.laeuft ? "" : " disabled") + ">" + (PW.laeuft ? "Wird geändert …" : "Passwort ändern") + "</button></div></form></div>";
+    '<div class="reihe" style="margin-top:6px"><button type="button" class="haupt" data-pwspeichern' + (PW.alt && stark && gleich && !PW.laeuft ? "" : " disabled") + ">" + (PW.laeuft ? "Wird geändert …" : "Passwort ändern") + "</button></div></div></div>";
 }
-function passwortVerdrahten(neuZeichnen) {
-  document.querySelectorAll("[data-pw]").forEach(function (t) {
-    t.oninput = function () {
-      PW[t.dataset.pw] = t.value;
-      /* Nur den Knopf und die Hinweise neu, ohne den Fokus zu verlieren. */
-      neuZeichnen();
-    };
-  });
-  var b = document.querySelector("[data-pwspeichern]");
+
+/* ---------------------------------------------------------------- Sicherheit: Zwei-Faktor + Geräte */
+var SI = { geraete: null, laedt: false, frage: null, aus: "" };
+function sicherheitKarten(du) {
+  if (!SI.geraete && !SI.laedt) { SI.laedt = true; ruf({ aktion: "geraete" }, { sitzung: S.P.api.sitzung }).then(function (j) { SI.geraete = j.geraete; SI.laedt = false; zeichnen(); }, function () { SI.laedt = false; }); }
+  var admin = S.P.rolle === "admin";
+  var zf = '<div class="karte pad"><h2>Zwei-Faktor-Anmeldung</h2>' +
+    (S.P.zweiFaktor ? '<p><span class="pille gut">eingeschaltet</span></p><p class="klein leise">' + (admin ? "Für Alpha-Blueprint-Zugänge ist sie Pflicht und bleibt an." : "Zum Ausschalten den aktuellen Code eingeben.") + "</p>" +
+      (admin ? "" : '<div class="reihe"><input type="text" inputmode="numeric" maxlength="7" placeholder="Code" style="max-width:140px" data-schluessel="si-aus" data-si="aus" value="' + esc(SI.aus) + '"><button type="button" class="klein" data-totpaus>Ausschalten</button></div>')
+      : '<p><span class="pille warn">aus</span></p><p class="klein leise">Schützt ' + (du ? "deinen" : "Ihren") + ' Zugang zusätzlich mit einem Code aus einer App auf dem Handy.</p><button type="button" class="haupt" data-totpan>Einrichten</button><div id="totpZiel" style="margin-top:14px"></div>') + "</div>";
+  var ger = '<div class="karte pad"><div class="kartenkopf"><h2>Angemeldete Geräte</h2>' +
+    (SI.geraete && SI.geraete.length > 1 ? '<button type="button" class="klein" data-geraetweg="alle-anderen">Alle anderen abmelden</button>' : "") + "</div>" +
+    (!SI.geraete ? '<div class="leer">Lädt …</div>' : SI.geraete.map(function (g) {
+      return '<div class="doczeile"><span class="docsymbol" style="width:34px;height:34px">' + (/iPhone|Android/.test(g.geraet) ? "📱" : "💻") + '</span><div class="mehr"><div class="titel">' + esc(g.geraet || "Unbekanntes Gerät") + (g.dieses ? ' <span class="pille akzent">dieses Gerät</span>' : "") + "</div>" +
+        '<div class="klein leise">zuletzt ' + datum(g.zuletzt, true) + " · angemeldet bis " + datum(g.laeuftAb) + "</div></div>" +
+        (g.dieses ? '<button type="button" class="klein" data-tun="abmelden">Abmelden</button>' : SI.frage === g.id ? '<button type="button" class="klein gefahr" data-geraetweg="' + g.id + '">Wirklich abmelden?</button>' : '<button type="button" class="klein leise" data-geraetfrage="' + g.id + '">Abmelden</button>') + "</div>";
+    }).join("")) + "</div>";
+  return zf + ger;
+}
+function sicherheitVerdrahten() {
+  var w = document.getElementById("app");
+  w.querySelectorAll("[data-pw]").forEach(function (t) { t.oninput = function () { PW[t.dataset.pw] = t.value; zeichnen(); }; });
+  var b = w.querySelector("[data-pwspeichern]");
   if (b) b.onclick = function () {
-    PW.laeuft = true; neuZeichnen();
+    PW.laeuft = true; zeichnen();
     passwortAendern(PW.alt, PW.neu).then(function () {
-      PW = { alt: "", neu: "", neu2: "", laeuft: false }; neuZeichnen(); melden("Passwort geändert. Ab sofort gilt das neue.");
-    }, function (f) { PW.laeuft = false; neuZeichnen(); melden(f.message, true); });
+      PW = { alt: "", neu: "", neu2: "", laeuft: false }; SI.geraete = null; zeichnen(); melden("Passwort geändert. Alle anderen Geräte sind abgemeldet.");
+    }, function (f) { PW.laeuft = false; zeichnen(); melden(f.message, true); });
   };
+  var an = w.querySelector("[data-totpan]");
+  if (an) an.onclick = function () { an.disabled = true; totpEinrichtenZeigen(S.P.api.sitzung, false, document.getElementById("totpZiel"), function () { S.P.zweiFaktor = true; zeichnen(); }).catch(function (f) { an.disabled = false; melden(f.message, true); }); };
+  w.querySelectorAll("[data-si]").forEach(function (t) { t.oninput = function () { SI[t.dataset.si] = t.value; }; });
+  var aus = w.querySelector("[data-totpaus]");
+  if (aus) aus.onclick = function () { ruf({ aktion: "totp_aus", code: SI.aus.replace(/\s/g, "") }, { sitzung: S.P.api.sitzung }).then(function () { S.P.zweiFaktor = false; SI.aus = ""; zeichnen(); melden("Zwei-Faktor ausgeschaltet."); }, function (f) { melden(f.message, true); }); };
+  w.querySelectorAll("[data-geraetfrage]").forEach(function (x) { x.onclick = function () { SI.frage = x.dataset.geraetfrage; zeichnen(); }; });
+  w.querySelectorAll("[data-geraetweg]").forEach(function (x) { x.onclick = function () {
+    ruf({ aktion: "geraet_abmelden", id: x.dataset.geraetweg }, { sitzung: S.P.api.sitzung }).then(function () { SI.frage = null; SI.geraete = null; zeichnen(); melden("Abgemeldet."); }, function (f) { melden(f.message, true); }); }; });
 }
 
+/* ---------------------------------------------------------------- Start */
 (function anmeldung() {
-  var form = document.getElementById("torForm"), sagt = document.getElementById("sagt"), knopf = document.getElementById("oeffnen");
-  function los(name, wort, still) {
-    knopf.disabled = true; sagt.className = "sagt"; sagt.textContent = "Wird geöffnet …";
-    oeffnen(name, wort).then(function (P) {
-      try { sessionStorage.setItem(SITZUNG, JSON.stringify({ n: name, w: wort })); } catch (e) {}
-      document.getElementById("tor").hidden = true;
-      document.getElementById("app").hidden = false;
-      starten(P);
-    }, function (f) {
-      knopf.disabled = false;
-      if (still) { sagt.textContent = ""; try { sessionStorage.removeItem(SITZUNG); } catch (e) {} return; }
-      sagt.className = "sagt schlecht"; sagt.textContent = f.message;
-    });
-  }
-  form.addEventListener("submit", function (ev) { ev.preventDefault(); los(document.getElementById("wer").value, document.getElementById("wort").value); });
-  try { var s = JSON.parse(sessionStorage.getItem(SITZUNG) || "null"); if (s) los(s.n, s.w, true); } catch (e) {}
+  if (window.top !== window.self) { document.body.innerHTML = ""; return; }   // nicht in fremde Rahmen einbetten
+  var form = document.getElementById("torForm"), knopf = document.getElementById("oeffnen");
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    knopf.disabled = true;
+    anmelden(document.getElementById("wer").value, document.getElementById("wort").value, document.getElementById("merken").checked)
+      .catch(function (f) { torSagen(f.message, true); })
+      .then(function () { if (document.getElementById("oeffnen")) document.getElementById("oeffnen").disabled = false; });
+  });
+  var t = sitzungLesen();
+  if (t) { torSagen("Wird geöffnet …"); weiter(t).catch(function () { sitzungWeg(); torSagen(""); }); }
 })();
-
 
 /* ===================================================================== Vorschau
  * Jeder Link auf eine Datei im Speicher öffnet sich hier über der Seite statt als Download.
@@ -474,9 +668,11 @@ var S = {
 };
 function api(aktion, daten) {
   return fetch(S.P.api.url, {
-    method: "POST", headers: { "content-type": "application/json", "x-portal-schluessel": S.P.api.schluessel },
+    method: "POST", headers: { "content-type": "application/json", "x-portal-sitzung": S.P.api.sitzung },
     body: JSON.stringify(Object.assign({ aktion: aktion }, daten || {})),
-  }).then(function (r) { return r.json().then(function (j) { if (!r.ok || j.fehler) throw new Error(j.fehler || ("Fehler " + r.status)); return j; }); });
+  }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) {
+    if (r.status === 401) { sitzungWeg(); location.reload(); }
+    if (!r.ok || j.fehler) throw new Error(j.fehler || ("Fehler " + r.status)); return j; }); });
 }
 function hochladen(link, datei) {
   return fetch(link, { method: "PUT", headers: { "content-type": String(datei.type || "application/octet-stream").split(";")[0] || "application/octet-stream", "x-upsert": "false" }, body: datei })
@@ -508,7 +704,7 @@ function zeichnen() {
 function kopf() {
   var neu = (S.liste || []).reduce(function (s, k) { return s + (k.portal ? k.portal.ungelesen : 0); }, 0);
   return '<header class="kopf"><div class="innen"><span class="marke"><i></i>Alpha Blueprint</span><span class="firma">CRM</span>' +
-    '<span class="rechts"><a class="knopf klein" href="/portal/" target="_blank" rel="noopener">Kundenportal ↗</a><span class="wer">' + esc(S.P.benutzer) + '</span><button type="button" class="klein" data-tun="abmelden">Abmelden</button></span></div>' +
+    '<span class="rechts"><button type="button" class="klein leise thema" data-tun="thema" title="Darstellung: wie das Gerät, hell oder dunkel">' + ({ system: "◐", hell: "☀", dunkel: "☾" }[THEMA] || "◐") + '</button><a class="knopf klein" href="/portal/" target="_blank" rel="noopener">Kundenportal ↗</a><span class="wer">' + esc(S.P.benutzer) + '</span><button type="button" class="klein" data-tun="abmelden">Abmelden</button></span></div>' +
     '<nav class="reiter"><button type="button" data-sicht="start" aria-current="' + (S.sicht === "start") + '">Start' + (neu ? ' <span class="zahlpunkt">' + neu + "</span>" : "") + "</button>" +
     '<button type="button" data-sicht="kunden" aria-current="' + (S.sicht === "kunden" || S.sicht === "akte") + '">Kunden</button>' +
     '<button type="button" data-sicht="finanzen" aria-current="' + (S.sicht === "finanzen") + '">Finanzen</button>' +
@@ -546,12 +742,16 @@ function ereignis(e) {
   var was = e.art === "datei" ? '<b>' + esc(e.zugang) + "</b> hat eine Datei hochgeladen: " + (e.url ? '<a href="' + esc(e.url) + '" target="_blank" rel="noopener">' + esc(e.datei) + "</a>" : esc(e.datei)) + (e.punkt ? ' <span class="leise">· ' + esc((pp[e.punkt] || {}).frage || e.punkt) + "</span>" : "")
     : e.art === "nachricht" ? "<b>" + esc(e.zugang) + "</b> schreibt" + (e.neu ? ' <span class="pille akzent">neu</span>' : "") + ':<div class="text">' + esc(e.text.length > 220 ? e.text.slice(0, 220) + " …" : e.text) + "</div>"
     : "<b>" + esc(e.zugang) + "</b> hat geantwortet: " + esc((pp[e.punkt] || {}).frage || e.punkt) + '<div class="text">' + esc(e.text.length > 160 ? e.text.slice(0, 160) + " …" : e.text) + "</div>";
+  var frage = S.bestaetigen === "f" + e.schluessel;
   return '<div class="ereignis"><span class="icon ' + e.art + '">' + (e.art === "datei" ? "↑" : e.art === "nachricht" ? "✉" : "✓") + '</span><div class="was"><div class="klein leise">' +
-    (k ? '<a href="#" data-akte="' + k.id + '" data-zu="portal">' + esc(name) + "</a>" : esc(name)) + " · " + datum(e.wann, true) + "</div>" + was + "</div></div>";
+    (k ? '<a href="#" data-akte="' + k.id + '" data-zu="portal">' + esc(name) + "</a>" : esc(name)) + " · " + datum(e.wann, true) + "</div>" + was + "</div>" +
+    '<div class="feedknoepfe">' + (frage ? '<button type="button" class="klein gefahr" data-feedweg="' + esc(e.pfad) + '">Datei endgültig löschen?</button>'
+      : '<button type="button" class="klein leise" data-feedaus="' + esc(e.schluessel) + '" title="Aus dieser Liste nehmen. Die Datei oder Nachricht bleibt erhalten.">Ausblenden</button>' +
+        (e.art === "datei" ? '<button type="button" class="klein leise gefahr" data-feedfrage="' + esc(e.schluessel) + '">Löschen</button>' : "")) + "</div></div>";
 }
 
 function einstellungen() {
-  return '<div class="seitenkopf"><div><span class="etikett">Einstellungen</span><h1>Dein Zugang</h1><p>Gilt für CRM und Kundenportal, es ist derselbe Zugang.</p></div></div>' + passwortKarte(S.P.benutzer, true);
+  return '<div class="seitenkopf"><div><span class="etikett">Einstellungen</span><h1>Dein Zugang</h1><p>Gilt für CRM und Kundenportal, es ist derselbe Zugang.</p></div></div>' + '<div class="raster zwei">' + passwortKarte(S.P.benutzer, true) + '<div style="display:grid;gap:16px;align-content:start">' + sicherheitKarten(true) + "</div></div>";
 }
 
 /* ---------------------------------------------------------------- Liste */
@@ -688,7 +888,7 @@ function portalReiter() {
  * „Sicher“ zählen nur Kunden mit Status „Kunde“. Offene Angebote stehen als zweite Zahl daneben.
  * Kontostand, Rücklage-% und Fixkosten trägt Elia selbst ein; hier wird nichts geschätzt.
  */
-var FZ = { daten: null, laedt: false, ohneTermin: true, konto: "", ruecklage: "",
+var FZ = { daten: null, laedt: false, ohneTermin: true, konto: "", ruecklage: "", jahrAb: "",
   ausgabe: { titel: "", betrag_monat: "", ab: "", bis: "" } };
 var ZN = { titel: "", betrag: "", faellig: "" };   // neue Zahlung in der Kundenakte
 var ZE = null;                                     // Zahlung, die gerade bearbeitet wird (Kopie)
@@ -696,117 +896,173 @@ function finanzenLaden() {
   FZ.laedt = true;
   return api("crm_finanzen").then(function (j) {
     FZ.daten = j; FZ.laedt = false;
-    FZ.konto = String(j.einstellungen.kontostand || 0).replace(".", ","); FZ.ruecklage = String(j.einstellungen.ruecklage || 0).replace(".", ",");
+    FZ.konto = String(j.einstellungen.kontostand || 0).replace(".", ","); FZ.ruecklage = String(j.einstellungen.ruecklage || 0).replace(".", ","); FZ.jahrAb = j.einstellungen.jahr_ab || "";
     zeichnen();
   }, function (f) { FZ.laedt = false; melden(f.message, true); });
 }
 function heuteIso() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
-function zwoelfMonate() { var d = new Date(), a = []; for (var i = 0; i < 12; i++) { var x = new Date(d.getFullYear(), d.getMonth() + i, 1); a.push(x.getFullYear() + "-" + ("0" + (x.getMonth() + 1)).slice(-2)); } return a; }
+/* Das Planungsjahr: 12 Monate ab „Planungsjahr ab“ (Einstellung), sonst ab diesem Monat. */
+function planMonate() {
+  var ab = (FZ.daten && FZ.daten.einstellungen && FZ.daten.einstellungen.jahr_ab) || heuteIso().slice(0, 8) + "01";
+  var y = +ab.slice(0, 4), mo = +ab.slice(5, 7) - 1, a = [];
+  for (var i = 0; i < 12; i++) { var x = new Date(y, mo + i, 1); a.push(x.getFullYear() + "-" + ("0" + (x.getMonth() + 1)).slice(-2)); }
+  return a;
+}
 function aktivIm(mon, ab, bis) { return !!ab && ab.slice(0, 7) <= mon && (!bis || bis.slice(0, 7) >= mon); }
 function betrag(n) { var x = Number(n); return isFinite(x) ? x : 0; }
 function eingabeZahl(t) { var s = String(t || "").replace(/\s|€/g, ""); if (s.indexOf(",") !== -1) s = s.replace(/\./g, "").replace(",", "."); else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, ""); var n = Number(s); return isFinite(n) ? n : 0; }
 function euro2(n) { return (Number(n) || 0).toLocaleString("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: Math.round(n) === n ? 0 : 2 }); }
 function monatsName(m) { return new Date(+m.slice(0, 4), +m.slice(5, 7) - 1, 1).toLocaleDateString("de-DE", { month: "short" }).replace(".", ""); }
+/* Mit „Monatsbetrag … als bezahlt eintragen“ verbuchte Monate zählen über den Monatsbetrag, nicht doppelt. */
+function istMonatsposten(z) { return /^Monatsbetrag /.test(z.titel || ""); }
 
+/**
+ * Ist (mitAngeboten=false): nur unterschriebene Kunden; Monatsbetrag ohne Startdatum zählt nicht.
+ * Könnte (true): auch offene Angebote; Monatsbetrag ohne Startdatum ab nächstem Monat.
+ * Gesamtbetrag = im Planungsjahr schon bezahlt + noch offen (fällig bis Jahresende, auf Wunsch auch ohne Termin) + Monatsbeträge im Planungsjahr.
+ */
 function rechnen(d, mitAngeboten) {
-  var heute = heuteIso(), monate = zwoelfMonate(), letzter = monate[11], jahr = heute.slice(0, 4);
+  var heute = heuteIso(), akt = heute.slice(0, 7), monate = planMonate(), erster = monate[0], letzter = monate[11];
+  var naechster = (function () { var x = new Date(); x = new Date(x.getFullYear(), x.getMonth() + 1, 1); return x.getFullYear() + "-" + ("0" + (x.getMonth() + 1)).slice(-2) + "-01"; })();
+  var hinein = function (m) { return m < erster ? erster : m > letzter ? letzter : m; };
   var K = {}; d.kunden.forEach(function (k) { K[k.id] = k; });
   var zaehlt = function (k) { return k && (k.status === "kunde" || (mitAngeboten && k.status === "angebot")); };
-  var r = { gezahltJahr: 0, gezahltGesamt: 0, ueberfaellig: 0, faellig12: 0, ohneTermin: 0, spaeter: 0, einnahmen12: 0, laufend: 0, fix12: 0, fixMonat: 0, ein: {}, fix: {}, startOffen: [], monate: monate };
+  var r = { monate: monate, ein: {}, fix: {}, bezahlt: 0, gezahltGesamt: 0, offen: 0, ueberfaellig: 0, ohneTermin: 0, spaeter: 0,
+    monatlich: 0, monatlichRest: 0, monatVoll: 0, laufend: 0, fix12: 0, fixMonat: 0, startOffen: [], angenommen: [] };
   monate.forEach(function (m) { r.ein[m] = 0; r.fix[m] = 0; });
   d.zahlungen.forEach(function (z) {
     var k = K[z.kunde_id], b = betrag(z.betrag);
-    if (z.bezahlt_am) { r.gezahltGesamt += b; if (z.bezahlt_am.slice(0, 4) === jahr) r.gezahltJahr += b; return; }
+    if (z.bezahlt_am) {
+      r.gezahltGesamt += b;
+      var mb = z.bezahlt_am.slice(0, 7);
+      if (!istMonatsposten(z) && mb >= erster && mb <= letzter) { r.bezahlt += b; r.ein[mb] += b; }
+      return;
+    }
     if (!zaehlt(k)) return;
-    if (!z.faellig) { r.ohneTermin += b; if (FZ.ohneTermin) r.einnahmen12 += b; return; }
-    if (z.faellig < heute) { r.ueberfaellig += b; r.einnahmen12 += b; r.ein[monate[0]] += b; return; }
-    if (z.faellig.slice(0, 7) <= letzter) { r.faellig12 += b; r.einnahmen12 += b; r.ein[z.faellig.slice(0, 7)] += b; } else r.spaeter += b;
+    if (!z.faellig) { r.ohneTermin += b; return; }
+    if (z.faellig < heute) { r.ueberfaellig += b; r.offen += b; r.ein[hinein(akt)] += b; return; }
+    if (z.faellig.slice(0, 7) <= letzter) { r.offen += b; r.ein[hinein(z.faellig.slice(0, 7))] += b; } else r.spaeter += b;
   });
   d.kunden.forEach(function (k) {
     if (!zaehlt(k) || !betrag(k.monatlich)) return;
-    if (!k.monatlich_ab) { r.startOffen.push(k); return; }
-    monate.forEach(function (m) { if (aktivIm(m, k.monatlich_ab, k.monatlich_bis)) { r.einnahmen12 += betrag(k.monatlich); r.ein[m] += betrag(k.monatlich); } });
-    if (aktivIm(monate[0], k.monatlich_ab, k.monatlich_bis)) r.laufend += betrag(k.monatlich);
+    var ab = k.monatlich_ab;
+    if (!ab) { if (!mitAngeboten) { r.startOffen.push(k); return; } ab = naechster; r.angenommen.push(k); }
+    r.monatVoll += betrag(k.monatlich);
+    if (aktivIm(akt, ab, k.monatlich_bis)) r.laufend += betrag(k.monatlich);
+    monate.forEach(function (m) { if (aktivIm(m, ab, k.monatlich_bis)) { r.monatlich += betrag(k.monatlich); r.ein[m] += betrag(k.monatlich); if (m >= akt) r.monatlichRest += betrag(k.monatlich); } });
   });
   d.ausgaben.forEach(function (a) {
     monate.forEach(function (m) { if (aktivIm(m, a.ab || "0000-01-01", a.bis)) { r.fix12 += betrag(a.betrag_monat); r.fix[m] += betrag(a.betrag_monat); } });
-    if (aktivIm(monate[0], a.ab || "0000-01-01", a.bis)) r.fixMonat += betrag(a.betrag_monat);
+    if (aktivIm(akt, a.ab || "0000-01-01", a.bis)) r.fixMonat += betrag(a.betrag_monat);
   });
-  r.konto = betrag(d.einstellungen.kontostand); r.ruecklageProzent = betrag(d.einstellungen.ruecklage);
-  r.ruecklage = r.einnahmen12 * r.ruecklageProzent / 100;
-  r.verfuegbar = r.konto + r.einnahmen12 - r.ruecklage - r.fix12;
+  r.start = betrag(d.einstellungen.kontostand); r.ruecklageProzent = betrag(d.einstellungen.ruecklage);
+  r.gesamt = r.bezahlt + r.offen + (FZ.ohneTermin ? r.ohneTermin : 0) + r.monatlich;
+  r.nochOffen = r.offen + r.ohneTermin + r.spaeter + r.monatlichRest;
+  r.ruecklage = r.gesamt * r.ruecklageProzent / 100;
+  r.verfuegbar = r.start + r.gesamt - r.ruecklage - r.fix12;
   r.rahmen = r.verfuegbar / 12;
+  /* Verlauf: Startguthaben, dann Monat für Monat + Einnahmen − Fixkosten. Raten ohne Termin sind im Verlauf nicht verteilt. */
+  var stand = r.start; r.verlauf = monate.map(function (m) { stand += r.ein[m] - r.fix[m]; return stand; });
   return r;
+}
+
+function zustand(titel, sub, r, vergleich) {
+  var mehr = vergleich ? r.rahmen - vergleich.rahmen : 0;
+  var zeile = function (t, w, minus, stark) { return "<tr" + (stark ? ' style="font-weight:700"' : "") + "><td>" + t + '</td><td style="text-align:right;white-space:nowrap' + (w < 0 && !minus ? ";color:var(--schlecht)" : "") + '">' + (minus ? "− " + euro2(Math.abs(w)) : euro2(w)) + "</td></tr>"; };
+  return '<div class="zustand' + (vergleich ? " koennte" : "") + '"><span class="etikett">' + titel + '</span><div class="klein leise" style="margin:2px 0 8px">' + sub + "</div>" +
+    '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><span style="font:700 40px/1 var(--anzeige);' + (r.rahmen < 0 ? "color:var(--schlecht)" : "") + '">' + euro2(Math.round(r.rahmen)) + '</span><span class="leise">im Monat ausgeben</span>' +
+    (vergleich && mehr > 0.5 ? '<span class="pille gut">+ ' + euro2(Math.round(mehr)) + "</span>" : "") + "</div>" +
+    '<div class="klein" style="margin:6px 0 10px">Wiederkehrend: <b>' + euro2(r.monatVoll) + " im Monat</b>" + (r.laufend !== r.monatVoll ? " · läuft aktuell: " + euro2(r.laufend) : "") + " · Kunden zahlen noch: <b>" + euro2(r.nochOffen) + "</b></div>" +
+    '<table class="tabelle"><tbody>' + zeile("Startguthaben", r.start) +
+    zeile("+ im Planungsjahr schon bezahlt", r.bezahlt) + zeile("+ noch offen, fällig im Planungsjahr", r.offen) +
+    (FZ.ohneTermin && r.ohneTermin ? zeile("+ Raten ohne Termin", r.ohneTermin) : "") + zeile("+ Monatsbeträge im Planungsjahr", r.monatlich) +
+    zeile("= Gesamtbetrag der Kunden", r.gesamt, false, true) +
+    zeile("− Rücklage " + String(r.ruecklageProzent).replace(".", ",") + " %", r.ruecklage, true) + zeile("− deine Fixkosten", r.fix12, true) +
+    zeile("= verfügbar, ÷ 12", r.verfuegbar, false, true) + "</tbody></table>" +
+    (vergleich && r.angenommen.length ? '<div class="klein leise" style="margin-top:8px">Angenommen ab nächstem Monat: ' + r.angenommen.map(function (k) { return esc(k.firma) + " " + euro2(k.monatlich); }).join(", ") + "</div>" : "") + "</div>";
+}
+
+/** Balken (Einnahmen, Fixkosten) je Monat und eine Linie: wie sich dein Geld über das Jahr entwickelt. */
+function diagramm(r, m) {
+  var W = 1200, H = 300, L = 70, R = 70, O = 18, U = 36, B = (W - L - R) / 12;
+  var maxB = Math.max.apply(null, r.monate.map(function (x) { return Math.max(r.ein[x], r.fix[x], m.ein[x]); }).concat([1]));
+  var werte = r.verlauf.concat(m.verlauf, [r.start, 0]), lMin = Math.min.apply(null, werte), lMax = Math.max.apply(null, werte);
+  if (lMax - lMin < 1) lMax = lMin + 1;
+  var yB = function (v) { return H - U - (v / maxB) * (H - U - O); };
+  var yL = function (v) { return H - U - ((v - lMin) / (lMax - lMin)) * (H - U - O); };
+  var xM = function (i) { return L + B * i + B / 2; };
+  var kurz = function (v) { return Math.abs(v) >= 1000 ? (v / 1000).toLocaleString("de-DE", { maximumFractionDigits: 1 }) + " T€" : Math.round(v) + " €"; };
+  var s = '<svg viewBox="0 0 ' + W + " " + H + '" class="diagramm" role="img" aria-label="Einnahmen, Fixkosten und Geldverlauf je Monat">';
+  for (var g = 0; g <= 4; g++) { var yy = O + (H - U - O) * g / 4; s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + yy + '" y2="' + yy + '" class="gitter"/>'; }
+  r.monate.forEach(function (x, i) {
+    var bw = Math.min(26, B * 0.3), x0 = xM(i) - bw - 2;
+    if (m.ein[x] > r.ein[x]) s += '<rect x="' + x0 + '" y="' + yB(m.ein[x]) + '" width="' + bw + '" height="' + (H - U - yB(m.ein[x])) + '" rx="5" class="b-koennte"><title>' + monatsName(x) + ": " + euro2(m.ein[x]) + " Einnahmen (Könnte)</title></rect>";
+    s += '<rect x="' + x0 + '" y="' + yB(r.ein[x]) + '" width="' + bw + '" height="' + (H - U - yB(r.ein[x])) + '" rx="5" class="b-ein"><title>' + monatsName(x) + ": " + euro2(r.ein[x]) + " Einnahmen (Ist)</title></rect>";
+    s += '<rect x="' + (xM(i) + 2) + '" y="' + yB(r.fix[x]) + '" width="' + bw + '" height="' + (H - U - yB(r.fix[x])) + '" rx="5" class="b-fix"><title>' + monatsName(x) + ": " + euro2(r.fix[x]) + " Fixkosten</title></rect>";
+    s += '<text x="' + xM(i) + '" y="' + (H - 12) + '" class="achse" text-anchor="middle">' + monatsName(x) + "</text>";
+  });
+  var linie = function (v, kl) { return '<polyline class="' + kl + '" points="' + v.map(function (w, i) { return xM(i) + "," + yL(w); }).join(" ") + '"/>' +
+    v.map(function (w, i) { return '<circle cx="' + xM(i) + '" cy="' + yL(w) + '" r="4.5" class="' + kl + '-p"><title>' + monatsName(r.monate[i]) + ": " + euro2(Math.round(w)) + "</title></circle>"; }).join(""); };
+  if (lMin < 0) s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + yL(0) + '" y2="' + yL(0) + '" class="null"/>';
+  s += linie(m.verlauf, "l-koennte") + linie(r.verlauf, "l-ist");
+  s += '<text x="' + (W - R + 8) + '" y="' + (yL(r.verlauf[11]) + 4) + '" class="wert">' + kurz(r.verlauf[11]) + "</text>";
+  if (Math.abs(m.verlauf[11] - r.verlauf[11]) > 1) s += '<text x="' + (W - R + 8) + '" y="' + (yL(m.verlauf[11]) + 4) + '" class="wert koennte">' + kurz(m.verlauf[11]) + "</text>";
+  s += '<text x="' + (L - 8) + '" y="' + (O + 4) + '" class="achse" text-anchor="end">' + kurz(maxB) + "</text><text x=\"" + (L - 8) + '" y="' + (H - U) + '" class="achse" text-anchor="end">0 €</text>';
+  return s + "</svg>";
 }
 
 function finanzen() {
   if (!FZ.daten) { if (!FZ.laedt) setTimeout(finanzenLaden, 0); return '<div class="leer">Lädt …</div>'; }
   var d = FZ.daten, r = rechnen(d, false), m = rechnen(d, true), heute = heuteIso();
   var K = {}; d.kunden.forEach(function (k) { K[k.id] = k; });
-  var offen = d.zahlungen.filter(function (z) { return !z.bezahlt_am; })
-    .sort(function (a, b) { return (a.faellig || "9999") < (b.faellig || "9999") ? -1 : 1; });
+  var offen = d.zahlungen.filter(function (z) { return !z.bezahlt_am; }).sort(function (a, b) { return (a.faellig || "9999") < (b.faellig || "9999") ? -1 : 1; });
   var bezahlt = d.zahlungen.filter(function (z) { return z.bezahlt_am; }).sort(function (a, b) { return a.bezahlt_am < b.bezahlt_am ? 1 : -1; }).slice(0, 10);
-  var max = Math.max.apply(null, r.monate.map(function (x) { return Math.max(r.ein[x], r.fix[x]); }).concat([1]));
-  var zeile = function (t, w, art) { return '<tr' + (art === "summe" ? ' style="font-weight:700"' : "") + '><td>' + t + '</td><td style="text-align:right;white-space:nowrap' + (w < 0 ? ";color:var(--schlecht)" : "") + '">' + (art === "minus" ? "− " + euro2(Math.abs(w)) : euro2(w)) + "</td></tr>"; };
-
-  return '<div class="seitenkopf"><div><span class="etikett">Finanzen</span><h1>Zahlungen und Rahmen</h1><p>Was bezahlt ist, was noch kommt, und wie viel du im Monat ausgeben kannst, gerechnet auf die nächsten 12 Monate.</p></div></div>' +
+  var plan = monatsName(r.monate[0]) + " " + r.monate[0].slice(0, 4) + " bis " + monatsName(r.monate[11]) + " " + r.monate[11].slice(0, 4);
+  return '<div class="seitenkopf"><div><span class="etikett">Finanzen</span><h1>Zahlungen und Rahmen</h1><p>Planungsjahr ' + plan + ". Was bezahlt ist, was noch kommt, und wie viel du im Monat ausgeben kannst.</p></div></div>" +
     '<div class="kennzahlen">' +
-    '<div class="karte kennzahl"><span class="etikett">Bezahlt ' + heute.slice(0, 4) + '</span><div class="z">' + euro2(r.gezahltJahr) + '</div><div class="u">' + euro2(r.gezahltGesamt) + " insgesamt</div></div>" +
-    '<div class="karte kennzahl"><span class="etikett">Offen, fällig</span><div class="z"' + (r.ueberfaellig ? ' style="color:var(--schlecht)"' : "") + ">" + euro2(r.ueberfaellig + r.faellig12) + '</div><div class="u">' + (r.ueberfaellig ? euro2(r.ueberfaellig) + " überfällig" : "nichts überfällig") + "</div></div>" +
-    '<div class="karte kennzahl"><span class="etikett">Offen, ohne Termin</span><div class="z">' + euro2(r.ohneTermin) + '</div><div class="u">Raten nach Projektschritten</div></div>' +
-    '<div class="karte kennzahl"><span class="etikett">Laufend</span><div class="z">' + euro2(r.laufend) + '</div><div class="u">im Monat, aktuell</div></div></div>' +
+    '<div class="karte kennzahl"><span class="etikett">Gesamtbetrag Planungsjahr</span><div class="z">' + euro2(r.gesamt) + '</div><div class="u">Könnte: ' + euro2(m.gesamt) + "</div></div>" +
+    '<div class="karte kennzahl"><span class="etikett">Schon bezahlt</span><div class="z" style="color:var(--gut)">' + euro2(r.bezahlt) + '</div><div class="u">' + euro2(r.gezahltGesamt) + " insgesamt erfasst</div></div>" +
+    '<div class="karte kennzahl"><span class="etikett">Kunden zahlen noch</span><div class="z">' + euro2(r.nochOffen) + '</div><div class="u">' + (r.ueberfaellig ? '<span style="color:var(--schlecht)">' + euro2(r.ueberfaellig) + " überfällig</span> · " : "") + "Könnte: " + euro2(m.nochOffen) + "</div></div>" +
+    '<div class="karte kennzahl"><span class="etikett">Wiederkehrend</span><div class="z">' + euro2(r.monatVoll) + '</div><div class="u">im Monat · Könnte: ' + euro2(m.monatVoll) + "</div></div></div>" +
 
-    '<div class="raster zwei"><div class="karte pad"><span class="etikett">Dein Monatsrahmen</span>' +
-    '<div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:8px 0 2px"><span class="zahl" style="font:700 44px/1 var(--anzeige);' + (r.rahmen < 0 ? "color:var(--schlecht)" : "") + '">' + euro2(Math.round(r.rahmen)) + '</span><span class="leise">im Monat, 12 Monate lang</span></div>' +
-    '<p class="klein leise" style="margin:0 0 14px">Nur sichere Einnahmen (unterschriebene Kunden). Wenn alle offenen Angebote kommen: <b style="color:var(--text)">' + euro2(Math.round(m.rahmen)) + "</b> im Monat.</p>" +
-    '<table class="tabelle"><tbody>' +
-    zeile("Kontostand heute", r.konto) +
-    zeile("+ Einnahmen nächste 12 Monate", r.einnahmen12) +
-    zeile("− Rücklage " + String(r.ruecklageProzent).replace(".", ",") + " % (Steuern, Puffer)", r.ruecklage, "minus") +
-    zeile("− Fixkosten 12 Monate", r.fix12, "minus") +
-    zeile("= verfügbar", r.verfuegbar, "summe") +
-    zeile("÷ 12 = Rahmen im Monat", r.rahmen, "summe") + "</tbody></table>" +
-    (r.startOffen.length ? '<p class="klein" style="color:var(--warn);margin:10px 0 0">Nicht eingerechnet, weil das Startdatum fehlt: ' + r.startOffen.map(function (k) { return esc(k.firma) + " (" + euro2(k.monatlich) + "/Monat)"; }).join(", ") + ". Startdatum in der Kundenakte unter Stammdaten eintragen.</p>" : "") +
-    "</div>" +
-    '<div class="karte pad"><h2 style="margin-bottom:12px">Deine Werte</h2><div class="formular">' +
-    '<label class="klein" style="font-weight:600">Kontostand heute (€)</label><input type="text" inputmode="decimal" data-schluessel="fz-konto" data-fz="konto" value="' + esc(FZ.konto) + '">' +
-    '<label class="klein" style="font-weight:600">Rücklage für Steuern und Puffer (%)</label><input type="text" inputmode="decimal" data-schluessel="fz-ruecklage" data-fz="ruecklage" value="' + esc(FZ.ruecklage) + '">' +
-    '<label class="check"><input type="checkbox" data-fzohne' + (FZ.ohneTermin ? " checked" : "") + "> Raten ohne Termin mitrechnen (" + euro2(r.ohneTermin) + ")</label>" +
-    '<div class="reihe"><button type="button" class="haupt" data-fzspeichern>Werte speichern</button><span class="klein leise">Die Rücklage setzt du selbst, ich rate keine Steuerquote.</span></div></div></div></div>' +
+    '<div class="karte pad" style="margin-bottom:16px"><div class="kartenkopf"><h2>Wie viel du im Monat ausgeben kannst</h2></div>' +
+    '<div class="zustaende">' + zustand("Ist-Zustand", "Nur was unterschrieben ist.", r) +
+    zustand("Könnte-Zustand", "Wenn alle offenen Angebote abschließen" + (m.angenommen.length ? ", Monatsbeträge ohne Startdatum ab nächstem Monat" : "") + ".", m, r) + "</div>" +
+    (r.startOffen.length ? '<p class="klein" style="color:var(--warn);margin:12px 0 0">Im Ist-Zustand nicht eingerechnet, weil das Startdatum fehlt: ' + r.startOffen.map(function (k) { return esc(k.firma) + " (" + euro2(k.monatlich) + "/Monat)"; }).join(", ") + ". Startdatum in der Kundenakte unter Stammdaten eintragen.</p>" : "") +
+    '<p class="klein leise" style="margin:8px 0 0">Server- und Betriebskosten, die der Kunde trägt, sind nicht abgezogen, nur deine eigenen Fixkosten. Bezahltes bleibt im Gesamtbetrag: „Bezahlt“ verschiebt nur, wo das Geld steht.</p></div>' +
 
-    '<div class="karte pad" style="margin-top:16px"><div class="kartenkopf"><h2>Die nächsten 12 Monate</h2><span class="klein leise"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--akzent);vertical-align:-1px"></span> Einnahmen sicher &nbsp; <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--linie2);vertical-align:-1px"></span> Fixkosten</span></div>' +
-    '<div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;align-items:end;height:170px;margin-top:8px">' +
-    r.monate.map(function (x) {
-      var e = r.ein[x], f = r.fix[x];
-      return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end" title="' + monatsName(x) + ": " + euro2(e) + " Einnahmen, " + euro2(f) + ' Fixkosten">' +
-        '<div style="display:flex;gap:2px;align-items:flex-end;height:140px;width:100%;justify-content:center">' +
-        '<div style="width:42%;max-width:18px;border-radius:4px 4px 0 0;background:var(--akzent);height:' + (e / max * 100) + '%"></div>' +
-        '<div style="width:42%;max-width:18px;border-radius:4px 4px 0 0;background:var(--linie2);height:' + (f / max * 100) + '%"></div></div>' +
-        '<span class="klein leise">' + monatsName(x) + "</span></div>";
-    }).join("") + "</div></div>" +
+    '<div class="karte pad" style="margin-bottom:16px"><div class="kartenkopf"><h2>Dein Geld über das Planungsjahr</h2>' +
+    '<span class="legende"><i class="lg-ein"></i>Einnahmen Ist <i class="lg-koennte"></i>dazu Könnte <i class="lg-fix"></i>Fixkosten <i class="lg-linie"></i>Geldverlauf Ist <i class="lg-linie2"></i>Könnte</span></div>' +
+    diagramm(r, m) + (r.ohneTermin ? '<p class="klein leise" style="margin:6px 0 0">Raten ohne Termin (' + euro2(r.ohneTermin) + ") stehen nicht im Verlauf, bis sie ein Fälligkeitsdatum haben.</p>" : "") + "</div>" +
 
-    '<div class="raster zwei" style="margin-top:16px"><div class="karte"><div style="padding:18px 20px 6px"><h2>Offene Zahlungen</h2></div>' +
+    '<div class="raster zwei"><div class="karte"><div style="padding:18px 20px 6px"><h2>Offene Zahlungen</h2></div>' +
     (offen.length ? '<table class="tabelle"><thead><tr><th>Kunde</th><th>Wofür</th><th style="text-align:right">Betrag</th><th>Fällig</th><th></th></tr></thead><tbody>' +
       offen.map(function (z) {
         var k = K[z.kunde_id] || {}, ueber = z.faellig && z.faellig < heute;
-        return '<tr><td><a href="#" data-akte="' + z.kunde_id + '" data-zu="zahlungen">' + esc(k.firma || "?") + "</a>" + (k.status !== "kunde" ? '<div class="klein leise">' + esc(STATUS[k.status] || k.status || "") + ", nicht eingerechnet</div>" : "") + "</td>" +
-          '<td class="klein">' + esc(z.titel) + "</td><td style=\"text-align:right;white-space:nowrap\">" + euro2(z.betrag) + "</td>" +
+        return '<tr><td><a href="#" data-akte="' + z.kunde_id + '" data-zu="zahlungen">' + esc(k.firma || "?") + "</a>" + (k.status !== "kunde" ? '<div class="klein leise">' + esc(STATUS[k.status] || k.status || "") + ", nur Könnte</div>" : "") + "</td>" +
+          '<td class="klein">' + esc(z.titel) + '</td><td style="text-align:right;white-space:nowrap">' + euro2(z.betrag) + "</td>" +
           '<td class="klein" style="white-space:nowrap' + (ueber ? ";color:var(--schlecht);font-weight:600" : "") + '">' + (z.faellig ? datum(z.faellig) + (ueber ? " · überfällig" : "") : '<span class="leise">ohne Termin</span>') + "</td>" +
           '<td><button type="button" class="klein" data-bezahlt="' + z.id + '">Bezahlt</button></td></tr>';
       }).join("") + "</tbody></table>" : '<div class="leer">Nichts offen.</div>') + "</div>" +
-    '<div class="karte"><div style="padding:18px 20px 6px"><h2>Zuletzt eingegangen</h2></div>' +
-    (bezahlt.length ? '<table class="tabelle"><tbody>' + bezahlt.map(function (z) {
+    '<div class="karte pad"><h2 style="margin-bottom:12px">Deine Werte</h2><div class="formular">' +
+    '<label class="klein" style="font-weight:600">Planungsjahr ab</label><input type="date" data-schluessel="fz-jahr" data-fz="jahrAb" value="' + esc(FZ.jahrAb) + '">' +
+    '<label class="klein" style="font-weight:600">Startguthaben (€)</label><input type="text" inputmode="decimal" data-schluessel="fz-konto" data-fz="konto" value="' + esc(FZ.konto) + '">' +
+    '<div class="klein leise" style="margin-top:-4px">Geld zu Beginn des Planungsjahres, ohne die hier erfassten Kundenzahlungen.</div>' +
+    '<label class="klein" style="font-weight:600">Rücklage für Steuern und Puffer (%)</label><input type="text" inputmode="decimal" data-schluessel="fz-ruecklage" data-fz="ruecklage" value="' + esc(FZ.ruecklage) + '">' +
+    '<label class="check"><input type="checkbox" data-fzohne' + (FZ.ohneTermin ? " checked" : "") + "> Raten ohne Termin mitrechnen (" + euro2(r.ohneTermin) + ")</label>" +
+    '<div class="reihe"><button type="button" class="haupt" data-fzspeichern>Werte speichern</button><span class="klein leise">Die Rücklage setzt du selbst, ich rate keine Steuerquote.</span></div></div>' +
+    '<h2 style="margin:22px 0 8px">Zuletzt eingegangen</h2>' + (bezahlt.length ? '<table class="tabelle"><tbody>' + bezahlt.map(function (z) {
       return "<tr><td>" + esc((K[z.kunde_id] || {}).firma || "?") + '<div class="klein leise">' + esc(z.titel) + '</div></td><td style="text-align:right;white-space:nowrap">' + euro2(z.betrag) + '<div class="klein leise">' + datum(z.bezahlt_am) + "</div></td></tr>";
     }).join("") + "</tbody></table>" : '<div class="leer">Noch kein Eingang verbucht.</div>') + "</div></div>" +
 
-    '<div class="karte pad" style="margin-top:16px"><div class="kartenkopf"><h2>Deine Fixkosten</h2><span class="klein leise">' + euro2(r.fixMonat) + " im Monat · " + euro2(r.fix12) + " in 12 Monaten</span></div>" +
-    '<p class="klein leise" style="margin-top:-4px">Was jeden Monat abgeht: Server, Software, Versicherungen, Miete … Mit „ab“ und „bis“ für Verträge, die starten oder enden.</p>' +
+    '<div class="karte pad" style="margin-top:16px"><div class="kartenkopf"><h2>Deine Fixkosten</h2><span class="klein leise">' + euro2(r.fixMonat) + " im Monat · " + euro2(r.fix12) + " im Planungsjahr</span></div>" +
+    '<p class="klein leise" style="margin-top:-4px">Was jeden Monat von dir abgeht: Software, Versicherungen, Miete … Kosten, die der Kunde trägt, gehören nicht hierher.</p>' +
     '<table class="tabelle"><thead><tr><th>Bezeichnung</th><th style="text-align:right">€ im Monat</th><th>ab</th><th>bis</th><th></th></tr></thead><tbody>' +
     d.ausgaben.map(function (a) {
       return "<tr><td>" + esc(a.titel) + '</td><td style="text-align:right">' + euro2(a.betrag_monat) + '</td><td class="klein">' + (a.ab ? datum(a.ab) : "–") + '</td><td class="klein">' + (a.bis ? datum(a.bis) : "–") + "</td><td>" +
         (S.bestaetigen === "a" + a.id ? '<button type="button" class="klein gefahr" data-ausgabeweg="' + a.id + '">Wirklich löschen?</button>' : '<button type="button" class="klein leise" data-frage="a' + a.id + '">Löschen</button>') + "</td></tr>";
     }).join("") +
-    '<tr><td><input type="text" placeholder="z. B. Hetzner Server" data-schluessel="fa-titel" data-fa="titel" value="' + esc(FZ.ausgabe.titel) + '"></td>' +
+    '<tr><td><input type="text" placeholder="z. B. Software-Abo" data-schluessel="fa-titel" data-fa="titel" value="' + esc(FZ.ausgabe.titel) + '"></td>' +
     '<td><input type="text" inputmode="decimal" placeholder="0,00" style="text-align:right" data-schluessel="fa-betrag" data-fa="betrag_monat" value="' + esc(FZ.ausgabe.betrag_monat) + '"></td>' +
     '<td><input type="date" data-schluessel="fa-ab" data-fa="ab" value="' + esc(FZ.ausgabe.ab) + '"></td><td><input type="date" data-schluessel="fa-bis" data-fa="bis" value="' + esc(FZ.ausgabe.bis) + '"></td>' +
     '<td><button type="button" class="klein haupt" data-ausgabeneu>Hinzufügen</button></td></tr></tbody></table></div>';
@@ -853,11 +1109,16 @@ function zahlungSpeichern(daten, danach) {
 }
 function finanzVerdrahten() {
   var w = document.getElementById("app");
+  w.querySelectorAll("[data-feedaus]").forEach(function (b) { b.onclick = function () {
+    b.disabled = true; api("crm_feed_ausblenden", { schluessel: b.dataset.feedaus }).then(function () { S.ereignisse = (S.ereignisse || []).filter(function (e) { return e.schluessel !== b.dataset.feedaus; }); zeichnen(); }, function (f) { b.disabled = false; melden(f.message, true); }); }; });
+  w.querySelectorAll("[data-feedfrage]").forEach(function (b) { b.onclick = function () { S.bestaetigen = "f" + b.dataset.feedfrage; zeichnen(); setTimeout(function () { if (S.bestaetigen === "f" + b.dataset.feedfrage) { S.bestaetigen = null; zeichnen(); } }, 5000); }; });
+  w.querySelectorAll("[data-feedweg]").forEach(function (b) { b.onclick = function () {
+    b.disabled = true; api("crm_portal_datei_weg", { pfad: b.dataset.feedweg }).then(function () { S.bestaetigen = null; melden("Datei gelöscht."); S.ereignisse = (S.ereignisse || []).filter(function (e) { return e.pfad !== b.dataset.feedweg; }); listeLaden(); zeichnen(); }, function (f) { b.disabled = false; melden(f.message, true); }); }; });
   w.querySelectorAll("[data-fz]").forEach(function (t) { t.oninput = function () { FZ[t.dataset.fz] = t.value; }; });
   w.querySelectorAll("[data-fzohne]").forEach(function (t) { t.onchange = function () { FZ.ohneTermin = t.checked; zeichnen(); }; });
   w.querySelectorAll("[data-fzspeichern]").forEach(function (b) { b.onclick = function () {
     b.disabled = true;
-    api("crm_einstellungen_setzen", { wert: { kontostand: eingabeZahl(FZ.konto), ruecklage: eingabeZahl(FZ.ruecklage) } })
+    api("crm_einstellungen_setzen", { wert: { kontostand: eingabeZahl(FZ.konto), ruecklage: eingabeZahl(FZ.ruecklage), jahr_ab: FZ.jahrAb || null } })
       .then(function () { melden("Gespeichert."); finanzenLaden(); }, function (f) { b.disabled = false; melden(f.message, true); });
   }; });
   w.querySelectorAll("[data-fa]").forEach(function (t) { t.oninput = function () { FZ.ausgabe[t.dataset.fa] = t.value; }; });
@@ -905,7 +1166,8 @@ function akteOeffnen(id, zu) {
   zeichnen(); window.scrollTo(0, 0); akteLaden(id);
 }
 var TUN = {
-  abmelden: function () { try { sessionStorage.removeItem(SITZUNG); } catch (e) {} location.reload(); },
+  abmelden: function () { abmeldenUeberall(); },
+  thema: function () { var n = { system: "hell", hell: "dunkel", dunkel: "system" }[THEMA] || "system"; themaSetzen(n); zeichnen(); melden("Darstellung: " + { system: "wie das Gerät", hell: "hell", dunkel: "dunkel" }[n]); },
   aktualisieren: function () { S.ereignisse = null; zeichnen(); aktivitaetLaden(); listeLaden(); },
   neu: function () {
     S.sicht = "akte"; S.id = null; S.akte = null; S.portal = null; S.geaendert = true; S.reiter = "stammdaten";
@@ -954,7 +1216,7 @@ function verdrahten() {
   w.querySelectorAll("[data-frage]").forEach(function (b) { b.onclick = function () { S.bestaetigen = b.dataset.frage; zeichnen(); setTimeout(function () { if (S.bestaetigen === b.dataset.frage) { S.bestaetigen = null; zeichnen(); } }, 5000); }; });
   w.querySelectorAll("[data-verlaufweg]").forEach(function (b) { b.onclick = function () { api("crm_verlauf_weg", { id: b.dataset.verlaufweg }).then(function () { S.bestaetigen = null; akteLaden(S.id); }, function (f) { melden(f.message, true); }); }; });
   w.querySelectorAll("[data-dateiweg]").forEach(function (b) { b.onclick = function () { api("crm_datei_weg", { id: b.dataset.dateiweg }).then(function () { S.bestaetigen = null; akteLaden(S.id); }, function (f) { melden(f.message, true); }); }; });
-  passwortVerdrahten(zeichnen);
+  sicherheitVerdrahten();
   finanzVerdrahten();
   var cd = document.getElementById("crmDatei");
   if (cd) cd.onchange = function () {
