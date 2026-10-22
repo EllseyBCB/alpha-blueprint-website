@@ -340,6 +340,19 @@ html[data-glas] .reiter button[aria-current=true]{border-bottom-color:var(--akze
 /* Darstellungsschalter im Kundenportal: unten rechts, auf Anmeldung und Seite. */
 .themaknopf{position:fixed;right:16px;bottom:16px;z-index:50;width:42px;height:42px;border-radius:50%;padding:0;font-size:18px;line-height:1}
 
+/* Kundenzugänge (CRM-Einstellungen) */
+.feldraster select{width:100%;min-width:0;text-overflow:ellipsis}
+.zg-liste{border-top:1px solid var(--linie)}
+.zg-zeile{padding:12px 20px;border-bottom:1px solid var(--linie)}
+.zg-kopf{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1.2fr) auto;gap:12px;align-items:center}
+.zg-weg{text-align:right}
+.zg-pw{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;padding:8px 12px;border-radius:12px;background:var(--karte2);border:1px solid var(--linie)}
+.zg-pw input{flex:1 1 200px;width:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em}
+.zg-code{font:600 15px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.06em;padding:3px 8px;border-radius:8px;background:var(--akzent-hell);user-select:all}
+.zg-neu{grid-template-columns:minmax(0,1.2fr) minmax(0,1.2fr) minmax(0,1fr) auto}
+@media (max-width:860px){.zg-neu{grid-template-columns:repeat(2,minmax(0,1fr))}.zg-kopf{grid-template-columns:1fr auto}.zg-stand{grid-column:1/-1;grid-row:2}}
+@media (max-width:520px){.zg-neu{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>

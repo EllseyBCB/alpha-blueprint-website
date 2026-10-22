@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="crm" data-glas data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-g4uI5L7LjXEkpgn6/V5Z5Y7/rfesvULGeUEAH7J6Oe8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-Mb83U4HMizlQp/vlAG5On11G+1ZDsjDcc2fkWZJH5Qo='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -339,6 +339,19 @@ html[data-glas] .reiter button[aria-current=true]{border-bottom-color:var(--akze
 @media (max-width:520px){.feldraster,.feldraster.vier{grid-template-columns:1fr}}
 /* Darstellungsschalter im Kundenportal: unten rechts, auf Anmeldung und Seite. */
 .themaknopf{position:fixed;right:16px;bottom:16px;z-index:50;width:42px;height:42px;border-radius:50%;padding:0;font-size:18px;line-height:1}
+
+/* Kundenzugänge (CRM-Einstellungen) */
+.feldraster select{width:100%;min-width:0;text-overflow:ellipsis}
+.zg-liste{border-top:1px solid var(--linie)}
+.zg-zeile{padding:12px 20px;border-bottom:1px solid var(--linie)}
+.zg-kopf{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1.2fr) auto;gap:12px;align-items:center}
+.zg-weg{text-align:right}
+.zg-pw{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px;padding:8px 12px;border-radius:12px;background:var(--karte2);border:1px solid var(--linie)}
+.zg-pw input{flex:1 1 200px;width:auto;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.04em}
+.zg-code{font:600 15px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.06em;padding:3px 8px;border-radius:8px;background:var(--akzent-hell);user-select:all}
+.zg-neu{grid-template-columns:minmax(0,1.2fr) minmax(0,1.2fr) minmax(0,1fr) auto}
+@media (max-width:860px){.zg-neu{grid-template-columns:repeat(2,minmax(0,1fr))}.zg-kopf{grid-template-columns:1fr auto}.zg-stand{grid-column:1/-1;grid-row:2}}
+@media (max-width:520px){.zg-neu{grid-template-columns:1fr}}
 
 </style>
 </head>
@@ -743,7 +756,7 @@ function portalPunkte(kennung) {
  * Kunden + Nachname des Ansprechpartners (Kennung-Nachname), sonst Kennung + Nummer. Er bleibt fest.
  * Passwort und Portalschlüssel entstehen hier im Browser; zum Server gehen nur Hash, Kennung und der
  * damit verschlüsselte Block. Der Kunde muss beim ersten Anmelden ein eigenes Passwort festlegen. */
-var ZG = { liste: null, laedt: false, kunde: "", kontakt: "", ergebnis: null, laeuft: false };
+var ZG = { liste: null, laedt: false, kunde: "", kontakt: "", name: "", aendern: null, neuPw: "", laeuft: false };
 var PW_ZEICHEN = "abcdefghjkmnpqrstuvwxyz23456789";
 function startPasswort() {
   var aus = [], u = new Uint8Array(1);
@@ -770,38 +783,56 @@ function zugangsName(k, kontakt) {
   return v;
 }
 function zugaengeLaden() { ZG.laedt = true; return api("crm_zugaenge").then(function (j) { ZG.liste = j.zugaenge; ZG.laedt = false; zeichnen(); }, function (f) { ZG.laedt = false; melden(f.message, true); }); }
+function rolleKurz(r) { r = String(r || "").split(/[(,]/)[0].trim(); return r.length > 26 ? r.slice(0, 25) + "…" : r; }
+function zugangsText(name, pw) {
+  return "Ihr Zugang zum Kundenportal von Alpha Blueprint\n\nAdresse: https://alphablueprint.de/portal/\nZugangsname: " + name + "\nStartpasswort: " + pw +
+    "\n\nBeim ersten Anmelden legen Sie ein eigenes Passwort fest. Der Zugangsname bleibt gleich.";
+}
 function zugaengeKarte() {
   if (!ZG.liste) { if (!ZG.laedt) setTimeout(zugaengeLaden, 0); return '<div class="karte pad" style="margin-top:16px"><h2>Kundenzugänge</h2><div class="leer">Lädt …</div></div>'; }
   var kunden = (S.liste || []).filter(function (k) { return k.status !== "verloren"; });
   var firma = function (kenn) { var k = (S.liste || []).filter(function (x) { return x.kennung === kenn; })[0]; return k ? k.firma : kenn; };
   var gew = kunden.filter(function (k) { return k.id === ZG.kunde; })[0];
   var kontakte = gew ? (gew.kontakte || []).filter(function (c) { return c.name; }) : [];
-  var vorschau = gew ? zugangsName(gew, ZG.kontakt) : "";
-  var e = ZG.ergebnis;
+  var vorschlag = gew ? zugangsName(gew, ZG.kontakt) : "";
+  var name = (ZG.name || "").trim().toLowerCase(), nameOk = !name || /^[a-z0-9-]{3,40}$/.test(name), vergeben = name && ZG.liste.some(function (z) { return z.name === name; });
+  var zeilen = ZG.liste.map(function (z) {
+    var stand = z.passwort_muss ? '<span class="pille warn">wartet auf erste Anmeldung</span>' : z.passwort_geaendert ? '<span class="pille gut">eigenes Passwort seit ' + datum(z.passwort_geaendert) + "</span>" : '<span class="pille">aktiv</span>';
+    var pwTeil = "";
+    if (ZG.aendern === z.name) {
+      pwTeil = '<div class="zg-pw"><input type="text" spellcheck="false" autocomplete="off" data-schluessel="zg-pw" data-zgpw value="' + esc(ZG.neuPw) + '">' +
+        '<button type="button" class="klein leise" data-zgwuerfeln>Zufällig</button><button type="button" class="klein haupt" data-zgpwspeichern="' + esc(z.name) + '"' + (ZG.laeuft ? " disabled" : "") + ">Speichern</button>" +
+        '<button type="button" class="klein leise" data-zgpwzu>Abbrechen</button></div><div class="klein leise" style="margin-top:4px">Mindestens 8 Zeichen. Das alte Startpasswort gilt danach nicht mehr.</div>';
+    } else if (z.passwort_muss && z.startpasswort) {
+      pwTeil = '<div class="zg-pw"><span class="klein leise">Startpasswort</span><code class="zg-code">' + esc(z.startpasswort) + "</code>" +
+        '<button type="button" class="klein" data-zgkopie="' + esc(z.name) + '">Text kopieren</button><button type="button" class="klein leise" data-zgaendern="' + esc(z.name) + '">Ändern</button></div>';
+    } else if (z.passwort_muss && z.aus_crm) {
+      pwTeil = '<div class="zg-pw"><span class="klein leise">Startpasswort nicht gespeichert</span><button type="button" class="klein leise" data-zgaendern="' + esc(z.name) + '">Neues festlegen</button></div>';
+    }
+    return '<div class="zg-zeile"><div class="zg-kopf"><div><b>' + esc(z.name) + '</b><div class="klein leise">' + esc(firma(z.kunde)) + (z.aus_crm ? "" : " · vom Mac") + "</div></div>" +
+      '<div class="zg-stand">' + stand + (z.totp_aktiv ? ' <span class="pille">2FA</span>' : "") + "</div>" +
+      '<div class="zg-weg">' + (S.bestaetigen === "zg" + z.name ? '<button type="button" class="klein gefahr" data-zgweg="' + esc(z.name) + '">Wirklich löschen?</button>' : '<button type="button" class="klein leise" data-frage="zg' + esc(z.name) + '">Löschen</button>') + "</div></div>" +
+      pwTeil + "</div>";
+  });
   return '<div class="karte" style="margin-top:16px"><div style="padding:18px 20px 4px" class="kartenkopf"><h2>Kundenzugänge</h2><span class="klein leise">für das Kundenportal</span></div>' +
-    '<p class="klein leise" style="margin:0 20px 8px">Den Zugangsnamen vergibt das CRM und er bleibt fest. Das Startpasswort siehst du nur einmal. Der Kunde legt beim ersten Anmelden ein eigenes fest.</p>' +
-    (e ? '<div class="linieninfo" style="margin:0 20px 12px"><div><b>' + esc(e.titel) + '</b><div class="klein" style="margin-top:6px;line-height:1.7">Adresse: <b>alphablueprint.de/portal</b><br>Zugangsname: <b>' + esc(e.name) + '</b><br>Startpasswort: <b style="font-family:var(--mono, monospace);letter-spacing:.04em">' + esc(e.pw) + "</b></div>" +
-      '<div class="klein leise" style="margin-top:6px">Jetzt weitergeben, danach ist das Passwort hier nicht mehr zu sehen.</div></div>' +
-      '<div style="display:grid;gap:6px"><button type="button" class="klein haupt" data-zgkopie>Text für den Kunden kopieren</button><button type="button" class="klein leise" data-zgzu>Ausblenden</button></div></div>' : "") +
-    ((ZG.liste.length) ? '<table class="tabelle"><thead><tr><th>Zugangsname</th><th>Kunde</th><th>Stand</th><th></th></tr></thead><tbody>' + ZG.liste.map(function (z) {
-      var stand = z.passwort_muss ? '<span class="pille warn">wartet auf erste Anmeldung</span>' : z.passwort_geaendert ? '<span class="pille gut">eigenes Passwort</span>' : '<span class="pille">aktiv</span>';
-      return "<tr><td><b>" + esc(z.name) + "</b></td><td>" + esc(firma(z.kunde)) + "</td><td>" + stand + (z.totp_aktiv ? ' <span class="pille">2FA</span>' : "") + "</td><td style=\"white-space:nowrap\">" +
-        (z.aus_crm ? '<button type="button" class="klein leise" data-zgneupw="' + esc(z.name) + '"' + (ZG.laeuft ? " disabled" : "") + ">Neues Startpasswort</button> " +
-          (S.bestaetigen === "zg" + z.name ? '<button type="button" class="klein gefahr" data-zgweg="' + esc(z.name) + '">Wirklich entfernen?</button>' : '<button type="button" class="klein leise" data-frage="zg' + esc(z.name) + '">Entfernen</button>')
-          : '<span class="klein leise">am Mac verwaltet (zugang.mjs)</span>') + "</td></tr>";
-    }).join("") + "</tbody></table>" : '<div class="leer">Noch keine Kundenzugänge.</div>') +
-    '<div class="feldraster"><div><label>Kunde</label><select data-zgfeld="kunde"><option value="">– Kunde wählen –</option>' + kunden.map(function (k) {
+    '<p class="klein leise" style="margin:0 20px 10px">Das Startpasswort bleibt hier sichtbar und änderbar, bis der Kunde sich angemeldet und ein eigenes festgelegt hat. Danach ist es weg. Löschen meldet den Kunden sofort überall ab; was er hochgeladen hat, bleibt.</p>' +
+    (zeilen.length ? '<div class="zg-liste">' + zeilen.join("") + "</div>" : '<div class="leer">Noch keine Kundenzugänge.</div>') +
+    '<div class="feldraster zg-neu"><div class="breit"><b>Neuer Zugang</b></div>' +
+    '<div><label>Kunde</label><select data-zgfeld="kunde"><option value="">– Kunde wählen –</option>' + kunden.map(function (k) {
       return '<option value="' + k.id + '"' + (k.id === ZG.kunde ? " selected" : "") + ">" + esc(k.firma) + "</option>"; }).join("") + "</select></div>" +
-    '<div><label>Für wen (Ansprechpartner)</label><select data-zgfeld="kontakt"' + (gew ? "" : " disabled") + '><option value="">' + (kontakte.length ? "– ohne Namen –" : "keine Ansprechpartner eingetragen") + "</option>" +
-      kontakte.map(function (c) { return '<option value="' + esc(c.name) + '"' + (c.name === ZG.kontakt ? " selected" : "") + ">" + esc(c.name) + (c.rolle ? " (" + esc(c.rolle) + ")" : "") + "</option>"; }).join("") + "</select></div>" +
-    '<div class="breit klein">' + (gew ? "Zugangsname wird: <b>" + esc(vorschau) + "</b>" + (gew.kennung ? "" : ' <span class="leise">(die Portal-Kennung „' + esc(kennungVorschlag(gew)) + '“ wird dabei für ' + esc(gew.firma) + " eingetragen)</span>") : '<span class="leise">Kunde wählen, dann siehst du den Zugangsnamen.</span>') + "</div>" +
-    '<div class="breit"><button type="button" class="haupt" data-zgneu' + (gew && !ZG.laeuft ? "" : " disabled") + ">" + (ZG.laeuft ? "Wird angelegt …" : "Zugang anlegen") + "</button></div></div></div>";
+    '<div><label>Für wen</label><select data-zgfeld="kontakt"' + (gew ? "" : " disabled") + '><option value="">' + (kontakte.length ? "– ohne Namen –" : "keine Ansprechpartner eingetragen") + "</option>" +
+      kontakte.map(function (c) { return '<option value="' + esc(c.name) + '"' + (c.name === ZG.kontakt ? " selected" : "") + ">" + esc(c.name) + (c.rolle ? " · " + esc(rolleKurz(c.rolle)) : "") + "</option>"; }).join("") + "</select></div>" +
+    '<div><label>Zugangsname</label><input type="text" autocapitalize="none" spellcheck="false" placeholder="' + esc(vorschlag || "erst Kunde wählen") + '" data-schluessel="zg-name" data-zgname value="' + esc(ZG.name) + '"></div>' +
+    '<div><button type="button" class="haupt" style="width:100%" data-zgneu' + (gew && nameOk && !vergeben && !ZG.laeuft ? "" : " disabled") + ">" + (ZG.laeuft ? "Wird angelegt …" : "Zugang anlegen") + "</button></div>" +
+    '<div class="breit klein ' + (!nameOk || vergeben ? "" : "leise") + '" style="' + (!nameOk || vergeben ? "color:var(--warn)" : "") + '">' +
+      (!nameOk ? "Zugangsname: 3 bis 40 Zeichen, nur a–z, 0–9 und Bindestrich." : vergeben ? "Diesen Zugangsnamen gibt es schon." :
+        gew ? "Leer lassen für den Vorschlag „" + esc(vorschlag) + "“." + (gew.kennung ? "" : " Für " + esc(gew.firma) + " wird dabei die Portal-Kennung „" + esc(kennungVorschlag(gew)) + "“ eingetragen.") : "Der Name bleibt danach fest.") + "</div></div></div>";
 }
 /** Legt einen Zugang an (neu) oder vergibt ein neues Startpasswort (name gesetzt). */
-function zugangSchreiben(name, kennung, kundeKennung) {
-  var pw = startPasswort(), sch = zufallsSchluessel();
+function zugangSchreiben(name, wunschPw, kundeKennung) {
+  var pw = wunschPw || startPasswort(), sch = zufallsSchluessel();
   return Promise.all([kennungVon(name), sha256Hex(sch), blockSchliessen({ schluessel: sch, name: name, rolle: "kunde" }, pw)]).then(function (x) {
-    return api(kundeKennung ? "crm_zugang_neu" : "crm_zugang_passwort", { name: name, kunde: kundeKennung || undefined, kennung: x[0], hash: x[1], block: x[2] });
+    return api(kundeKennung ? "crm_zugang_neu" : "crm_zugang_passwort", { name: name, kunde: kundeKennung || undefined, kennung: x[0], hash: x[1], block: x[2], startpasswort: pw });
   }).then(function () { return pw; });
 }
 
@@ -1441,31 +1472,38 @@ function portalExtrasVerdrahten(w) {
     api("crm_anforderung_weg", { id: b.dataset.afweg }).then(function () { S.bestaetigen = null; melden("Anforderung zurückgenommen."); return portalListenNeu(); }, function (f) { melden(f.message, true); }); }; });
   /* Kundenzugänge */
   w.querySelectorAll("[data-zgfeld]").forEach(function (t) { t.onchange = function () { ZG[t.dataset.zgfeld] = t.value; if (t.dataset.zgfeld === "kunde") ZG.kontakt = ""; zeichnen(); }; });
-  w.querySelectorAll("[data-zgzu]").forEach(function (b) { b.onclick = function () { ZG.ergebnis = null; zeichnen(); }; });
+  w.querySelectorAll("[data-zgname]").forEach(function (t) { t.oninput = function () { ZG.name = t.value; }; t.onchange = function () { zeichnen(); }; });
   w.querySelectorAll("[data-zgkopie]").forEach(function (b) { b.onclick = function () {
-    var e = ZG.ergebnis; if (!e) return;
-    var t = "Ihr Zugang zum Kundenportal von Alpha Blueprint\n\nAdresse: https://alphablueprint.de/portal/\nZugangsname: " + e.name + "\nStartpasswort: " + e.pw +
-      "\n\nBeim ersten Anmelden legen Sie ein eigenes Passwort fest. Der Zugangsname bleibt gleich.";
-    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { melden("Kopiert. Jetzt in Mail oder WhatsApp einfügen."); }, function () { melden("Kopieren ging nicht, bitte von Hand abschreiben.", true); });
+    var z = ZG.liste.filter(function (x) { return x.name === b.dataset.zgkopie; })[0]; if (!z || !z.startpasswort) return;
+    (navigator.clipboard ? navigator.clipboard.writeText(zugangsText(z.name, z.startpasswort)) : Promise.reject()).then(function () { melden("Kopiert. Jetzt in Mail oder WhatsApp einfügen."); }, function () { melden("Kopieren ging nicht, bitte von Hand abschreiben.", true); });
+  }; });
+  w.querySelectorAll("[data-zgaendern]").forEach(function (b) { b.onclick = function () {
+    var z = ZG.liste.filter(function (x) { return x.name === b.dataset.zgaendern; })[0];
+    ZG.aendern = b.dataset.zgaendern; ZG.neuPw = (z && z.startpasswort) || startPasswort(); zeichnen(); var i = w.querySelector("[data-zgpw]"); if (i) i.focus(); }; });
+  w.querySelectorAll("[data-zgpw]").forEach(function (t) { t.oninput = function () { ZG.neuPw = t.value; }; });
+  w.querySelectorAll("[data-zgwuerfeln]").forEach(function (b) { b.onclick = function () { ZG.neuPw = startPasswort(); zeichnen(); }; });
+  w.querySelectorAll("[data-zgpwzu]").forEach(function (b) { b.onclick = function () { ZG.aendern = null; ZG.neuPw = ""; zeichnen(); }; });
+  w.querySelectorAll("[data-zgpwspeichern]").forEach(function (b) { b.onclick = function () {
+    var pw = ZG.neuPw.trim(); if (pw.length < 8) return melden("Das Startpasswort braucht mindestens 8 Zeichen.", true);
+    ZG.laeuft = true; zeichnen();
+    zugangSchreiben(b.dataset.zgpwspeichern, pw, null).then(function () { ZG.laeuft = false; ZG.aendern = null; ZG.neuPw = ""; melden("Startpasswort geändert."); return zugaengeLaden(); })
+      .then(null, function (f) { ZG.laeuft = false; zeichnen(); melden(f.message, true); });
   }; });
   w.querySelectorAll("[data-zgneu]").forEach(function (b) { b.onclick = function () {
     var k = (S.liste || []).filter(function (x) { return x.id === ZG.kunde; })[0]; if (!k) return;
-    var name = zugangsName(k, ZG.kontakt), vorher = k.kennung ? Promise.resolve(k.kennung) : (function () {
+    var name = (ZG.name || "").trim().toLowerCase() || zugangsName(k, ZG.kontakt);
+    if (!/^[a-z0-9-]{3,40}$/.test(name)) return melden("Zugangsname: 3 bis 40 Zeichen, nur a–z, 0–9 und Bindestrich.", true);
+    var vorher = k.kennung ? Promise.resolve(k.kennung) : (function () {
       var d = {}; for (var q in k) if (q !== "portal") d[q] = k[q]; d.kennung = kennungVorschlag(k);
       return api("crm_speichern", { daten: d }).then(function () { return d.kennung; });
     })();
     ZG.laeuft = true; zeichnen();
     vorher.then(function (kenn) { return zugangSchreiben(name, null, kenn); })
-      .then(function (pw) { ZG.ergebnis = { titel: "Zugang für " + k.firma + " angelegt", name: name, pw: pw }; ZG.laeuft = false; ZG.kunde = ""; ZG.kontakt = ""; listeLaden(); return zugaengeLaden(); })
-      .then(null, function (f) { ZG.laeuft = false; zeichnen(); melden(f.message, true); });
-  }; });
-  w.querySelectorAll("[data-zgneupw]").forEach(function (b) { b.onclick = function () {
-    var name = b.dataset.zgneupw; ZG.laeuft = true; zeichnen();
-    zugangSchreiben(name, null, null).then(function (pw) { ZG.ergebnis = { titel: "Neues Startpasswort für " + name, name: name, pw: pw }; ZG.laeuft = false; return zugaengeLaden(); })
+      .then(function () { ZG.laeuft = false; ZG.kunde = ""; ZG.kontakt = ""; ZG.name = ""; melden("Zugang „" + name + "“ angelegt. Das Startpasswort steht in der Liste."); listeLaden(); return zugaengeLaden(); })
       .then(null, function (f) { ZG.laeuft = false; zeichnen(); melden(f.message, true); });
   }; });
   w.querySelectorAll("[data-zgweg]").forEach(function (b) { b.onclick = function () {
-    api("crm_zugang_weg", { name: b.dataset.zgweg }).then(function () { S.bestaetigen = null; melden("Zugang entfernt."); return zugaengeLaden(); }, function (f) { melden(f.message, true); }); }; });
+    api("crm_zugang_weg", { name: b.dataset.zgweg }).then(function () { S.bestaetigen = null; melden("Zugang gelöscht. Der Kunde kann sich nicht mehr anmelden; Hochgeladenes bleibt erhalten."); return zugaengeLaden(); }, function (f) { melden(f.message, true); }); }; });
 }
 function finanzVerdrahten() {
   var w = document.getElementById("app");
