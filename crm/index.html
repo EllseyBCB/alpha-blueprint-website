@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="crm" data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-YL4+8tRRCo3cIwkPtQ+64BgkNv0hZMlRz3sGEHqNBac='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-vx1+LwpXljIC7yJ3hQfeSkE28U4yBU0F+q+JBUKN9x8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -898,6 +898,7 @@ var FZ = { daten: null, laedt: false, ohneTermin: true, konto: "", ruecklage: ""
   ausgabe: { titel: "", betrag_monat: "", ab: "", bis: "" }, neuK: { name: "", einmal: "", monatlich: "", ab: "" }, reiter: "uebersicht", rechnung: false };
 var ZN = { titel: "", betrag: "", faellig: "" };   // neue Zahlung in der Kundenakte
 var ZE = null;                                     // Zahlung, die gerade bearbeitet wird (Kopie)
+var ST = { wahl: {}, teilen: null, anzahl: "2", laeuft: false };  // Raten zusammenlegen oder aufteilen
 function finanzenLaden() {
   FZ.laedt = true;
   return api("crm_finanzen").then(function (j) {
@@ -1198,6 +1199,7 @@ function zahlungenReiter() {
     '<div class="karte kennzahl"><span class="etikett">Monatlich</span><div class="z">' + euro2(k.monatlich) + '</div><div class="u">' + (betrag(k.monatlich) ? (k.monatlich_ab ? "ab " + datum(k.monatlich_ab) + (k.monatlich_bis ? " bis " + datum(k.monatlich_bis) : "") : '<span style="color:var(--warn)">Startdatum fehlt (Stammdaten)</span>') : "kein Monatsbetrag") + "</div></div></div>" +
     '<div class="karte"><div style="padding:18px 20px 6px" class="kartenkopf"><h2>Zahlungsplan</h2>' +
     (betrag(k.monatlich) && k.monatlich_ab && k.monatlich_ab <= heute && (!k.monatlich_bis || k.monatlich_bis >= heute) ? '<button type="button" class="klein" data-monatbezahlt>Monatsbetrag ' + esc(monat) + " als bezahlt eintragen</button>" : "") + "</div>" +
+    stueckelLeiste(z) +
     '<table class="tabelle"><thead><tr><th>Wofür</th><th style="text-align:right">Betrag</th><th>Fällig</th><th>Stand</th><th></th></tr></thead><tbody>' +
     z.map(function (x) {
       if (ZE && ZE.id === x.id) {
@@ -1208,17 +1210,68 @@ function zahlungenReiter() {
           '<td style="white-space:nowrap"><button type="button" class="klein haupt" data-zespeichern>Speichern</button> <button type="button" class="klein leise" data-zeabbruch>Abbrechen</button></td></tr>';
       }
       var ue = !x.bezahlt_am && x.faellig && x.faellig < heute;
-      return "<tr><td>" + esc(x.titel) + (x.notiz ? '<div class="klein leise">' + esc(x.notiz) + "</div>" : "") + '</td><td style="text-align:right;white-space:nowrap">' + euro2(x.betrag) + "</td>" +
+      var teilZeile = ST.teilen === x.id ? '<tr><td colspan="5" style="background:var(--karte2)"><div class="reihe" style="align-items:center;gap:10px;flex-wrap:wrap">' +
+        '<span class="klein">„' + esc(x.titel) + '“ (' + euro2(x.betrag) + ') aufteilen in</span><input type="number" min="2" max="24" style="width:80px" data-schluessel="st-anzahl" data-stanzahl value="' + esc(ST.anzahl) + '"><span class="klein">gleiche Teile' +
+        (Math.round(eingabeZahl(ST.anzahl)) >= 2 ? " zu je etwa " + euro2(Math.round(betrag(x.betrag) / Math.round(eingabeZahl(ST.anzahl)) * 100) / 100) : "") + '</span>' +
+        '<button type="button" class="klein haupt" data-staufteilen="' + x.id + '"' + (ST.laeuft ? " disabled" : "") + '>Aufteilen</button><button type="button" class="klein leise" data-stabbruch>Abbrechen</button></div>' +
+        '<div class="klein leise" style="margin-top:4px">Die Teile übernehmen das Fälligkeitsdatum; danach kannst du jedem Teil mit „Bearbeiten“ ein eigenes geben.</div></td></tr>' : "";
+      return "<tr><td>" + (!x.bezahlt_am ? '<label class="check" style="margin:0;display:inline-flex;gap:8px;align-items:flex-start"><input type="checkbox" data-stwahl="' + x.id + '"' + (ST.wahl[x.id] ? " checked" : "") + "><span>" + esc(x.titel) + "</span></label>" : esc(x.titel)) +
+        (x.notiz ? '<div class="klein leise">' + esc(x.notiz) + "</div>" : "") + '</td><td style="text-align:right;white-space:nowrap">' + euro2(x.betrag) + "</td>" +
         '<td class="klein" style="white-space:nowrap">' + (x.faellig ? datum(x.faellig) : '<span class="leise">ohne Termin</span>') + "</td>" +
         "<td>" + (x.bezahlt_am ? '<span class="pille gut">bezahlt ' + datum(x.bezahlt_am) + "</span>" : ue ? '<span class="pille" style="background:var(--schlecht-hell);color:var(--schlecht)">überfällig</span>' : '<span class="pille">offen</span>') + "</td>" +
         '<td style="white-space:nowrap">' + (!x.bezahlt_am ? '<button type="button" class="klein" data-bezahlt="' + x.id + '">Bezahlt</button> ' : "") +
         '<button type="button" class="klein leise" data-zebearbeiten="' + x.id + '">Bearbeiten</button>' +
-        (S.bestaetigen === "z" + x.id ? ' <button type="button" class="klein gefahr" data-zahlungweg="' + x.id + '">Wirklich löschen?</button>' : ' <button type="button" class="klein leise" data-frage="z' + x.id + '">Löschen</button>') + "</td></tr>";
+        (!x.bezahlt_am ? ' <button type="button" class="klein leise" data-stteilen="' + x.id + '">Aufteilen</button>' : "") +
+        (S.bestaetigen === "z" + x.id ? ' <button type="button" class="klein gefahr" data-zahlungweg="' + x.id + '">Wirklich löschen?</button>' : ' <button type="button" class="klein leise" data-frage="z' + x.id + '">Löschen</button>') + "</td></tr>" + teilZeile;
     }).join("") +
     '<tr><td><input type="text" placeholder="z. B. Rate 1, Rechnung 2026-014" data-schluessel="zn-titel" data-zn="titel" value="' + esc(ZN.titel) + '"></td>' +
     '<td><input type="text" inputmode="decimal" placeholder="0,00" style="text-align:right" data-schluessel="zn-betrag" data-zn="betrag" value="' + esc(ZN.betrag) + '"></td>' +
     '<td><input type="date" data-schluessel="zn-faellig" data-zn="faellig" value="' + esc(ZN.faellig) + '"></td><td></td>' +
     '<td><button type="button" class="klein haupt" data-zneu>Hinzufügen</button></td></tr></tbody></table></div>';
+}
+
+/* ---- Raten anders stückeln: mehrere offene zu einer zusammenlegen, oder eine in gleiche Teile aufteilen.
+ * Die Angebotsnummer vorne im Titel („AB-2026-001: …“) bleibt erhalten. Daran erkennt Alpha Prime,
+ * dass der Zahlplan schon im CRM steht, und legt die alten Raten nicht wieder an. */
+function stueckelLeiste(z) {
+  var gew = z.filter(function (x) { return ST.wahl[x.id] && !x.bezahlt_am; });
+  if (!gew.length) return z.some(function (x) { return !x.bezahlt_am; }) && z.filter(function (x) { return !x.bezahlt_am; }).length > 1
+    ? '<p class="klein leise" style="margin:0 20px 8px">Raten zusammenlegen: Häkchen vor die offenen Raten setzen. Eine Rate aufteilen: „Aufteilen“.</p>' : "";
+  var summe = gew.reduce(function (s, x) { return s + betrag(x.betrag); }, 0);
+  return '<div class="reihe" style="gap:10px 14px;flex-wrap:wrap;margin:0 20px 10px;padding:10px 14px;border:1px solid var(--linie);border-radius:12px;background:var(--karte2);align-items:center">' +
+    '<span class="klein"><b>' + gew.length + " ausgewählt</b> · zusammen " + euro2(summe) + "</span>" +
+    (gew.length >= 2 ? '<button type="button" class="klein haupt" data-stzusammen' + (ST.laeuft ? " disabled" : "") + ">Zu einer Zahlung über " + euro2(summe) + " zusammenlegen</button>" : '<span class="klein leise">Mindestens zwei Raten anhaken.</span>') +
+    '<button type="button" class="klein leise" data-stleeren>Auswahl aufheben</button></div>';
+}
+function praefix(t) { var m = /^([A-Z]{1,4}-\d{4}-\d{2,4}):\s*/.exec(t || ""); return m ? m[1] : null; }
+function rateWeg(liste) {
+  return liste.reduce(function (p, x) { return p.then(function () { return api("crm_zahlung_weg", { id: x.id }); }); }, Promise.resolve());
+}
+function zusammenlegen() {
+  var z = (S.akte && S.akte.zahlungen) || [], gew = z.filter(function (x) { return ST.wahl[x.id] && !x.bezahlt_am; });
+  if (gew.length < 2) return;
+  var nr = praefix(gew[0].titel), gleich = nr && gew.every(function (x) { return praefix(x.titel) === nr; });
+  var teile = gew.map(function (x) { return gleich ? x.titel.replace(/^[^:]+:\s*/, "") : x.titel; });
+  var termine = gew.map(function (x) { return x.faellig; }).filter(Boolean).sort();
+  var daten = { kunde_id: S.id, titel: ((gleich ? nr + ": " : "") + teile.join(" + ")).slice(0, 300), betrag: Math.round(gew.reduce(function (s, x) { return s + betrag(x.betrag); }, 0) * 100) / 100,
+    faellig: termine[0] || null, notiz: ("Zusammengelegt am " + datum(heuteIso()) + " aus " + gew.length + " Raten: " + gew.map(function (x) { return euro2(x.betrag); }).join(" + ")).slice(0, 2000) };
+  ST.laeuft = true; zeichnen();
+  api("crm_zahlung_speichern", { daten: daten }).then(function () { return rateWeg(gew); })
+    .then(function () { ST = { wahl: {}, teilen: null, anzahl: "2", laeuft: false }; FZ.daten = null; melden("Zu einer Zahlung über " + euro2(daten.betrag) + " zusammengelegt."); akteLaden(S.id); },
+      function (f) { ST.laeuft = false; melden(f.message, true); akteLaden(S.id); });
+}
+function aufteilen(id) {
+  var x = ((S.akte && S.akte.zahlungen) || []).filter(function (y) { return y.id === id; })[0];
+  var n = Math.round(eingabeZahl(ST.anzahl));
+  if (!x) return; if (!(n >= 2 && n <= 24)) return melden("Bitte 2 bis 24 Teile angeben.", true);
+  var cent = Math.round(betrag(x.betrag) * 100), je = Math.floor(cent / n), neu = [];
+  for (var i = 0; i < n; i++) neu.push({ kunde_id: S.id, titel: (x.titel + " (Teil " + (i + 1) + " von " + n + ")").slice(0, 300), betrag: (i === n - 1 ? cent - je * (n - 1) : je) / 100,
+    faellig: x.faellig || null, notiz: ("Aufgeteilt am " + datum(heuteIso()) + " aus " + euro2(x.betrag) + (x.notiz ? ". " + x.notiz : "")).slice(0, 2000) });
+  ST.laeuft = true; zeichnen();
+  neu.reduce(function (p, d) { return p.then(function () { return api("crm_zahlung_speichern", { daten: d }); }); }, Promise.resolve())
+    .then(function () { return rateWeg([x]); })
+    .then(function () { ST = { wahl: {}, teilen: null, anzahl: "2", laeuft: false }; FZ.daten = null; melden("In " + n + " Teile aufgeteilt."); akteLaden(S.id); },
+      function (f) { ST.laeuft = false; melden(f.message, true); akteLaden(S.id); });
 }
 
 function zahlungSpeichern(daten, danach) {
@@ -1288,6 +1341,13 @@ function finanzVerdrahten() {
   w.querySelectorAll("[data-zebearbeiten]").forEach(function (b) { b.onclick = function () {
     var z = S.akte.zahlungen.filter(function (x) { return x.id === b.dataset.zebearbeiten; })[0]; ZE = Object.assign({}, z); zeichnen(); }; });
   w.querySelectorAll("[data-ze]").forEach(function (t) { t.oninput = function () { ZE[t.dataset.ze] = t.value; }; });
+  w.querySelectorAll("[data-stwahl]").forEach(function (t) { t.onchange = function () { if (t.checked) ST.wahl[t.dataset.stwahl] = true; else delete ST.wahl[t.dataset.stwahl]; zeichnen(); }; });
+  w.querySelectorAll("[data-stleeren]").forEach(function (b) { b.onclick = function () { ST.wahl = {}; zeichnen(); }; });
+  w.querySelectorAll("[data-stzusammen]").forEach(function (b) { b.onclick = zusammenlegen; });
+  w.querySelectorAll("[data-stteilen]").forEach(function (b) { b.onclick = function () { ST.teilen = ST.teilen === b.dataset.stteilen ? null : b.dataset.stteilen; ST.anzahl = "2"; zeichnen(); }; });
+  w.querySelectorAll("[data-stanzahl]").forEach(function (t) { t.oninput = function () { ST.anzahl = t.value; }; t.onchange = function () { ST.anzahl = t.value; zeichnen(); }; });
+  w.querySelectorAll("[data-stabbruch]").forEach(function (b) { b.onclick = function () { ST.teilen = null; zeichnen(); }; });
+  w.querySelectorAll("[data-staufteilen]").forEach(function (b) { b.onclick = function () { aufteilen(b.dataset.staufteilen); }; });
   w.querySelectorAll("[data-zeabbruch]").forEach(function (b) { b.onclick = function () { ZE = null; zeichnen(); }; });
   w.querySelectorAll("[data-zespeichern]").forEach(function (b) { b.onclick = function () {
     b.disabled = true;
@@ -1300,7 +1360,7 @@ function finanzVerdrahten() {
 
 /* ===================================================================== Handeln */
 function akteOeffnen(id, zu) {
-  S.sicht = "akte"; S.id = id; S.akte = null; S.portal = null; S.form = null; S.geaendert = false; S.reiter = zu || "stammdaten"; S.bestaetigen = null; S.hoch = []; ZE = null; ZN = { titel: "", betrag: "", faellig: "" };
+  S.sicht = "akte"; S.id = id; S.akte = null; S.portal = null; S.form = null; S.geaendert = false; S.reiter = zu || "stammdaten"; S.bestaetigen = null; S.hoch = []; ZE = null; ZN = { titel: "", betrag: "", faellig: "" }; ST = { wahl: {}, teilen: null, anzahl: "2", laeuft: false };
   zeichnen(); window.scrollTo(0, 0); akteLaden(id);
 }
 var TUN = {
