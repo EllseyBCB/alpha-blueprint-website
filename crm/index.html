@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="crm" data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-03KZWNshqNvXzu2N5hdmD/P5ihUFUHlKsQhsDFXdmqg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-OTrTsv+Y6PQThr2k/B2X2SUjjRuM+kBL9p6q7nIyjeE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -50,7 +50,7 @@ button.leise{border-color:transparent;background:transparent;color:var(--leise)}
 button.leise:hover{background:var(--linie);color:var(--text)}
 button.gefahr{color:var(--schlecht)}
 button.klein,.knopf.klein{padding:6px 12px;font-size:13px}
-input[type=text],input[type=password],textarea{font:400 15px/1.5 var(--schrift);color:var(--text);background:var(--karte);border:1px solid var(--linie2);
+input[type=text],input[type=password],input[type=date],input[type=number],textarea{font:400 15px/1.5 var(--schrift);color:var(--text);background:var(--karte);border:1px solid var(--linie2);
   border-radius:var(--rk);padding:10px 12px;width:100%;outline:none;transition:border-color .15s,box-shadow .15s}
 input:focus,textarea:focus{border-color:var(--akzent);box-shadow:0 0 0 3px var(--akzent-hell)}
 textarea{resize:vertical;min-height:56px}
@@ -295,7 +295,7 @@ html[data-app="crm"] .kopf{background:var(--glas2);border-bottom:1px solid var(-
 html[data-app="crm"] .zustand{background:var(--glas2);border-color:var(--glaskante)}
 html[data-app="crm"] button:not(.haupt):not(.leise),html[data-app="crm"] .knopf,html[data-app="crm"] .chip:not([aria-pressed=true]){background:var(--glas2);border-color:var(--glaskante);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 html[data-app="crm"] button.haupt{box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 6px 16px -6px rgba(11,124,147,.6)}
-html[data-app="crm"] input[type=text],html[data-app="crm"] input[type=password],html[data-app="crm"] input[type=date],html[data-app="crm"] textarea,html[data-app="crm"] select{background:rgba(255,255,255,.55);border-color:var(--glaskante)}
+html[data-app="crm"] input[type=text],html[data-app="crm"] input[type=password],html[data-app="crm"] input[type=date],html[data-app="crm"] input[type=number],html[data-app="crm"] textarea,html[data-app="crm"] select{background:rgba(255,255,255,.55);border-color:var(--glaskante)}
 html[data-app="crm"] .tabelle th{background:transparent}
 html[data-app="crm"] .dateien li,html[data-app="crm"] .inhalt a:hover{background:var(--glas2)}
 html[data-app="crm"] #tor{background:transparent}
@@ -330,6 +330,13 @@ html[data-app="crm"][data-thema="dunkel"] #meldung div{background:#1d2738}
 /* Reiter und Kundenliste ohne Glas-Kasten: Unterstrich wie gehabt. */
 html[data-app="crm"] .reiter button,html[data-app="crm"] .kundenliste button{background:none !important;border-color:transparent !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;box-shadow:none}
 html[data-app="crm"] .reiter button[aria-current=true]{border-bottom-color:var(--akzent) !important}
+
+.feldraster{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;align-items:end;padding:14px 20px 18px;border-top:1px solid var(--linie)}
+.feldraster .breit{grid-column:1/-1}
+.feldraster label{display:block;font-size:12.5px;font-weight:600;color:var(--leise);margin-bottom:4px}
+.feldraster.vier{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) auto}
+@media (max-width:760px){.feldraster.vier{grid-template-columns:repeat(2,minmax(0,1fr))}.feldraster.vier>div:first-child{grid-column:1/-1}}
+@media (max-width:520px){.feldraster,.feldraster.vier{grid-template-columns:1fr}}
 
 </style>
 </head>
@@ -1127,17 +1134,18 @@ function finanzen() {
     '<label class="check"><input type="checkbox" data-fzohne' + (FZ.ohneTermin ? " checked" : "") + "> Raten ohne Termin mitrechnen (" + euro2(r.ohneTermin) + ")</label>" +
     '<div class="reihe"><button type="button" class="haupt" data-fzspeichern>Werte speichern</button><span class="klein leise">Die Rücklage setzt du selbst, ich rate keine Steuerquote.</span></div></div>' +
     '<p class="klein leise" style="margin:14px 0 0">Server- und Betriebskosten, die der Kunde trägt, sind nicht abgezogen, nur deine eigenen Fixkosten. Bezahltes bleibt im Gesamtbetrag: „Bezahlt“ verschiebt nur, wo das Geld steht.</p></div>' +
-    '<div class="karte pad"><div class="kartenkopf"><h2>Deine Fixkosten</h2><span class="klein leise">' + euro2(r.fixMonat) + " im Monat · " + euro2(r.fix12) + " im Jahr</span></div>" +
-    '<p class="klein leise" style="margin-top:-4px">Was jeden Monat von dir abgeht: Software, Versicherungen, Miete … Kosten, die der Kunde trägt, gehören nicht hierher.</p>' +
-    '<table class="tabelle"><thead><tr><th>Bezeichnung</th><th style="text-align:right">€/Monat</th><th>ab</th><th>bis</th><th></th></tr></thead><tbody>' +
+    '<div class="karte"><div style="padding:18px 20px 4px" class="kartenkopf"><h2>Deine Fixkosten</h2><span class="klein leise">' + euro2(r.fixMonat) + " im Monat · " + euro2(r.fix12) + " im Jahr</span></div>" +
+    '<p class="klein leise" style="margin:0 20px 8px">Was jeden Monat von dir abgeht: Software, Versicherungen, Miete … Kosten, die der Kunde trägt, gehören nicht hierher.</p>' +
+    (d.ausgaben.some(function (a) { return !a.einmalig; }) ? '<table class="tabelle"><thead><tr><th>Bezeichnung</th><th style="text-align:right">€/Monat</th><th>Zeitraum</th><th></th></tr></thead><tbody>' +
     d.ausgaben.filter(function (a) { return !a.einmalig; }).map(function (a) {
-      return "<tr><td>" + esc(a.titel) + '</td><td style="text-align:right">' + euro2(a.betrag_monat) + '</td><td class="klein">' + (a.ab ? datum(a.ab) : "–") + '</td><td class="klein">' + (a.bis ? datum(a.bis) : "–") + "</td><td>" +
+      return "<tr><td>" + esc(a.titel) + '</td><td style="text-align:right;white-space:nowrap">' + euro2(a.betrag_monat) + '</td><td class="klein">' + (a.ab ? "ab " + datum(a.ab) : "laufend") + (a.bis ? "<br>bis " + datum(a.bis) : "") + "</td><td>" +
         (S.bestaetigen === "a" + a.id ? '<button type="button" class="klein gefahr" data-ausgabeweg="' + a.id + '">Wirklich löschen?</button>' : '<button type="button" class="klein leise" data-frage="a' + a.id + '">Löschen</button>') + "</td></tr>";
-    }).join("") +
-    '<tr><td><input type="text" placeholder="z. B. Software-Abo" data-schluessel="fa-titel" data-fa="titel" value="' + esc(FZ.ausgabe.titel) + '"></td>' +
-    '<td><input type="text" inputmode="decimal" placeholder="0,00" style="text-align:right" data-schluessel="fa-betrag" data-fa="betrag_monat" value="' + esc(FZ.ausgabe.betrag_monat) + '"></td>' +
-    '<td><input type="date" data-schluessel="fa-ab" data-fa="ab" value="' + esc(FZ.ausgabe.ab) + '"></td><td><input type="date" data-schluessel="fa-bis" data-fa="bis" value="' + esc(FZ.ausgabe.bis) + '"></td>' +
-    '<td><button type="button" class="klein haupt" data-ausgabeneu>Hinzufügen</button></td></tr></tbody></table></div></div>' + grosseAusgaben(d, r);
+    }).join("") + "</tbody></table>" : "") +
+    '<div class="feldraster"><div class="breit"><label>Neue Fixkosten</label><input type="text" placeholder="z. B. Software-Abo" data-schluessel="fa-titel" data-fa="titel" value="' + esc(FZ.ausgabe.titel) + '"></div>' +
+    '<div><label>€ im Monat</label><input type="text" inputmode="decimal" placeholder="0,00" data-schluessel="fa-betrag" data-fa="betrag_monat" value="' + esc(FZ.ausgabe.betrag_monat) + '"></div>' +
+    '<div><button type="button" class="haupt" style="width:100%" data-ausgabeneu>Hinzufügen</button></div>' +
+    '<div><label>ab (leer = schon laufend)</label><input type="date" data-schluessel="fa-ab" data-fa="ab" value="' + esc(FZ.ausgabe.ab) + '"></div>' +
+    '<div><label>bis (leer = unbefristet)</label><input type="date" data-schluessel="fa-bis" data-fa="bis" value="' + esc(FZ.ausgabe.bis) + '"></div></div></div></div>' + grosseAusgaben(d, r);
 
   /* Übersicht: oben genau der Stand, den die Auswahl darunter ergibt, mit Diagramm. Jeder Haken ändert ihn sofort. */
   var mehr = m.rahmen - r.rahmen;
@@ -1164,15 +1172,16 @@ function grosseAusgaben(d, r) {
     '<table class="tabelle"><thead><tr><th>Bezeichnung</th><th style="text-align:right">Betrag</th><th>wann</th><th>einrechnen</th><th>Wirkung im Monat</th><th></th></tr></thead><tbody>' +
     liste.map(function (a) {
       var drin = a.ab && a.ab.slice(0, 7) >= monate[0] && a.ab.slice(0, 7) <= monate[11];
-      return "<tr><td>" + esc(a.titel) + '</td><td style="text-align:right;white-space:nowrap">' + euro2(betrag(a.betrag_monat)) + '</td><td class="klein">' + (a.ab ? datum(a.ab) : "–") + (drin ? "" : '<div class="leise">außerhalb des Planungsjahres</div>') + "</td>" +
+      return "<tr><td>" + esc(a.titel) + '</td><td style="text-align:right;white-space:nowrap">' + euro2(betrag(a.betrag_monat)) + '</td><td class="klein" style="white-space:nowrap">' + (a.ab ? datum(a.ab) : "–") + (drin ? "" : '<div class="leise">außerhalb des Planungsjahres</div>') + "</td>" +
         '<td><label class="check" style="margin:0"><input type="checkbox" data-grossan="' + a.id + '"' + (a.aktiv !== false ? " checked" : "") + "></label></td>" +
         "<td>" + (drin ? (a.aktiv !== false ? '<span class="pille">− ' + euro2(wirkung(a)) + "</span>" : '<span class="leise">wäre − ' + euro2(wirkung(a)) + "</span>") : "") + "</td><td>" +
         (S.bestaetigen === "a" + a.id ? '<button type="button" class="klein gefahr" data-ausgabeweg="' + a.id + '">Wirklich löschen?</button>' : '<button type="button" class="klein leise" data-frage="a' + a.id + '">Löschen</button>') + "</td></tr>";
     }).join("") +
-    '<tr><td><input type="text" placeholder="z. B. neuer Laptop" data-schluessel="gr-titel" data-gross="titel" value="' + esc(g.titel) + '"></td>' +
-    '<td><input type="text" inputmode="decimal" placeholder="0,00" style="text-align:right" data-schluessel="gr-betrag" data-gross="betrag" value="' + esc(g.betrag) + '"></td>' +
-    '<td><input type="date" data-schluessel="gr-datum" data-gross="datum" value="' + esc(g.datum) + '"></td><td></td>' +
-    '<td colspan="2"><button type="button" class="klein haupt" data-grossneu>Hinzufügen</button></td></tr></tbody></table></div>';
+    "</tbody></table>" +
+    '<div class="feldraster vier"><div><label>Neue geplante Ausgabe</label><input type="text" placeholder="z. B. neuer Laptop" data-schluessel="gr-titel" data-gross="titel" value="' + esc(g.titel) + '"></div>' +
+    '<div><label>Betrag €</label><input type="text" inputmode="decimal" placeholder="0,00" data-schluessel="gr-betrag" data-gross="betrag" value="' + esc(g.betrag) + '"></div>' +
+    '<div><label>ungefähr wann</label><input type="date" data-schluessel="gr-datum" data-gross="datum" value="' + esc(g.datum) + '"></div>' +
+    '<div><button type="button" class="haupt" data-grossneu>Hinzufügen</button></div></div></div>';
 }
 
 /** Die Auswahl-Karte: fest drin, mögliche Kunden zum Ein- und Ausschalten, gedachte Kunden hinzufügen. */

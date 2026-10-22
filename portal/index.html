@@ -50,7 +50,7 @@ button.leise{border-color:transparent;background:transparent;color:var(--leise)}
 button.leise:hover{background:var(--linie);color:var(--text)}
 button.gefahr{color:var(--schlecht)}
 button.klein,.knopf.klein{padding:6px 12px;font-size:13px}
-input[type=text],input[type=password],textarea{font:400 15px/1.5 var(--schrift);color:var(--text);background:var(--karte);border:1px solid var(--linie2);
+input[type=text],input[type=password],input[type=date],input[type=number],textarea{font:400 15px/1.5 var(--schrift);color:var(--text);background:var(--karte);border:1px solid var(--linie2);
   border-radius:var(--rk);padding:10px 12px;width:100%;outline:none;transition:border-color .15s,box-shadow .15s}
 input:focus,textarea:focus{border-color:var(--akzent);box-shadow:0 0 0 3px var(--akzent-hell)}
 textarea{resize:vertical;min-height:56px}
@@ -295,7 +295,7 @@ html[data-app="crm"] .kopf{background:var(--glas2);border-bottom:1px solid var(-
 html[data-app="crm"] .zustand{background:var(--glas2);border-color:var(--glaskante)}
 html[data-app="crm"] button:not(.haupt):not(.leise),html[data-app="crm"] .knopf,html[data-app="crm"] .chip:not([aria-pressed=true]){background:var(--glas2);border-color:var(--glaskante);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
 html[data-app="crm"] button.haupt{box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 6px 16px -6px rgba(11,124,147,.6)}
-html[data-app="crm"] input[type=text],html[data-app="crm"] input[type=password],html[data-app="crm"] input[type=date],html[data-app="crm"] textarea,html[data-app="crm"] select{background:rgba(255,255,255,.55);border-color:var(--glaskante)}
+html[data-app="crm"] input[type=text],html[data-app="crm"] input[type=password],html[data-app="crm"] input[type=date],html[data-app="crm"] input[type=number],html[data-app="crm"] textarea,html[data-app="crm"] select{background:rgba(255,255,255,.55);border-color:var(--glaskante)}
 html[data-app="crm"] .tabelle th{background:transparent}
 html[data-app="crm"] .dateien li,html[data-app="crm"] .inhalt a:hover{background:var(--glas2)}
 html[data-app="crm"] #tor{background:transparent}
@@ -330,6 +330,13 @@ html[data-app="crm"][data-thema="dunkel"] #meldung div{background:#1d2738}
 /* Reiter und Kundenliste ohne Glas-Kasten: Unterstrich wie gehabt. */
 html[data-app="crm"] .reiter button,html[data-app="crm"] .kundenliste button{background:none !important;border-color:transparent !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;box-shadow:none}
 html[data-app="crm"] .reiter button[aria-current=true]{border-bottom-color:var(--akzent) !important}
+
+.feldraster{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;align-items:end;padding:14px 20px 18px;border-top:1px solid var(--linie)}
+.feldraster .breit{grid-column:1/-1}
+.feldraster label{display:block;font-size:12.5px;font-weight:600;color:var(--leise);margin-bottom:4px}
+.feldraster.vier{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) auto}
+@media (max-width:760px){.feldraster.vier{grid-template-columns:repeat(2,minmax(0,1fr))}.feldraster.vier>div:first-child{grid-column:1/-1}}
+@media (max-width:520px){.feldraster,.feldraster.vier{grid-template-columns:1fr}}
 
 </style>
 </head>
