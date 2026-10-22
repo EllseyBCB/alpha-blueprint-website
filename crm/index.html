@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="crm" data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-UgtsSF0zrxw5OSW8sq8f4Yq/A6Jn1zGEgjxalGqErUA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-MWgdd5FbhQ2HsikybepiUf95HHQip88vKZDlRtUGSp8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -889,7 +889,7 @@ function portalReiter() {
  * Kontostand, Rücklage-% und Fixkosten trägt Elia selbst ein; hier wird nichts geschätzt.
  */
 var FZ = { daten: null, laedt: false, ohneTermin: true, konto: "", ruecklage: "", jahrAb: "",
-  ausgabe: { titel: "", betrag_monat: "", ab: "", bis: "" } };
+  ausgabe: { titel: "", betrag_monat: "", ab: "", bis: "" }, neuK: { name: "", einmal: "", monatlich: "", ab: "" } };
 var ZN = { titel: "", betrag: "", faellig: "" };   // neue Zahlung in der Kundenakte
 var ZE = null;                                     // Zahlung, die gerade bearbeitet wird (Kopie)
 function finanzenLaden() {
@@ -916,17 +916,38 @@ function monatsName(m) { return new Date(+m.slice(0, 4), +m.slice(5, 7) - 1, 1).
 /* Mit „Monatsbetrag … als bezahlt eintragen“ verbuchte Monate zählen über den Monatsbetrag, nicht doppelt. */
 function istMonatsposten(z) { return /^Monatsbetrag /.test(z.titel || ""); }
 
+/* ---- Was wäre, wenn: Auswahl, wer unterschreibt und ob die Monatspauschale gezahlt wird ----
+ * Kunden mit Status „Kunde“ sind fest drin. Mögliche Kunden (Lead, Angebot, Pausiert mit Beträgen)
+ * und gedachte Kunden, die noch nicht im CRM stehen, schaltest du ein und aus. Gespeichert am Server. */
+function szenario() { var z = (FZ.daten && FZ.daten.szenario) || {}; z.an = z.an || {}; z.neu = z.neu || []; return z; }
+function wahl(sz, k) { var w = sz.an[k.id]; return w ? w : { dabei: k.status === "angebot", monatlich: true }; }
+function moeglicheKunden(d) {
+  return d.kunden.filter(function (k) {
+    return k.status !== "kunde" && k.status !== "verloren" &&
+      (betrag(k.monatlich) > 0 || d.zahlungen.some(function (z) { return z.kunde_id === k.id && !z.bezahlt_am; }));
+  });
+}
+/* Kopie der Auswahl, in der genau ein Kunde umgeschaltet ist: daraus die Wirkung je Kunde. */
+function szUmgeschaltet(sz, d, id) {
+  var c = { an: {}, neu: sz.neu.map(function (x) { var y = {}; for (var q in x) y[q] = x[q]; if (x.id === id) y.dabei = !x.dabei; return y; }) };
+  d.kunden.forEach(function (k) { var w = wahl(sz, k); c.an[k.id] = { dabei: k.id === id ? !w.dabei : w.dabei, monatlich: w.monatlich }; });
+  return c;
+}
+
 /**
- * Ist (mitAngeboten=false): nur unterschriebene Kunden; Monatsbetrag ohne Startdatum zählt nicht.
- * Könnte (true): auch offene Angebote; Monatsbetrag ohne Startdatum ab nächstem Monat.
+ * Ist (sz=null): nur unterschriebene Kunden; Monatsbetrag ohne Startdatum zählt nicht.
+ * Könnte (sz=Auswahl): dazu die ausgewählten möglichen und gedachten Kunden; Monatsbetrag ohne Startdatum ab nächstem Monat,
+ * die Pauschale nur, wenn „wird gezahlt“ an ist.
  * Gesamtbetrag = im Planungsjahr schon bezahlt + noch offen (fällig bis Jahresende, auf Wunsch auch ohne Termin) + Monatsbeträge im Planungsjahr.
  */
-function rechnen(d, mitAngeboten) {
+function rechnen(d, sz) {
+  var mitAngeboten = !!sz;
   var heute = heuteIso(), akt = heute.slice(0, 7), monate = planMonate(), erster = monate[0], letzter = monate[11];
   var naechster = (function () { var x = new Date(); x = new Date(x.getFullYear(), x.getMonth() + 1, 1); return x.getFullYear() + "-" + ("0" + (x.getMonth() + 1)).slice(-2) + "-01"; })();
   var hinein = function (m) { return m < erster ? erster : m > letzter ? letzter : m; };
   var K = {}; d.kunden.forEach(function (k) { K[k.id] = k; });
-  var zaehlt = function (k) { return k && (k.status === "kunde" || (mitAngeboten && k.status === "angebot")); };
+  var zaehlt = function (k) { return k && (k.status === "kunde" || (mitAngeboten && k.status !== "verloren" && wahl(sz, k).dabei)); };
+  var mitMonat = function (k) { return k.status === "kunde" || wahl(sz, k).monatlich; };
   var r = { monate: monate, ein: {}, fix: {}, bezahlt: 0, gezahltGesamt: 0, offen: 0, ueberfaellig: 0, ohneTermin: 0, spaeter: 0,
     monatlich: 0, monatlichRest: 0, monatVoll: 0, laufend: 0, fix12: 0, fixMonat: 0, startOffen: [], angenommen: [] };
   monate.forEach(function (m) { r.ein[m] = 0; r.fix[m] = 0; });
@@ -944,12 +965,23 @@ function rechnen(d, mitAngeboten) {
     if (z.faellig.slice(0, 7) <= letzter) { r.offen += b; r.ein[hinein(z.faellig.slice(0, 7))] += b; } else r.spaeter += b;
   });
   d.kunden.forEach(function (k) {
-    if (!zaehlt(k) || !betrag(k.monatlich)) return;
+    if (!zaehlt(k) || !betrag(k.monatlich) || !mitMonat(k)) return;
     var ab = k.monatlich_ab;
     if (!ab) { if (!mitAngeboten) { r.startOffen.push(k); return; } ab = naechster; r.angenommen.push(k); }
     r.monatVoll += betrag(k.monatlich);
     if (aktivIm(akt, ab, k.monatlich_bis)) r.laufend += betrag(k.monatlich);
     monate.forEach(function (m) { if (aktivIm(m, ab, k.monatlich_bis)) { r.monatlich += betrag(k.monatlich); r.ein[m] += betrag(k.monatlich); if (m >= akt) r.monatlichRest += betrag(k.monatlich); } });
+  });
+  /* Gedachte Kunden: Einmalbetrag im Startmonat fällig, Pauschale ab Startmonat (ohne Datum: ab nächstem Monat). */
+  if (sz) sz.neu.forEach(function (x) {
+    if (!x.dabei) return;
+    var ab = x.ab || naechster, mon = ab.slice(0, 7);
+    if (!x.ab) r.angenommen.push({ firma: x.name, monatlich: x.mitMonat ? x.monatlich : 0 });
+    if (betrag(x.einmal)) { if (mon <= letzter) { r.offen += betrag(x.einmal); r.ein[hinein(mon)] += betrag(x.einmal); } else r.spaeter += betrag(x.einmal); }
+    if (!x.mitMonat || !betrag(x.monatlich)) return;
+    r.monatVoll += betrag(x.monatlich);
+    if (aktivIm(akt, ab, null)) r.laufend += betrag(x.monatlich);
+    monate.forEach(function (m) { if (aktivIm(m, ab, null)) { r.monatlich += betrag(x.monatlich); r.ein[m] += betrag(x.monatlich); if (m >= akt) r.monatlichRest += betrag(x.monatlich); } });
   });
   d.ausgaben.forEach(function (a) {
     monate.forEach(function (m) { if (aktivIm(m, a.ab || "0000-01-01", a.bis)) { r.fix12 += betrag(a.betrag_monat); r.fix[m] += betrag(a.betrag_monat); } });
@@ -979,7 +1011,7 @@ function zustand(titel, sub, r, vergleich) {
     zeile("= Gesamtbetrag der Kunden", r.gesamt, false, true) +
     zeile("− Rücklage " + String(r.ruecklageProzent).replace(".", ",") + " %", r.ruecklage, true) + zeile("− deine Fixkosten", r.fix12, true) +
     zeile("= verfügbar, ÷ 12", r.verfuegbar, false, true) + "</tbody></table>" +
-    (vergleich && r.angenommen.length ? '<div class="klein leise" style="margin-top:8px">Angenommen ab nächstem Monat: ' + r.angenommen.map(function (k) { return esc(k.firma) + " " + euro2(k.monatlich); }).join(", ") + "</div>" : "") + "</div>";
+    (vergleich && r.angenommen.length ? '<div class="klein leise" style="margin-top:8px">Ohne Startdatum, angenommen ab nächstem Monat: ' + r.angenommen.map(function (k) { return esc(k.firma) + (betrag(k.monatlich) ? " " + euro2(k.monatlich) + "/Monat" : ""); }).join(", ") + "</div>" : "") + "</div>";
 }
 
 /** Balken (Einnahmen, Fixkosten) je Monat und eine Linie: wie sich dein Geld über das Jahr entwickelt. */
@@ -1013,7 +1045,9 @@ function diagramm(r, m) {
 
 function finanzen() {
   if (!FZ.daten) { if (!FZ.laedt) setTimeout(finanzenLaden, 0); return '<div class="leer">Lädt …</div>'; }
-  var d = FZ.daten, r = rechnen(d, false), m = rechnen(d, true), heute = heuteIso();
+  var d = FZ.daten, sz = szenario(), r = rechnen(d, null), m = rechnen(d, sz), heute = heuteIso();
+  var gewaehlt = moeglicheKunden(d).filter(function (k) { return wahl(sz, k).dabei; }).map(function (k) { return k.firma; })
+    .concat(sz.neu.filter(function (x) { return x.dabei; }).map(function (x) { return x.name; }));
   var K = {}; d.kunden.forEach(function (k) { K[k.id] = k; });
   var offen = d.zahlungen.filter(function (z) { return !z.bezahlt_am; }).sort(function (a, b) { return (a.faellig || "9999") < (b.faellig || "9999") ? -1 : 1; });
   var bezahlt = d.zahlungen.filter(function (z) { return z.bezahlt_am; }).sort(function (a, b) { return a.bezahlt_am < b.bezahlt_am ? 1 : -1; }).slice(0, 10);
@@ -1027,10 +1061,11 @@ function finanzen() {
 
     '<div class="karte pad" style="margin-bottom:16px"><div class="kartenkopf"><h2>Wie viel du im Monat ausgeben kannst</h2></div>' +
     '<div class="zustaende">' + zustand("Ist-Zustand", "Nur was unterschrieben ist.", r) +
-    zustand("Könnte-Zustand", "Wenn alle offenen Angebote abschließen" + (m.angenommen.length ? ", Monatsbeträge ohne Startdatum ab nächstem Monat" : "") + ".", m, r) + "</div>" +
+    zustand("Könnte-Zustand", (gewaehlt.length ? "Wenn dazu unterschreibt: " + gewaehlt.map(esc).join(", ") : "Niemand zusätzlich ausgewählt, siehe „Was wäre, wenn“") + ".", m, r) + "</div>" +
     (r.startOffen.length ? '<p class="klein" style="color:var(--warn);margin:12px 0 0">Im Ist-Zustand nicht eingerechnet, weil das Startdatum fehlt: ' + r.startOffen.map(function (k) { return esc(k.firma) + " (" + euro2(k.monatlich) + "/Monat)"; }).join(", ") + ". Startdatum in der Kundenakte unter Stammdaten eintragen.</p>" : "") +
     '<p class="klein leise" style="margin:8px 0 0">Server- und Betriebskosten, die der Kunde trägt, sind nicht abgezogen, nur deine eigenen Fixkosten. Bezahltes bleibt im Gesamtbetrag: „Bezahlt“ verschiebt nur, wo das Geld steht.</p></div>' +
 
+    wasWaereWenn(d, sz, m) +
     '<div class="karte pad" style="margin-bottom:16px"><div class="kartenkopf"><h2>Dein Geld über das Planungsjahr</h2>' +
     '<span class="legende"><i class="lg-ein"></i>Einnahmen Ist <i class="lg-koennte"></i>dazu Könnte <i class="lg-fix"></i>Fixkosten <i class="lg-linie"></i>Geldverlauf Ist <i class="lg-linie2"></i>Könnte</span></div>' +
     diagramm(r, m) + (r.ohneTermin ? '<p class="klein leise" style="margin:6px 0 0">Raten ohne Termin (' + euro2(r.ohneTermin) + ") stehen nicht im Verlauf, bis sie ein Fälligkeitsdatum haben.</p>" : "") + "</div>" +
@@ -1066,6 +1101,45 @@ function finanzen() {
     '<td><input type="text" inputmode="decimal" placeholder="0,00" style="text-align:right" data-schluessel="fa-betrag" data-fa="betrag_monat" value="' + esc(FZ.ausgabe.betrag_monat) + '"></td>' +
     '<td><input type="date" data-schluessel="fa-ab" data-fa="ab" value="' + esc(FZ.ausgabe.ab) + '"></td><td><input type="date" data-schluessel="fa-bis" data-fa="bis" value="' + esc(FZ.ausgabe.bis) + '"></td>' +
     '<td><button type="button" class="klein haupt" data-ausgabeneu>Hinzufügen</button></td></tr></tbody></table></div>';
+}
+
+/** Die Auswahl-Karte: fest drin, mögliche Kunden zum Ein- und Ausschalten, gedachte Kunden hinzufügen. */
+function wasWaereWenn(d, sz, m) {
+  var offenVon = function (id) { return d.zahlungen.filter(function (z) { return z.kunde_id === id && !z.bezahlt_am; }).reduce(function (s, z) { return s + betrag(z.betrag); }, 0); };
+  var wirkung = function (id, dabei) {
+    var x = rechnen(d, szUmgeschaltet(sz, d, id)), diff = Math.round(Math.abs(m.rahmen - x.rahmen));
+    if (diff < 1) return '<span class="leise">–</span>';
+    return dabei ? '<span class="pille gut">+ ' + euro2(diff) + "</span>" : '<span class="leise">wäre + ' + euro2(diff) + "</span>";
+  };
+  var schalter = function (attr, id, an, aus) { return '<label class="check" style="margin:0"><input type="checkbox" ' + attr + '="' + id + '"' + (an ? " checked" : "") + (aus ? " disabled" : "") + "></label>"; };
+  var fest = d.kunden.filter(function (k) { return k.status === "kunde"; });
+  var moegl = moeglicheKunden(d);
+  var zeilen = fest.map(function (k) {
+    return '<tr><td><a href="#" data-akte="' + k.id + '" data-zu="zahlungen">' + esc(k.firma) + '</a></td><td style="text-align:right">' + euro2(offenVon(k.id)) + '</td><td style="text-align:right">' + (betrag(k.monatlich) ? euro2(betrag(k.monatlich)) : "–") + '</td><td colspan="2"><span class="pille">fest drin</span></td><td></td><td></td></tr>';
+  }).concat(moegl.map(function (k) {
+    var w = wahl(sz, k);
+    return '<tr><td><a href="#" data-akte="' + k.id + '" data-zu="zahlungen">' + esc(k.firma) + '</a><div class="klein leise">' + esc(STATUS[k.status] || k.status) + '</div></td><td style="text-align:right">' + euro2(offenVon(k.id)) + '</td><td style="text-align:right">' + (betrag(k.monatlich) ? euro2(betrag(k.monatlich)) : "–") + "</td>" +
+      "<td>" + schalter("data-szdabei", k.id, w.dabei) + "</td><td>" + schalter("data-szmonat", k.id, w.monatlich && betrag(k.monatlich) > 0, !betrag(k.monatlich) || !w.dabei) + "</td><td>" + wirkung(k.id, w.dabei) + "</td><td></td></tr>";
+  })).concat(sz.neu.map(function (x) {
+    return "<tr><td>" + esc(x.name) + '<div class="klein leise">gedacht' + (x.ab ? ", ab " + datum(x.ab) : "") + '</div></td><td style="text-align:right">' + euro2(x.einmal) + '</td><td style="text-align:right">' + (betrag(x.monatlich) ? euro2(x.monatlich) : "–") + "</td>" +
+      "<td>" + schalter("data-szneudabei", x.id, x.dabei) + "</td><td>" + schalter("data-szneumonat", x.id, x.mitMonat && betrag(x.monatlich) > 0, !betrag(x.monatlich) || !x.dabei) + "</td><td>" + wirkung(x.id, x.dabei) + "</td>" +
+      '<td><button type="button" class="klein leise" data-szneuweg="' + x.id + '">Entfernen</button></td></tr>';
+  }));
+  var n = FZ.neuK;
+  return '<div class="karte" style="margin-bottom:16px"><div style="padding:18px 20px 4px" class="kartenkopf"><h2>Was wäre, wenn …</h2><span class="klein leise">Könnte-Zustand: ' + euro2(Math.round(m.rahmen)) + " im Monat</span></div>" +
+    '<p class="klein leise" style="margin:0 20px 8px">Haken bei „unterschreibt“, und der Kunde zählt im Könnte-Zustand und im Diagramm. „Pauschale“ aus heißt: Er unterschreibt, zahlt aber keinen Monatsbetrag. Kunden mit Status „Kunde“ sind fest drin. Die Auswahl ändert keine Kundenakte.</p>' +
+    '<table class="tabelle"><thead><tr><th>Kunde</th><th style="text-align:right">Einmalig offen</th><th style="text-align:right">Monatlich</th><th>unterschreibt</th><th>Pauschale wird gezahlt</th><th>Wirkung im Monat</th><th></th></tr></thead><tbody>' +
+    zeilen.join("") +
+    '<tr><td><input type="text" placeholder="z. B. HRVN Club" data-schluessel="sz-name" data-szn="name" value="' + esc(n.name) + '"></td>' +
+    '<td><input type="text" inputmode="decimal" placeholder="einmalig €" style="text-align:right" data-schluessel="sz-einmal" data-szn="einmal" value="' + esc(n.einmal) + '"></td>' +
+    '<td><input type="text" inputmode="decimal" placeholder="€ im Monat" style="text-align:right" data-schluessel="sz-monat" data-szn="monatlich" value="' + esc(n.monatlich) + '"></td>' +
+    '<td colspan="2"><input type="date" title="Start (leer = nächster Monat)" data-schluessel="sz-ab" data-szn="ab" value="' + esc(n.ab) + '"></td>' +
+    '<td colspan="2"><button type="button" class="klein haupt" data-szneu>Gedachten Kunden hinzufügen</button></td></tr></tbody></table>' +
+    '<p class="klein leise" style="margin:6px 20px 16px">Gedachte Kunden stehen nur hier in der Planung. Wer wirklich ein Angebot bekommt, legst du besser unter Kunden an, dann erscheint er automatisch oben.</p></div>';
+}
+function szenarioSpeichern() {
+  var sz = szenario();
+  api("crm_szenario_setzen", { wert: sz }).then(function (j) { FZ.daten.szenario = j.szenario; }, function (f) { melden(f.message, true); });
 }
 
 /* ---------------------------------------------------------------- Zahlungen in der Kundenakte */
@@ -1116,6 +1190,24 @@ function finanzVerdrahten() {
     b.disabled = true; api("crm_portal_datei_weg", { pfad: b.dataset.feedweg }).then(function () { S.bestaetigen = null; melden("Datei gelöscht."); S.ereignisse = (S.ereignisse || []).filter(function (e) { return e.pfad !== b.dataset.feedweg; }); listeLaden(); zeichnen(); }, function (f) { b.disabled = false; melden(f.message, true); }); }; });
   w.querySelectorAll("[data-fz]").forEach(function (t) { t.oninput = function () { FZ[t.dataset.fz] = t.value; }; });
   w.querySelectorAll("[data-fzohne]").forEach(function (t) { t.onchange = function () { FZ.ohneTermin = t.checked; zeichnen(); }; });
+  var szKunde = function (id) { return (FZ.daten.kunden || []).filter(function (k) { return k.id === id; })[0]; };
+  w.querySelectorAll("[data-szdabei]").forEach(function (t) { t.onchange = function () {
+    var sz = szenario(), k = szKunde(t.dataset.szdabei); if (!k) return; var v = wahl(sz, k);
+    sz.an[k.id] = { dabei: t.checked, monatlich: v.monatlich }; FZ.daten.szenario = sz; zeichnen(); szenarioSpeichern(); }; });
+  w.querySelectorAll("[data-szmonat]").forEach(function (t) { t.onchange = function () {
+    var sz = szenario(), k = szKunde(t.dataset.szmonat); if (!k) return; var v = wahl(sz, k);
+    sz.an[k.id] = { dabei: v.dabei, monatlich: t.checked }; FZ.daten.szenario = sz; zeichnen(); szenarioSpeichern(); }; });
+  var szNeu = function (id) { return szenario().neu.filter(function (x) { return x.id === id; })[0]; };
+  w.querySelectorAll("[data-szneudabei]").forEach(function (t) { t.onchange = function () { var x = szNeu(t.dataset.szneudabei); if (!x) return; x.dabei = t.checked; zeichnen(); szenarioSpeichern(); }; });
+  w.querySelectorAll("[data-szneumonat]").forEach(function (t) { t.onchange = function () { var x = szNeu(t.dataset.szneumonat); if (!x) return; x.mitMonat = t.checked; zeichnen(); szenarioSpeichern(); }; });
+  w.querySelectorAll("[data-szneuweg]").forEach(function (b) { b.onclick = function () {
+    var sz = szenario(); sz.neu = sz.neu.filter(function (x) { return x.id !== b.dataset.szneuweg; }); FZ.daten.szenario = sz; zeichnen(); szenarioSpeichern(); }; });
+  w.querySelectorAll("[data-szn]").forEach(function (t) { t.oninput = function () { FZ.neuK[t.dataset.szn] = t.value; }; });
+  w.querySelectorAll("[data-szneu]").forEach(function (b) { b.onclick = function () {
+    var n = FZ.neuK; if (!n.name.trim()) return melden("Bitte einen Namen eintragen.", true);
+    var sz = szenario(); if (sz.neu.length >= 30) return melden("Höchstens 30 gedachte Kunden.", true);
+    sz.neu.push({ id: Math.random().toString(36).slice(2, 12).padEnd(8, "0"), name: n.name.trim(), einmal: eingabeZahl(n.einmal), monatlich: eingabeZahl(n.monatlich), ab: n.ab || null, dabei: true, mitMonat: true });
+    FZ.daten.szenario = sz; FZ.neuK = { name: "", einmal: "", monatlich: "", ab: "" }; zeichnen(); szenarioSpeichern(); }; });
   w.querySelectorAll("[data-fzspeichern]").forEach(function (b) { b.onclick = function () {
     b.disabled = true;
     api("crm_einstellungen_setzen", { wert: { kontostand: eingabeZahl(FZ.konto), ruecklage: eingabeZahl(FZ.ruecklage), jahr_ab: FZ.jahrAb || null } })
