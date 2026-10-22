@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="crm" data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-vx1+LwpXljIC7yJ3hQfeSkE28U4yBU0F+q+JBUKN9x8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-03KZWNshqNvXzu2N5hdmD/P5ihUFUHlKsQhsDFXdmqg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -895,7 +895,7 @@ function portalReiter() {
  * Kontostand, Rücklage-% und Fixkosten trägt Elia selbst ein; hier wird nichts geschätzt.
  */
 var FZ = { daten: null, laedt: false, ohneTermin: true, konto: "", ruecklage: "", jahrAb: "",
-  ausgabe: { titel: "", betrag_monat: "", ab: "", bis: "" }, neuK: { name: "", einmal: "", monatlich: "", ab: "" }, reiter: "uebersicht", rechnung: false };
+  ausgabe: { titel: "", betrag_monat: "", ab: "", bis: "" }, gross: { titel: "", betrag: "", datum: "" }, neuK: { name: "", einmal: "", monatlich: "", ab: "" }, reiter: "uebersicht", rechnung: false };
 var ZN = { titel: "", betrag: "", faellig: "" };   // neue Zahlung in der Kundenakte
 var ZE = null;                                     // Zahlung, die gerade bearbeitet wird (Kopie)
 var ST = { wahl: {}, teilen: null, anzahl: "2", laeuft: false };  // Raten zusammenlegen oder aufteilen
@@ -961,7 +961,7 @@ function rechnen(d, sz) {
   var zaehlt = function (k) { return k && (k.status === "kunde" || (mitAngeboten && k.status !== "verloren" && wahl(sz, k).dabei)); };
   var mitMonat = function (k) { return !sz || wahl(sz, k).monatlich; };
   var r = { monate: monate, ein: {}, fix: {}, bezahlt: 0, gezahltGesamt: 0, offen: 0, ueberfaellig: 0, ohneTermin: 0, spaeter: 0,
-    monatlich: 0, monatlichRest: 0, monatVoll: 0, laufend: 0, fix12: 0, fixMonat: 0, startOffen: [], angenommen: [] };
+    monatlich: 0, monatlichRest: 0, monatVoll: 0, laufend: 0, fix12: 0, fixMonat: 0, gross12: 0, grossListe: [], startOffen: [], angenommen: [] };
   monate.forEach(function (m) { r.ein[m] = 0; r.fix[m] = 0; });
   d.zahlungen.forEach(function (z) {
     var k = K[z.kunde_id], b = betrag(z.betrag);
@@ -996,6 +996,13 @@ function rechnen(d, sz) {
     monate.forEach(function (m) { if (aktivIm(m, ab, null)) { r.monatlich += betrag(x.monatlich); r.ein[m] += betrag(x.monatlich); if (m >= akt) r.monatlichRest += betrag(x.monatlich); } });
   });
   d.ausgaben.forEach(function (a) {
+    if (a.einmalig) {
+      /* Geplante größere Ausgabe: einmal im Monat ihres Datums, nur wenn „einrechnen“ an ist. Vergangenes im Planungsjahr zählt mit. */
+      var mon = (a.ab || "").slice(0, 7);
+      if (a.aktiv !== false && mon >= erster && mon <= letzter) { r.gross12 += betrag(a.betrag_monat); r.fix[mon] += betrag(a.betrag_monat); r.grossListe.push(a); }
+      return;
+    }
+    if (a.aktiv === false) return;
     monate.forEach(function (m) { if (aktivIm(m, a.ab || "0000-01-01", a.bis)) { r.fix12 += betrag(a.betrag_monat); r.fix[m] += betrag(a.betrag_monat); } });
     if (aktivIm(akt, a.ab || "0000-01-01", a.bis)) r.fixMonat += betrag(a.betrag_monat);
   });
@@ -1003,7 +1010,7 @@ function rechnen(d, sz) {
   r.gesamt = r.bezahlt + r.offen + (FZ.ohneTermin ? r.ohneTermin : 0) + r.monatlich;
   r.nochOffen = r.offen + r.ohneTermin + r.spaeter + r.monatlichRest;
   r.ruecklage = r.gesamt * r.ruecklageProzent / 100;
-  r.verfuegbar = r.start + r.gesamt - r.ruecklage - r.fix12;
+  r.verfuegbar = r.start + r.gesamt - r.ruecklage - r.fix12 - r.gross12;
   r.rahmen = r.verfuegbar / 12;
   /* Verlauf: Startguthaben, dann Monat für Monat + Einnahmen − Fixkosten. Raten ohne Termin sind im Verlauf nicht verteilt. */
   var stand = r.start; r.verlauf = monate.map(function (m) { stand += r.ein[m] - r.fix[m]; return stand; });
@@ -1024,7 +1031,7 @@ function zustand(titel, sub, r, vergleich) {
     zeile("+ im Planungsjahr schon bezahlt", r.bezahlt) + zeile("+ noch offen, fällig im Planungsjahr", r.offen) +
     (FZ.ohneTermin && r.ohneTermin ? zeile("+ Raten ohne Termin", r.ohneTermin) : "") + zeile("+ Monatsbeträge im Planungsjahr", r.monatlich) +
     zeile("= Gesamtbetrag der Kunden", r.gesamt, false, true) +
-    zeile("− Rücklage " + String(r.ruecklageProzent).replace(".", ",") + " %", r.ruecklage, true) + zeile("− deine Fixkosten", r.fix12, true) +
+    zeile("− Rücklage " + String(r.ruecklageProzent).replace(".", ",") + " %", r.ruecklage, true) + zeile("− deine Fixkosten", r.fix12, true) + (r.gross12 ? zeile("− geplante größere Ausgaben", r.gross12, true) : "") +
     zeile("= verfügbar, ÷ 12", r.verfuegbar, false, true) + "</tbody></table>" : "") +
     (vergleich && r.angenommen.length ? '<div class="klein leise" style="margin-top:8px">Ohne Startdatum, angenommen ab nächstem Monat: ' + r.angenommen.map(function (k) { return esc(k.firma) + (betrag(k.monatlich) ? " " + euro2(betrag(k.monatlich)) + "/Monat" : ""); }).join(", ") + "</div>" : "") + "</div>";
 }
@@ -1063,7 +1070,7 @@ function diagramm(r, m) {
     koennte: ["Geld mit Auswahl (gestrichelte Linie)", "Dasselbe, aber mit deiner Auswahl aus „Was wäre, wenn“: " + esc(FZ.auswahlText || "") + ". Monatsbeträge ohne Startdatum zählen ab nächstem Monat. Am Jahresende: " + ende(m.verlauf) + ", das sind " + euro2(Math.round(m.verlauf[11] - r.verlauf[11])) + " mehr als Ist."],
     ein: ["Einnahmen Ist (dunkle Balken)", "Was im jeweiligen Monat sicher hereinkommt: bezahlte und fällige Raten unterschriebener Kunden plus ihre Monatsbeträge. Überfälliges steht im aktuellen Monat."],
     dazu: ["Dazu mit Auswahl (helle Balken)", "Die Einnahmen, wenn deine Auswahl so eintritt. Der helle Teil über dem dunklen Balken ist, was die ausgewählten Kunden zusätzlich bringen."],
-    fix: ["Fixkosten (graue Balken)", "Was jeden Monat von dir abgeht, eingetragen unter „Fixkosten & Werte“. Kosten, die der Kunde trägt, sind nicht dabei."]
+    fix: ["Fixkosten (graue Balken)", "Was jeden Monat von dir abgeht, eingetragen unter „Fixkosten & Werte“, dazu eingerechnete geplante größere Ausgaben in ihrem Monat" + (r.grossListe.length ? " (" + r.grossListe.map(function (a) { return esc(a.titel) + " " + euro2(betrag(a.betrag_monat)); }).join(", ") + ")" : "") + ". Kosten, die der Kunde trägt, sind nicht dabei."]
   };
   var t = T[FZ.linie];
   return s + (t ? '<div class="linieninfo"><div><b>' + t[0] + "</b><div class=\"klein\" style=\"margin-top:4px\">" + t[1] + '</div></div><button type="button" class="klein leise" data-linie="">Schließen</button></div>'
@@ -1123,14 +1130,14 @@ function finanzen() {
     '<div class="karte pad"><div class="kartenkopf"><h2>Deine Fixkosten</h2><span class="klein leise">' + euro2(r.fixMonat) + " im Monat · " + euro2(r.fix12) + " im Jahr</span></div>" +
     '<p class="klein leise" style="margin-top:-4px">Was jeden Monat von dir abgeht: Software, Versicherungen, Miete … Kosten, die der Kunde trägt, gehören nicht hierher.</p>' +
     '<table class="tabelle"><thead><tr><th>Bezeichnung</th><th style="text-align:right">€/Monat</th><th>ab</th><th>bis</th><th></th></tr></thead><tbody>' +
-    d.ausgaben.map(function (a) {
+    d.ausgaben.filter(function (a) { return !a.einmalig; }).map(function (a) {
       return "<tr><td>" + esc(a.titel) + '</td><td style="text-align:right">' + euro2(a.betrag_monat) + '</td><td class="klein">' + (a.ab ? datum(a.ab) : "–") + '</td><td class="klein">' + (a.bis ? datum(a.bis) : "–") + "</td><td>" +
         (S.bestaetigen === "a" + a.id ? '<button type="button" class="klein gefahr" data-ausgabeweg="' + a.id + '">Wirklich löschen?</button>' : '<button type="button" class="klein leise" data-frage="a' + a.id + '">Löschen</button>') + "</td></tr>";
     }).join("") +
     '<tr><td><input type="text" placeholder="z. B. Software-Abo" data-schluessel="fa-titel" data-fa="titel" value="' + esc(FZ.ausgabe.titel) + '"></td>' +
     '<td><input type="text" inputmode="decimal" placeholder="0,00" style="text-align:right" data-schluessel="fa-betrag" data-fa="betrag_monat" value="' + esc(FZ.ausgabe.betrag_monat) + '"></td>' +
     '<td><input type="date" data-schluessel="fa-ab" data-fa="ab" value="' + esc(FZ.ausgabe.ab) + '"></td><td><input type="date" data-schluessel="fa-bis" data-fa="bis" value="' + esc(FZ.ausgabe.bis) + '"></td>' +
-    '<td><button type="button" class="klein haupt" data-ausgabeneu>Hinzufügen</button></td></tr></tbody></table></div></div>';
+    '<td><button type="button" class="klein haupt" data-ausgabeneu>Hinzufügen</button></td></tr></tbody></table></div></div>' + grosseAusgaben(d, r);
 
   /* Übersicht: oben genau der Stand, den die Auswahl darunter ergibt, mit Diagramm. Jeder Haken ändert ihn sofort. */
   var mehr = m.rahmen - r.rahmen;
@@ -1140,9 +1147,32 @@ function finanzen() {
     '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><span style="font:700 44px/1 var(--anzeige);' + (m.rahmen < 0 ? "color:var(--schlecht)" : "") + '">' + euro2(Math.round(m.rahmen)) + '</span><span class="leise">im Monat ausgeben</span>' +
     (Math.abs(mehr) > 0.5 ? '<span class="pille ' + (mehr > 0 ? "gut" : "") + '">' + (mehr > 0 ? "+ " : "− ") + euro2(Math.round(Math.abs(mehr))) + " zum Ist (" + euro2(Math.round(r.rahmen)) + ")</span>" : '<span class="pille">gleich wie Ist</span>') + "</div>" +
     '<div class="minizahlen">' + mini("Gesamtbetrag Jahr", euro2(m.gesamt)) + mini("Schon bezahlt", euro2(m.bezahlt), "var(--gut)") + mini("Kunden zahlen noch", euro2(m.nochOffen)) +
-    mini("Wiederkehrend", euro2(m.monatVoll) + '<span class="klein leise"> /Monat</span>') + mini("Geld am Jahresende", euro2(Math.round(m.verlauf[11])), m.verlauf[11] < 0 ? "var(--schlecht)" : "") + "</div>" +
+    mini("Wiederkehrend", euro2(m.monatVoll) + '<span class="klein leise"> /Monat</span>') + mini("Geld am Jahresende", euro2(Math.round(m.verlauf[11])), m.verlauf[11] < 0 ? "var(--schlecht)" : "") +
+    (m.gross12 ? mini("Geplante Ausgaben", "− " + euro2(m.gross12), "var(--schlecht)") : "") + "</div>" +
     '<div class="kartenkopf" style="margin-top:18px"><h2 style="font-size:15px">Geldverlauf</h2>' + legende + "</div>" + diagramm(r, m) + "</div>";
   return kopf + stand + wasWaereWenn(d, sz, m);
+}
+
+/** Geplante größere Ausgaben: einmalige Beträge mit Datum, jede einzeln ein- und ausschaltbar. */
+function grosseAusgaben(d, r) {
+  var g = FZ.gross, liste = d.ausgaben.filter(function (a) { return a.einmalig; }).sort(function (a, b) { return (a.ab || "") < (b.ab || "") ? -1 : 1; });
+  var monate = planMonate();
+  var wirkung = function (a) { return Math.round(betrag(a.betrag_monat) / 12); };
+  return '<div class="karte" style="margin-top:16px"><div style="padding:18px 20px 4px" class="kartenkopf"><h2>Geplante größere Ausgaben</h2><span class="klein leise">' +
+    (r.gross12 ? "eingerechnet: " + euro2(r.gross12) + " im Planungsjahr" : "noch nichts eingerechnet") + "</span></div>" +
+    '<p class="klein leise" style="margin:0 20px 8px">Was voraussichtlich einmal anfällt: neuer Rechner, Steuernachzahlung, Messe … Mit Haken bei „einrechnen“ zieht es vom Monatsrahmen ab und erscheint im Diagramm in seinem Monat, im Ist und im Könnte.</p>' +
+    '<table class="tabelle"><thead><tr><th>Bezeichnung</th><th style="text-align:right">Betrag</th><th>wann</th><th>einrechnen</th><th>Wirkung im Monat</th><th></th></tr></thead><tbody>' +
+    liste.map(function (a) {
+      var drin = a.ab && a.ab.slice(0, 7) >= monate[0] && a.ab.slice(0, 7) <= monate[11];
+      return "<tr><td>" + esc(a.titel) + '</td><td style="text-align:right;white-space:nowrap">' + euro2(betrag(a.betrag_monat)) + '</td><td class="klein">' + (a.ab ? datum(a.ab) : "–") + (drin ? "" : '<div class="leise">außerhalb des Planungsjahres</div>') + "</td>" +
+        '<td><label class="check" style="margin:0"><input type="checkbox" data-grossan="' + a.id + '"' + (a.aktiv !== false ? " checked" : "") + "></label></td>" +
+        "<td>" + (drin ? (a.aktiv !== false ? '<span class="pille">− ' + euro2(wirkung(a)) + "</span>" : '<span class="leise">wäre − ' + euro2(wirkung(a)) + "</span>") : "") + "</td><td>" +
+        (S.bestaetigen === "a" + a.id ? '<button type="button" class="klein gefahr" data-ausgabeweg="' + a.id + '">Wirklich löschen?</button>' : '<button type="button" class="klein leise" data-frage="a' + a.id + '">Löschen</button>') + "</td></tr>";
+    }).join("") +
+    '<tr><td><input type="text" placeholder="z. B. neuer Laptop" data-schluessel="gr-titel" data-gross="titel" value="' + esc(g.titel) + '"></td>' +
+    '<td><input type="text" inputmode="decimal" placeholder="0,00" style="text-align:right" data-schluessel="gr-betrag" data-gross="betrag" value="' + esc(g.betrag) + '"></td>' +
+    '<td><input type="date" data-schluessel="gr-datum" data-gross="datum" value="' + esc(g.datum) + '"></td><td></td>' +
+    '<td colspan="2"><button type="button" class="klein haupt" data-grossneu>Hinzufügen</button></td></tr></tbody></table></div>';
 }
 
 /** Die Auswahl-Karte: fest drin, mögliche Kunden zum Ein- und Ausschalten, gedachte Kunden hinzufügen. */
@@ -1312,6 +1342,17 @@ function finanzVerdrahten() {
     api("crm_einstellungen_setzen", { wert: { kontostand: eingabeZahl(FZ.konto), ruecklage: eingabeZahl(FZ.ruecklage), jahr_ab: FZ.jahrAb || null } })
       .then(function () { melden("Gespeichert."); finanzenLaden(); }, function (f) { b.disabled = false; melden(f.message, true); });
   }; });
+  w.querySelectorAll("[data-gross]").forEach(function (t) { t.oninput = function () { FZ.gross[t.dataset.gross] = t.value; }; });
+  w.querySelectorAll("[data-grossneu]").forEach(function (b) { b.onclick = function () {
+    var g = FZ.gross; if (!g.titel.trim()) return melden("Bitte eine Bezeichnung eintragen.", true);
+    if (!g.datum) return melden("Bitte ein Datum eintragen (ungefähr reicht).", true);
+    b.disabled = true;
+    api("crm_ausgabe_speichern", { daten: { titel: g.titel, betrag_monat: eingabeZahl(g.betrag), ab: g.datum, einmalig: true, aktiv: true } })
+      .then(function () { FZ.gross = { titel: "", betrag: "", datum: "" }; finanzenLaden(); }, function (f) { b.disabled = false; melden(f.message, true); });
+  }; });
+  w.querySelectorAll("[data-grossan]").forEach(function (t) { t.onchange = function () {
+    var a = FZ.daten.ausgaben.filter(function (x) { return x.id === t.dataset.grossan; })[0]; if (a) a.aktiv = t.checked; zeichnen();
+    api("crm_ausgabe_aktiv", { id: t.dataset.grossan, aktiv: t.checked }).then(null, function (f) { melden(f.message, true); finanzenLaden(); }); }; });
   w.querySelectorAll("[data-fa]").forEach(function (t) { t.oninput = function () { FZ.ausgabe[t.dataset.fa] = t.value; }; });
   w.querySelectorAll("[data-ausgabeneu]").forEach(function (b) { b.onclick = function () {
     var a = FZ.ausgabe; if (!a.titel.trim()) return melden("Bitte eine Bezeichnung eintragen.", true);
