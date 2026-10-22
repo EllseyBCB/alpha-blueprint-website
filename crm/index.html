@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="crm" data-glas data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-XeRYG8/SX/HC5danIjsKFSoqH9BaUSgSonIJ4M+96Yw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-yem1kPq51dKdXehKQJAHQLQ/bWIar/aYoibJ2kHAGvo='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -646,11 +646,12 @@ function sicherheitVerdrahten() {
   if (window.top !== window.self) { document.body.innerHTML = ""; return; }   // nicht in fremde Rahmen einbetten
   var form = document.getElementById("torForm"), knopf = document.getElementById("oeffnen");
   /* Chrome füllt auf alphablueprint.de oft den gespeicherten Admin-Zugang ein. Tippt jemand selbst einen
-     anderen Namen, gehört das eingefüllte Passwort nicht dazu: einmal leeren (Autofill tippt nie mit der Tastatur). */
+     anderen Namen, gehört das eingefüllte Passwort nicht dazu: einmal leeren (Autofill tippt nie mit der Tastatur). Der eingefüllte Wert ist für die Seite bis zur
+     ersten Eingabe unsichtbar, darum ohne Prüfung leeren. */
   var werF = document.getElementById("wer"), wortF = document.getElementById("wort"), pwGetippt = false, geleert = false;
   wortF.addEventListener("keydown", function () { pwGetippt = true; });
   werF.addEventListener("keydown", function (ev) {
-    if (!pwGetippt && !geleert && wortF.value && ev.key && (ev.key.length === 1 || ev.key === "Backspace" || ev.key === "Delete")) { wortF.value = ""; geleert = true; }
+    if (!pwGetippt && !geleert && ev.key && (ev.key.length === 1 || ev.key === "Backspace" || ev.key === "Delete")) { wortF.value = ""; geleert = true; }
   });
   var auge = document.getElementById("pwAuge");
   if (auge) auge.onclick = function () { var f = document.getElementById("wort"), zu = f.type === "password"; f.type = zu ? "text" : "password"; auge.title = zu ? "Passwort verbergen" : "Passwort anzeigen"; auge.style.opacity = zu ? "1" : ".55"; f.focus(); };
