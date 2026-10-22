@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="portal" data-glas data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dRCRClPfGltzMzdxKZLKL2cWFVyhrWdpYd0GGmp20wc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-Bs6loI9DsTUN7WpPGwvSmXIPM09Ap9BMxJMTrCeIxNA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -513,7 +513,7 @@ function erstesPasswortZeigen(token, name) {
   f.innerHTML = '<span class="marke gross"><i></i>Alpha Blueprint</span><h1>Eigenes Passwort festlegen</h1>' +
     '<p class="unter">Willkommen! Bitte legen Sie jetzt ein eigenes Passwort fest. Ihr Zugangsname bleibt <b>' + esc(name) + '</b>.</p>' +
     (mitAlt ? '<label for="ealt">Bisheriges Passwort</label><input type="password" id="ealt" autocomplete="current-password" required>' : "") +
-    '<label for="eneu">Neues Passwort (mindestens 10 Zeichen)</label><input type="password" id="eneu" autocomplete="new-password" required>' +
+    '<label for="eneu">Neues Passwort</label><input type="password" id="eneu" autocomplete="new-password" required>' +
     '<label for="eneu2">Neues Passwort wiederholen</label><input type="password" id="eneu2" autocomplete="new-password" required>' +
     '<button type="submit" class="haupt" id="eok">Passwort speichern und weiter</button><p class="sagt" id="sagt" role="status" aria-live="polite"></p>' +
     '<p class="fuss"><a href="#" id="eweg">Abmelden</a></p>';
@@ -522,7 +522,7 @@ function erstesPasswortZeigen(token, name) {
   f.onsubmit = function (ev) {
     ev.preventDefault();
     var neu = f.querySelector("#eneu").value, neu2 = f.querySelector("#eneu2").value, knopf = f.querySelector("#eok");
-    if (neu.length < 10) return torSagen("Das neue Passwort braucht mindestens 10 Zeichen.", true);
+    if (!neu) return torSagen("Bitte ein neues Passwort eingeben.", true);
     if (neu !== neu2) return torSagen("Die beiden Eingaben stimmen nicht überein.", true);
     knopf.disabled = true; torSagen("Wird gespeichert …");
     var roh = TOR.erst ? Promise.resolve(TOR.erst) : blockHolen(name).then(function (b) { return blockOeffnen(b, f.querySelector("#ealt").value).catch(function () { throw new Error("Das bisherige Passwort stimmt nicht."); }); });
@@ -583,20 +583,19 @@ function totpEinrichtenZeigen(token, pflicht, ziel, fertig) {
 /* ---------------------------------------------------------------- Passwort ändern */
 function passwortAendern(alt, neu) {
   var name = S.P.benutzer;
-  if (String(neu).length < 10) return Promise.reject(new Error("Das neue Passwort braucht mindestens 10 Zeichen."));
+  if (!String(neu)) return Promise.reject(new Error("Bitte ein neues Passwort eingeben."));
   if (neu === alt) return Promise.reject(new Error("Das neue Passwort ist dasselbe wie das alte."));
   return blockHolen(name).then(function (b) { return blockOeffnen(b, alt).catch(function () { throw new Error("Das aktuelle Passwort stimmt nicht."); }); })
     .then(function (roh) { return blockSchliessen(roh, neu).then(function (nb) { return ruf({ aktion: "passwort_setzen", block: nb }, { sitzung: S.P.api.sitzung, schluessel: roh.schluessel }); }); });
 }
 var PW = { alt: "", neu: "", neu2: "", laeuft: false };
 function passwortKarte(name, du) {
-  var stark = PW.neu.length >= 10, gleich = PW.neu && PW.neu === PW.neu2;
+  var stark = PW.neu.length >= 1, gleich = PW.neu && PW.neu === PW.neu2;
   return '<div class="karte pad"><h2>Passwort ändern</h2>' +
     '<p class="klein leise" style="margin:2px 0 16px">Angemeldet als <b>' + esc(name) + "</b>. " + (du ? "Das Passwort verlässt deinen Browser nie" : "Das Passwort verlässt Ihren Browser nie") + ", gespeichert wird nur eine damit verschlüsselte Fassung. Danach werden alle anderen Geräte abgemeldet.</p>" +
     '<div class="formular">' +
     '<label class="klein" style="font-weight:600">Aktuelles Passwort</label><input type="password" autocomplete="current-password" data-schluessel="pw-alt" data-pw="alt" value="' + esc(PW.alt) + '">' +
     '<label class="klein" style="font-weight:600">Neues Passwort</label><input type="password" autocomplete="new-password" data-schluessel="pw-neu" data-pw="neu" value="' + esc(PW.neu) + '">' +
-    '<div class="klein" style="margin-top:-4px;color:' + (PW.neu && !stark ? "var(--warn)" : "var(--leise)") + '">' + (PW.neu ? (stark ? "✓ lang genug" : "noch " + (10 - PW.neu.length) + " Zeichen") : "mindestens 10 Zeichen") + "</div>" +
     '<label class="klein" style="font-weight:600">Neues Passwort wiederholen</label><input type="password" autocomplete="new-password" data-schluessel="pw-neu2" data-pw="neu2" value="' + esc(PW.neu2) + '">' +
     (PW.neu2 && !gleich ? '<div class="klein" style="margin-top:-4px;color:var(--warn)">Die beiden Eingaben stimmen nicht überein.</div>' : "") +
     '<div class="reihe" style="margin-top:6px"><button type="button" class="haupt" data-pwspeichern' + (PW.alt && stark && gleich && !PW.laeuft ? "" : " disabled") + ">" + (PW.laeuft ? "Wird geändert …" : "Passwort ändern") + "</button></div></div></div>";
