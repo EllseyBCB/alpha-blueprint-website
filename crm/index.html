@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="crm" data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-1KeQJBKUi1tHrTn3rDdVK1ZapFLhYYPeTnQM2UAh71s='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-YL4+8tRRCo3cIwkPtQ+64BgkNv0hZMlRz3sGEHqNBac='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -269,6 +269,11 @@ select{font:500 14.5px var(--schrift);color:var(--text);background:var(--karte);
 .legende{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--leise);align-items:center}
 .legende i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:-8px;vertical-align:-1px}
 .legende .lg-ein{background:var(--akzent)} .legende .lg-koennte{background:var(--akzent);opacity:.28} .legende .lg-fix{background:var(--linie2)}
+.diagramm .treffer{fill:none;stroke:transparent;stroke-width:18;cursor:pointer;pointer-events:stroke}
+.diagramm rect[data-linie]{cursor:pointer}
+.legende [data-linie]{cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.legende [data-linie] i{margin-right:0}
+.linieninfo{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-top:8px;padding:12px 14px;border:1px solid var(--linie);border-radius:12px;background:var(--karte2)}
 .legende .lg-linie{height:3px;border-radius:2px;background:var(--text)} .legende .lg-linie2{height:0;border-top:3px dashed var(--akzent);border-radius:0}
 .feedknoepfe{display:flex;gap:4px;flex:none;align-items:flex-start}
 @media (max-width:900px){.zustaende{grid-template-columns:1fr}}
@@ -921,7 +926,11 @@ function istMonatsposten(z) { return /^Monatsbetrag /.test(z.titel || ""); }
  * Kunden mit Status „Kunde“ sind fest drin. Mögliche Kunden (Lead, Angebot, Pausiert mit Beträgen)
  * und gedachte Kunden, die noch nicht im CRM stehen, schaltest du ein und aus. Gespeichert am Server. */
 function szenario() { var z = (FZ.daten && FZ.daten.szenario) || {}; z.an = z.an || {}; z.neu = z.neu || []; return z; }
-function wahl(sz, k) { var w = sz.an[k.id]; return w ? w : { dabei: k.status === "angebot", monatlich: true }; }
+function wahl(sz, k) {
+  var w = sz.an[k.id];
+  if (k.status === "kunde") return { dabei: true, monatlich: w ? w.monatlich !== false : true };
+  return w ? w : { dabei: k.status === "angebot", monatlich: true };
+}
 function moeglicheKunden(d) {
   return d.kunden.filter(function (k) {
     return k.status !== "kunde" && k.status !== "verloren" &&
@@ -929,9 +938,10 @@ function moeglicheKunden(d) {
   });
 }
 /* Kopie der Auswahl, in der genau ein Kunde umgeschaltet ist: daraus die Wirkung je Kunde. */
-function szUmgeschaltet(sz, d, id) {
-  var c = { an: {}, neu: sz.neu.map(function (x) { var y = {}; for (var q in x) y[q] = x[q]; if (x.id === id) y.dabei = !x.dabei; return y; }) };
-  d.kunden.forEach(function (k) { var w = wahl(sz, k); c.an[k.id] = { dabei: k.id === id ? !w.dabei : w.dabei, monatlich: w.monatlich }; });
+function szUmgeschaltet(sz, d, id, monat) {
+  var c = { an: {}, neu: sz.neu.map(function (x) { var y = {}; for (var q in x) y[q] = x[q]; if (x.id === id) { if (monat) y.mitMonat = !x.mitMonat; else y.dabei = !x.dabei; } return y; }) };
+  d.kunden.forEach(function (k) { var w = wahl(sz, k), ich = k.id === id;
+    c.an[k.id] = { dabei: ich && !monat ? !w.dabei : w.dabei, monatlich: ich && monat ? !w.monatlich : w.monatlich }; });
   return c;
 }
 
@@ -948,7 +958,7 @@ function rechnen(d, sz) {
   var hinein = function (m) { return m < erster ? erster : m > letzter ? letzter : m; };
   var K = {}; d.kunden.forEach(function (k) { K[k.id] = k; });
   var zaehlt = function (k) { return k && (k.status === "kunde" || (mitAngeboten && k.status !== "verloren" && wahl(sz, k).dabei)); };
-  var mitMonat = function (k) { return k.status === "kunde" || wahl(sz, k).monatlich; };
+  var mitMonat = function (k) { return !sz || wahl(sz, k).monatlich; };
   var r = { monate: monate, ein: {}, fix: {}, bezahlt: 0, gezahltGesamt: 0, offen: 0, ueberfaellig: 0, ohneTermin: 0, spaeter: 0,
     monatlich: 0, monatlichRest: 0, monatVoll: 0, laufend: 0, fix12: 0, fixMonat: 0, startOffen: [], angenommen: [] };
   monate.forEach(function (m) { r.ein[m] = 0; r.fix[m] = 0; });
@@ -1032,19 +1042,31 @@ function diagramm(r, m) {
   for (var g = 0; g <= 4; g++) { var yy = O + (H - U - O) * g / 4; s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + yy + '" y2="' + yy + '" class="gitter"/>'; }
   r.monate.forEach(function (x, i) {
     var bw = Math.min(26, B * 0.3), x0 = xM(i) - bw - 2;
-    if (m.ein[x] > r.ein[x]) s += '<rect x="' + x0 + '" y="' + yB(m.ein[x]) + '" width="' + bw + '" height="' + (H - U - yB(m.ein[x])) + '" rx="5" class="b-koennte"><title>' + monatsName(x) + ": " + euro2(m.ein[x]) + " Einnahmen (Könnte)</title></rect>";
-    s += '<rect x="' + x0 + '" y="' + yB(r.ein[x]) + '" width="' + bw + '" height="' + (H - U - yB(r.ein[x])) + '" rx="5" class="b-ein"><title>' + monatsName(x) + ": " + euro2(r.ein[x]) + " Einnahmen (Ist)</title></rect>";
-    s += '<rect x="' + (xM(i) + 2) + '" y="' + yB(r.fix[x]) + '" width="' + bw + '" height="' + (H - U - yB(r.fix[x])) + '" rx="5" class="b-fix"><title>' + monatsName(x) + ": " + euro2(r.fix[x]) + " Fixkosten</title></rect>";
+    if (m.ein[x] > r.ein[x]) s += '<rect data-linie="dazu" x="' + x0 + '" y="' + yB(m.ein[x]) + '" width="' + bw + '" height="' + (H - U - yB(m.ein[x])) + '" rx="5" class="b-koennte"><title>' + monatsName(x) + ": " + euro2(m.ein[x]) + " Einnahmen (Könnte)</title></rect>";
+    s += '<rect data-linie="ein" x="' + x0 + '" y="' + yB(r.ein[x]) + '" width="' + bw + '" height="' + (H - U - yB(r.ein[x])) + '" rx="5" class="b-ein"><title>' + monatsName(x) + ": " + euro2(r.ein[x]) + " Einnahmen (Ist)</title></rect>";
+    s += '<rect data-linie="fix" x="' + (xM(i) + 2) + '" y="' + yB(r.fix[x]) + '" width="' + bw + '" height="' + (H - U - yB(r.fix[x])) + '" rx="5" class="b-fix"><title>' + monatsName(x) + ": " + euro2(r.fix[x]) + " Fixkosten</title></rect>";
     s += '<text x="' + xM(i) + '" y="' + (H - 12) + '" class="achse" text-anchor="middle">' + monatsName(x) + "</text>";
   });
-  var linie = function (v, kl) { return '<polyline class="' + kl + '" points="' + v.map(function (w, i) { return xM(i) + "," + yL(w); }).join(" ") + '"/>' +
+  var linie = function (v, kl) { var pkt = v.map(function (w, i) { return xM(i) + "," + yL(w); }).join(" ");
+    return '<polyline class="' + kl + '" points="' + pkt + '"/><polyline class="treffer" data-linie="' + (kl === "l-ist" ? "ist" : "koennte") + '" points="' + pkt + '"><title>Antippen: was bedeutet diese Linie?</title></polyline>' +
     v.map(function (w, i) { return '<circle cx="' + xM(i) + '" cy="' + yL(w) + '" r="4.5" class="' + kl + '-p"><title>' + monatsName(r.monate[i]) + ": " + euro2(Math.round(w)) + "</title></circle>"; }).join(""); };
   if (lMin < 0) s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + yL(0) + '" y2="' + yL(0) + '" class="null"/>';
   s += linie(m.verlauf, "l-koennte") + linie(r.verlauf, "l-ist");
   s += '<text x="' + (W - R + 8) + '" y="' + (yL(r.verlauf[11]) + 4) + '" class="wert">' + kurz(r.verlauf[11]) + "</text>";
   if (Math.abs(m.verlauf[11] - r.verlauf[11]) > 1) s += '<text x="' + (W - R + 8) + '" y="' + (yL(m.verlauf[11]) + 4) + '" class="wert koennte">' + kurz(m.verlauf[11]) + "</text>";
   s += '<text x="' + (L - 8) + '" y="' + (O + 4) + '" class="achse" text-anchor="end">' + kurz(maxB) + "</text><text x=\"" + (L - 8) + '" y="' + (H - U) + '" class="achse" text-anchor="end">0 €</text>';
-  return s + "</svg>";
+  s += "</svg>";
+  var ende = function (v) { return euro2(Math.round(v[11])); };
+  var T = {
+    ist: ["Geld Ist (durchgezogene Linie)", "So viel Geld hättest du am Ende jedes Monats, wenn nur zahlt, was unterschrieben ist: Kunden mit Status „Kunde“, Monatsbeträge erst ab ihrem Startdatum. Gerechnet: Startguthaben " + euro2(r.start) + ", plus Einnahmen des Monats, minus deine Fixkosten. Am Jahresende: " + ende(r.verlauf) + "."],
+    koennte: ["Geld mit Auswahl (gestrichelte Linie)", "Dasselbe, aber mit deiner Auswahl aus „Was wäre, wenn“: " + esc(FZ.auswahlText || "") + ". Monatsbeträge ohne Startdatum zählen ab nächstem Monat. Am Jahresende: " + ende(m.verlauf) + ", das sind " + euro2(Math.round(m.verlauf[11] - r.verlauf[11])) + " mehr als Ist."],
+    ein: ["Einnahmen Ist (dunkle Balken)", "Was im jeweiligen Monat sicher hereinkommt: bezahlte und fällige Raten unterschriebener Kunden plus ihre Monatsbeträge. Überfälliges steht im aktuellen Monat."],
+    dazu: ["Dazu mit Auswahl (helle Balken)", "Die Einnahmen, wenn deine Auswahl so eintritt. Der helle Teil über dem dunklen Balken ist, was die ausgewählten Kunden zusätzlich bringen."],
+    fix: ["Fixkosten (graue Balken)", "Was jeden Monat von dir abgeht, eingetragen unter „Fixkosten & Werte“. Kosten, die der Kunde trägt, sind nicht dabei."]
+  };
+  var t = T[FZ.linie];
+  return s + (t ? '<div class="linieninfo"><div><b>' + t[0] + "</b><div class=\"klein\" style=\"margin-top:4px\">" + t[1] + '</div></div><button type="button" class="klein leise" data-linie="">Schließen</button></div>'
+    : '<p class="klein leise" style="margin:6px 0 0">Tipp: Linie, Balken oder Legende antippen, dann steht hier, was sie bedeutet.</p>');
 }
 
 function finanzen() {
@@ -1060,22 +1082,19 @@ function finanzen() {
     zustand("Könnte-Zustand", (gewaehlt.length ? "Wenn dazu unterschreibt: " + gewaehlt.map(esc).join(", ") : "Niemand zusätzlich ausgewählt.") + ".", m, r) + "</div>" +
     '<div class="reihe" style="margin-top:8px"><button type="button" class="klein leise" data-fzrechnung>' + (FZ.rechnung ? "Rechnung ausblenden" : "Rechnung zeigen") + "</button>" +
     (r.startOffen.length ? '<span class="klein" style="color:var(--warn)">Im Ist nicht eingerechnet, Startdatum fehlt: ' + r.startOffen.map(function (k) { return esc(k.firma) + " (" + euro2(betrag(k.monatlich)) + "/Monat)"; }).join(", ") + "</span>" : "") + "</div>";
-  var reiter = [["uebersicht", "Übersicht"], ["verlauf", "Geldverlauf"], ["zahlungen", "Zahlungen" + (offen.length ? " · " + offen.length : "")], ["werte", "Fixkosten & Werte"]];
+  var reiter = [["uebersicht", "Übersicht"], ["zahlungen", "Zahlungen" + (offen.length ? " · " + offen.length : "")], ["werte", "Fixkosten & Werte"], ["vergleich", "Ist & Könnte"]];
+  if (FZ.reiter === "verlauf") FZ.reiter = "uebersicht";
+  var ohnePauschale = d.kunden.filter(function (k) { return betrag(k.monatlich) && k.status !== "verloren" && wahl(sz, k).dabei && !wahl(sz, k).monatlich; }).map(function (k) { return k.firma; })
+    .concat(sz.neu.filter(function (x) { return x.dabei && betrag(x.monatlich) && !x.mitMonat; }).map(function (x) { return x.name; }));
+  var dabei = d.kunden.filter(function (k) { return k.status === "kunde"; }).map(function (k) { return k.firma; }).concat(gewaehlt);
+  FZ.auswahlText = (dabei.length ? dabei.join(", ") : "niemand") + (ohnePauschale.length ? ", ohne Pauschale: " + ohnePauschale.join(", ") : "");
   var kopf = '<div class="seitenkopf" style="margin-bottom:6px"><div><span class="etikett">Finanzen</span><h1>Zahlungen und Rahmen</h1><p>Planungsjahr ' + plan + ".</p></div></div>" +
     '<nav class="reiter" style="padding:0;margin:0 0 16px;border-bottom:1px solid var(--linie)">' + reiter.map(function (x) {
       return '<button type="button" data-fzreiter="' + x[0] + '" aria-current="' + (FZ.reiter === x[0]) + '">' + x[1] + "</button>"; }).join("") + "</nav>";
-  var legende = '<span class="legende"><i class="lg-ein"></i>Einnahmen Ist <i class="lg-koennte"></i>dazu Könnte <i class="lg-fix"></i>Fixkosten <i class="lg-linie"></i>Geld Ist <i class="lg-linie2"></i>Geld Könnte</span>';
+  var legende = '<span class="legende"><span data-linie="ein"><i class="lg-ein"></i>Einnahmen Ist</span> <span data-linie="dazu"><i class="lg-koennte"></i>dazu mit Auswahl</span> <span data-linie="fix"><i class="lg-fix"></i>Fixkosten</span> <span data-linie="ist"><i class="lg-linie"></i>Geld Ist</span> <span data-linie="koennte"><i class="lg-linie2"></i>Geld mit Auswahl</span></span>';
 
-  if (FZ.reiter === "verlauf") return kopf +
-    '<div class="karte pad" style="margin-bottom:16px"><div class="kartenkopf"><h2>Dein Geld über das Planungsjahr</h2>' + legende + "</div>" +
-    '<div class="minizahlen" style="margin:0 0 10px">' +
-      '<div><div class="klein leise">Ist am Jahresende</div><div style="font-weight:700">' + euro2(Math.round(r.verlauf[11])) + "</div></div>" +
-      '<div><div class="klein leise">Könnte am Jahresende</div><div style="font-weight:700">' + euro2(Math.round(m.verlauf[11])) + "</div></div>" +
-      '<div><div class="klein leise">Ist im Monat ausgeben</div><div style="font-weight:700">' + euro2(Math.round(r.rahmen)) + "</div></div>" +
-      '<div><div class="klein leise">Könnte im Monat ausgeben</div><div style="font-weight:700">' + euro2(Math.round(m.rahmen)) + "</div></div></div>" +
-    diagramm(r, m) +
-    '<p class="klein leise" style="margin:6px 0 0">Die Linien zeigen, wie viel Geld du am Ende jedes Monats hättest: Startguthaben plus Einnahmen minus Fixkosten. Die Könnte-Linie folgt deiner Auswahl im Reiter Übersicht' +
-    (gewaehlt.length ? " (" + gewaehlt.map(esc).join(", ") + ")" : "") + "." + (r.ohneTermin ? " Raten ohne Termin (" + euro2(r.ohneTermin) + ") stehen erst im Verlauf, wenn sie ein Fälligkeitsdatum haben." : "") + "</p></div>";
+  if (FZ.reiter === "vergleich") return kopf + '<div class="karte pad" style="margin-bottom:16px">' + zustaende + "</div>" +
+    '<div class="karte pad" style="margin-bottom:16px"><div class="kartenkopf"><h2>Geldverlauf Ist und Könnte</h2>' + legende + "</div>" + diagramm(r, m) + "</div>";
 
   if (FZ.reiter === "zahlungen") return kopf +
     '<div class="raster zwei"><div class="karte"><div style="padding:18px 20px 6px"><h2>Offene Zahlungen</h2></div>' +
@@ -1112,15 +1131,24 @@ function finanzen() {
     '<td><input type="date" data-schluessel="fa-ab" data-fa="ab" value="' + esc(FZ.ausgabe.ab) + '"></td><td><input type="date" data-schluessel="fa-bis" data-fa="bis" value="' + esc(FZ.ausgabe.bis) + '"></td>' +
     '<td><button type="button" class="klein haupt" data-ausgabeneu>Hinzufügen</button></td></tr></tbody></table></div></div>';
 
-  /* Übersicht: Ist und Könnte nebeneinander, darunter die Auswahl. Jeder Haken ändert sofort den Könnte-Zustand oben. */
-  return kopf + '<div class="karte pad" style="margin-bottom:16px">' + zustaende + "</div>" + wasWaereWenn(d, sz, m);
+  /* Übersicht: oben genau der Stand, den die Auswahl darunter ergibt, mit Diagramm. Jeder Haken ändert ihn sofort. */
+  var mehr = m.rahmen - r.rahmen;
+  var mini = function (t, w, farbe) { return '<div><div class="klein leise">' + t + '</div><div style="font-weight:700' + (farbe ? ";color:" + farbe : "") + '">' + w + "</div></div>"; };
+  var stand = '<div class="karte pad" style="margin-bottom:16px"><span class="etikett">Dein Stand mit dieser Auswahl</span>' +
+    '<div class="klein leise" style="margin:2px 0 10px">Dabei: ' + (dabei.length ? dabei.map(esc).join(", ") : "niemand") + (ohnePauschale.length ? " · ohne Pauschale: " + ohnePauschale.map(esc).join(", ") : "") + "</div>" +
+    '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><span style="font:700 44px/1 var(--anzeige);' + (m.rahmen < 0 ? "color:var(--schlecht)" : "") + '">' + euro2(Math.round(m.rahmen)) + '</span><span class="leise">im Monat ausgeben</span>' +
+    (Math.abs(mehr) > 0.5 ? '<span class="pille ' + (mehr > 0 ? "gut" : "") + '">' + (mehr > 0 ? "+ " : "− ") + euro2(Math.round(Math.abs(mehr))) + " zum Ist (" + euro2(Math.round(r.rahmen)) + ")</span>" : '<span class="pille">gleich wie Ist</span>') + "</div>" +
+    '<div class="minizahlen">' + mini("Gesamtbetrag Jahr", euro2(m.gesamt)) + mini("Schon bezahlt", euro2(m.bezahlt), "var(--gut)") + mini("Kunden zahlen noch", euro2(m.nochOffen)) +
+    mini("Wiederkehrend", euro2(m.monatVoll) + '<span class="klein leise"> /Monat</span>') + mini("Geld am Jahresende", euro2(Math.round(m.verlauf[11])), m.verlauf[11] < 0 ? "var(--schlecht)" : "") + "</div>" +
+    '<div class="kartenkopf" style="margin-top:18px"><h2 style="font-size:15px">Geldverlauf</h2>' + legende + "</div>" + diagramm(r, m) + "</div>";
+  return kopf + stand + wasWaereWenn(d, sz, m);
 }
 
 /** Die Auswahl-Karte: fest drin, mögliche Kunden zum Ein- und Ausschalten, gedachte Kunden hinzufügen. */
 function wasWaereWenn(d, sz, m) {
   var offenVon = function (id) { return d.zahlungen.filter(function (z) { return z.kunde_id === id && !z.bezahlt_am; }).reduce(function (s, z) { return s + betrag(z.betrag); }, 0); };
-  var wirkung = function (id, dabei) {
-    var x = rechnen(d, szUmgeschaltet(sz, d, id)), diff = Math.round(Math.abs(m.rahmen - x.rahmen));
+  var wirkung = function (id, dabei, monat) {
+    var x = rechnen(d, szUmgeschaltet(sz, d, id, monat)), diff = Math.round(Math.abs(m.rahmen - x.rahmen));
     if (diff < 1) return '<span class="leise">–</span>';
     return dabei ? '<span class="pille gut">+ ' + euro2(diff) + "</span>" : '<span class="leise">wäre + ' + euro2(diff) + "</span>";
   };
@@ -1128,19 +1156,21 @@ function wasWaereWenn(d, sz, m) {
   var fest = d.kunden.filter(function (k) { return k.status === "kunde"; });
   var moegl = moeglicheKunden(d);
   var zeilen = fest.map(function (k) {
-    return '<tr><td><a href="#" data-akte="' + k.id + '" data-zu="zahlungen">' + esc(k.firma) + '</a></td><td style="text-align:right">' + euro2(offenVon(k.id)) + '</td><td style="text-align:right">' + (betrag(k.monatlich) ? euro2(betrag(k.monatlich)) : "–") + '</td><td colspan="2"><span class="pille">fest drin</span></td><td></td><td></td></tr>';
+    var w = wahl(sz, k), hatMonat = betrag(k.monatlich) > 0;
+    return '<tr><td><a href="#" data-akte="' + k.id + '" data-zu="zahlungen">' + esc(k.firma) + '</a><div class="klein leise">Kunde</div></td><td style="text-align:right">' + euro2(offenVon(k.id)) + '</td><td style="text-align:right">' + (hatMonat ? euro2(betrag(k.monatlich)) : "–") + "</td>" +
+      '<td><span class="pille">fest drin</span></td><td>' + schalter("data-szmonat", k.id, w.monatlich && hatMonat, !hatMonat) + "</td><td>" + (hatMonat ? wirkung(k.id, w.monatlich, true) : "") + "</td><td></td></tr>";
   }).concat(moegl.map(function (k) {
     var w = wahl(sz, k);
     return '<tr><td><a href="#" data-akte="' + k.id + '" data-zu="zahlungen">' + esc(k.firma) + '</a><div class="klein leise">' + esc(STATUS[k.status] || k.status) + '</div></td><td style="text-align:right">' + euro2(offenVon(k.id)) + '</td><td style="text-align:right">' + (betrag(k.monatlich) ? euro2(betrag(k.monatlich)) : "–") + "</td>" +
-      "<td>" + schalter("data-szdabei", k.id, w.dabei) + "</td><td>" + schalter("data-szmonat", k.id, w.monatlich && betrag(k.monatlich) > 0, !betrag(k.monatlich) || !w.dabei) + "</td><td>" + wirkung(k.id, w.dabei) + "</td><td></td></tr>";
+      "<td>" + schalter("data-szdabei", k.id, w.dabei) + "</td><td>" + schalter("data-szmonat", k.id, w.monatlich && betrag(k.monatlich) > 0, !betrag(k.monatlich) || !w.dabei) + "</td><td>" + wirkung(k.id, w.dabei, false) + "</td><td></td></tr>";
   })).concat(sz.neu.map(function (x) {
     return "<tr><td>" + esc(x.name) + '<div class="klein leise">gedacht' + (x.ab ? ", ab " + datum(x.ab) : "") + '</div></td><td style="text-align:right">' + euro2(x.einmal) + '</td><td style="text-align:right">' + (betrag(x.monatlich) ? euro2(x.monatlich) : "–") + "</td>" +
-      "<td>" + schalter("data-szneudabei", x.id, x.dabei) + "</td><td>" + schalter("data-szneumonat", x.id, x.mitMonat && betrag(x.monatlich) > 0, !betrag(x.monatlich) || !x.dabei) + "</td><td>" + wirkung(x.id, x.dabei) + "</td>" +
+      "<td>" + schalter("data-szneudabei", x.id, x.dabei) + "</td><td>" + schalter("data-szneumonat", x.id, x.mitMonat && betrag(x.monatlich) > 0, !betrag(x.monatlich) || !x.dabei) + "</td><td>" + wirkung(x.id, x.dabei, false) + "</td>" +
       '<td><button type="button" class="klein leise" data-szneuweg="' + x.id + '">Entfernen</button></td></tr>';
   }));
   var n = FZ.neuK;
-  return '<div class="karte" style="margin-bottom:16px"><div style="padding:18px 20px 4px" class="kartenkopf"><h2>Was wäre, wenn …</h2><span class="klein leise">Haken setzen, oben ändert sich der Könnte-Zustand</span></div>' +
-    '<p class="klein leise" style="margin:0 20px 8px">„Pauschale“ aus heißt: Er unterschreibt, zahlt aber keinen Monatsbetrag. Kunden mit Status „Kunde“ sind fest drin. Die Auswahl ändert keine Kundenakte.</p>' +
+  return '<div class="karte" style="margin-bottom:16px"><div style="padding:18px 20px 4px" class="kartenkopf"><h2>Was wäre, wenn …</h2><span class="klein leise">Haken setzen, oben ändert sich dein Stand</span></div>' +
+    '<p class="klein leise" style="margin:0 20px 8px">„Pauschale“ aus heißt: Der Kunde ist dabei, zahlt aber keinen Monatsbetrag. Das geht auch bei festen Kunden wie Brechtel. Die Auswahl ändert keine Kundenakte.</p>' +
     '<table class="tabelle"><thead><tr><th>Kunde</th><th style="text-align:right">Einmalig offen</th><th style="text-align:right">Monatlich</th><th>unterschreibt</th><th>Pauschale wird gezahlt</th><th>Wirkung im Monat</th><th></th></tr></thead><tbody>' +
     zeilen.join("") +
     '<tr><td><input type="text" placeholder="z. B. HRVN Club" data-schluessel="sz-name" data-szn="name" value="' + esc(n.name) + '"></td>' +
@@ -1203,6 +1233,7 @@ function finanzVerdrahten() {
     b.disabled = true; api("crm_portal_datei_weg", { pfad: b.dataset.feedweg }).then(function () { S.bestaetigen = null; melden("Datei gelöscht."); S.ereignisse = (S.ereignisse || []).filter(function (e) { return e.pfad !== b.dataset.feedweg; }); listeLaden(); zeichnen(); }, function (f) { b.disabled = false; melden(f.message, true); }); }; });
   w.querySelectorAll("[data-fz]").forEach(function (t) { t.oninput = function () { FZ[t.dataset.fz] = t.value; }; });
   w.querySelectorAll("[data-fzreiter]").forEach(function (b) { b.onclick = function () { FZ.reiter = b.dataset.fzreiter; S.bestaetigen = null; zeichnen(); }; });
+  w.querySelectorAll("[data-linie]").forEach(function (b) { b.addEventListener("click", function (ev) { ev.preventDefault(); var l = b.getAttribute("data-linie"); FZ.linie = FZ.linie === l ? "" : l; zeichnen(); }); });
   w.querySelectorAll("[data-fzrechnung]").forEach(function (b) { b.onclick = function () { FZ.rechnung = !FZ.rechnung; zeichnen(); }; });
   w.querySelectorAll("[data-fzohne]").forEach(function (t) { t.onchange = function () { FZ.ohneTermin = t.checked; zeichnen(); }; });
   var szKunde = function (id) { return (FZ.daten.kunden || []).filter(function (k) { return k.id === id; })[0]; };

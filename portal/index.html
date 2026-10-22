@@ -269,6 +269,11 @@ select{font:500 14.5px var(--schrift);color:var(--text);background:var(--karte);
 .legende{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--leise);align-items:center}
 .legende i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:-8px;vertical-align:-1px}
 .legende .lg-ein{background:var(--akzent)} .legende .lg-koennte{background:var(--akzent);opacity:.28} .legende .lg-fix{background:var(--linie2)}
+.diagramm .treffer{fill:none;stroke:transparent;stroke-width:18;cursor:pointer;pointer-events:stroke}
+.diagramm rect[data-linie]{cursor:pointer}
+.legende [data-linie]{cursor:pointer;white-space:nowrap;display:inline-flex;align-items:center;gap:6px}
+.legende [data-linie] i{margin-right:0}
+.linieninfo{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;margin-top:8px;padding:12px 14px;border:1px solid var(--linie);border-radius:12px;background:var(--karte2)}
 .legende .lg-linie{height:3px;border-radius:2px;background:var(--text)} .legende .lg-linie2{height:0;border-top:3px dashed var(--akzent);border-radius:0}
 .feedknoepfe{display:flex;gap:4px;flex:none;align-items:flex-start}
 @media (max-width:900px){.zustaende{grid-template-columns:1fr}}
