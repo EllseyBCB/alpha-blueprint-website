@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" data-app="portal" data-glas data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-dX/s13jzE/LI0Vmzo/x6sLdl2h64kRslwyERT7Wrf68='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-Llyr/ntr3o19CkN21b4DZdA2Wsx37YOUH16l/MDloLk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -280,56 +280,56 @@ select{font:500 14.5px var(--schrift);color:var(--text);background:var(--karte);
 
 /* ================================================================ CRM: Liquid Glass + Hell/Dunkel
    Gilt nur für das CRM (html[data-app=crm]); das Kundenportal bleibt schlicht hell. */
-html[data-app="crm"]{
+html[data-glas]{
   --glas:rgba(255,255,255,.58); --glas2:rgba(255,255,255,.42); --glaskante:rgba(255,255,255,.75); --glasschatten:0 1px 0 rgba(255,255,255,.7) inset,0 10px 30px -12px rgba(16,24,40,.22),0 1px 3px rgba(16,24,40,.06);
   --grund:#e9eef3;
 }
-html[data-app="crm"] body{background:
+html[data-glas] body{background:
   radial-gradient(900px 600px at 8% -5%,rgba(11,124,147,.20),transparent 60%),
   radial-gradient(800px 600px at 95% 10%,rgba(124,92,255,.14),transparent 60%),
   radial-gradient(900px 700px at 60% 110%,rgba(18,128,92,.12),transparent 60%),
   var(--grund);background-attachment:fixed;min-height:100vh}
-html[data-app="crm"] .karte,html[data-app="crm"] .tor{background:var(--glas);border:1px solid var(--glaskante);box-shadow:var(--glasschatten);
+html[data-glas] .karte,html[data-glas] .tor{background:var(--glas);border:1px solid var(--glaskante);box-shadow:var(--glasschatten);
   -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%)}
-html[data-app="crm"] .kopf{background:var(--glas2);border-bottom:1px solid var(--glaskante);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%)}
-html[data-app="crm"] .zustand{background:var(--glas2);border-color:var(--glaskante)}
-html[data-app="crm"] button:not(.haupt):not(.leise),html[data-app="crm"] .knopf,html[data-app="crm"] .chip:not([aria-pressed=true]){background:var(--glas2);border-color:var(--glaskante);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-html[data-app="crm"] button.haupt{box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 6px 16px -6px rgba(11,124,147,.6)}
-html[data-app="crm"] input[type=text],html[data-app="crm"] input[type=password],html[data-app="crm"] input[type=date],html[data-app="crm"] input[type=number],html[data-app="crm"] textarea,html[data-app="crm"] select{background:rgba(255,255,255,.55);border-color:var(--glaskante)}
-html[data-app="crm"] .tabelle th{background:transparent}
-html[data-app="crm"] .dateien li,html[data-app="crm"] .inhalt a:hover{background:var(--glas2)}
-html[data-app="crm"] #tor{background:transparent}
+html[data-glas] .kopf{background:var(--glas2);border-bottom:1px solid var(--glaskante);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%)}
+html[data-glas] .zustand{background:var(--glas2);border-color:var(--glaskante)}
+html[data-glas] button:not(.haupt):not(.leise),html[data-glas] .knopf,html[data-glas] .chip:not([aria-pressed=true]){background:var(--glas2);border-color:var(--glaskante);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+html[data-glas] button.haupt{box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 6px 16px -6px rgba(11,124,147,.6)}
+html[data-glas] input[type=text],html[data-glas] input[type=password],html[data-glas] input[type=date],html[data-glas] input[type=number],html[data-glas] textarea,html[data-glas] select{background:rgba(255,255,255,.55);border-color:var(--glaskante)}
+html[data-glas] .tabelle th{background:transparent}
+html[data-glas] .dateien li,html[data-glas] .inhalt a:hover{background:var(--glas2)}
+html[data-glas] #tor{background:transparent}
 
 /* Dunkel: per Schalter, oder „System“ und das Gerät steht auf dunkel. */
-html[data-app="crm"][data-thema="dunkel"]{color-scheme:dark;
+html[data-glas][data-thema="dunkel"]{color-scheme:dark;
   --grund:#070b12; --karte:#111826; --karte2:rgba(255,255,255,.04); --linie:rgba(255,255,255,.09); --linie2:rgba(255,255,255,.18);
   --text:#eef2f7; --mittel:#c3cbd6; --leise:#8d98a8; --hauch:#6b7685;
   --akzent:#4cc9de; --akzent-hell:rgba(76,201,222,.14); --akzent-tief:#7fdbea;
   --gut:#4ad89a; --gut-hell:rgba(74,216,154,.14); --warn:#f5b04c; --warn-hell:rgba(245,176,76,.14); --schlecht:#ff7a66; --schlecht-hell:rgba(255,122,102,.14);
   --glas:rgba(22,30,44,.55); --glas2:rgba(255,255,255,.05); --glaskante:rgba(255,255,255,.10);
   --glasschatten:0 1px 0 rgba(255,255,255,.07) inset,0 18px 40px -16px rgba(0,0,0,.7)}
-@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"]{color-scheme:dark;
+@media (prefers-color-scheme:dark){html[data-glas][data-thema="system"]{color-scheme:dark;
   --grund:#070b12; --karte:#111826; --karte2:rgba(255,255,255,.04); --linie:rgba(255,255,255,.09); --linie2:rgba(255,255,255,.18);
   --text:#eef2f7; --mittel:#c3cbd6; --leise:#8d98a8; --hauch:#6b7685;
   --akzent:#4cc9de; --akzent-hell:rgba(76,201,222,.14); --akzent-tief:#7fdbea;
   --gut:#4ad89a; --gut-hell:rgba(74,216,154,.14); --warn:#f5b04c; --warn-hell:rgba(245,176,76,.14); --schlecht:#ff7a66; --schlecht-hell:rgba(255,122,102,.14);
   --glas:rgba(22,30,44,.55); --glas2:rgba(255,255,255,.05); --glaskante:rgba(255,255,255,.10);
   --glasschatten:0 1px 0 rgba(255,255,255,.07) inset,0 18px 40px -16px rgba(0,0,0,.7)}}
-html[data-app="crm"][data-thema="dunkel"] body{background:radial-gradient(900px 600px at 8% -5%,rgba(76,201,222,.16),transparent 60%),radial-gradient(800px 600px at 95% 10%,rgba(124,92,255,.16),transparent 60%),radial-gradient(900px 700px at 60% 110%,rgba(74,216,154,.08),transparent 60%),var(--grund);background-attachment:fixed}
-@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"] body{background:radial-gradient(900px 600px at 8% -5%,rgba(76,201,222,.16),transparent 60%),radial-gradient(800px 600px at 95% 10%,rgba(124,92,255,.16),transparent 60%),radial-gradient(900px 700px at 60% 110%,rgba(74,216,154,.08),transparent 60%),var(--grund);background-attachment:fixed}}
-html[data-app="crm"][data-thema="dunkel"] input,html[data-app="crm"][data-thema="dunkel"] textarea,html[data-app="crm"][data-thema="dunkel"] select{background:rgba(255,255,255,.06)}
-@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"] input,html[data-app="crm"][data-thema="system"] textarea,html[data-app="crm"][data-thema="system"] select{background:rgba(255,255,255,.06)}}
-html[data-app="crm"][data-thema="dunkel"] .marke i,html[data-app="crm"][data-thema="dunkel"] .marke{color:var(--text)}
-html[data-app="crm"] .marke i{background:currentColor}
-html[data-app="crm"] .chip[aria-pressed=true]{background:var(--text);color:var(--grund)}
-html[data-app="crm"] button.haupt{color:#fff}
-html[data-app="crm"][data-thema="dunkel"] button.haupt{color:#04141a}
-@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"] button.haupt{color:#04141a}}
-html[data-app="crm"][data-thema="dunkel"] #meldung div{background:#1d2738}
-@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"] #meldung div{background:#1d2738}}
+html[data-glas][data-thema="dunkel"] body{background:radial-gradient(900px 600px at 8% -5%,rgba(76,201,222,.16),transparent 60%),radial-gradient(800px 600px at 95% 10%,rgba(124,92,255,.16),transparent 60%),radial-gradient(900px 700px at 60% 110%,rgba(74,216,154,.08),transparent 60%),var(--grund);background-attachment:fixed}
+@media (prefers-color-scheme:dark){html[data-glas][data-thema="system"] body{background:radial-gradient(900px 600px at 8% -5%,rgba(76,201,222,.16),transparent 60%),radial-gradient(800px 600px at 95% 10%,rgba(124,92,255,.16),transparent 60%),radial-gradient(900px 700px at 60% 110%,rgba(74,216,154,.08),transparent 60%),var(--grund);background-attachment:fixed}}
+html[data-glas][data-thema="dunkel"] input,html[data-glas][data-thema="dunkel"] textarea,html[data-glas][data-thema="dunkel"] select{background:rgba(255,255,255,.06)}
+@media (prefers-color-scheme:dark){html[data-glas][data-thema="system"] input,html[data-glas][data-thema="system"] textarea,html[data-glas][data-thema="system"] select{background:rgba(255,255,255,.06)}}
+html[data-glas][data-thema="dunkel"] .marke i,html[data-glas][data-thema="dunkel"] .marke{color:var(--text)}
+html[data-glas] .marke i{background:currentColor}
+html[data-glas] .chip[aria-pressed=true]{background:var(--text);color:var(--grund)}
+html[data-glas] button.haupt{color:#fff}
+html[data-glas][data-thema="dunkel"] button.haupt{color:#04141a}
+@media (prefers-color-scheme:dark){html[data-glas][data-thema="system"] button.haupt{color:#04141a}}
+html[data-glas][data-thema="dunkel"] #meldung div{background:#1d2738}
+@media (prefers-color-scheme:dark){html[data-glas][data-thema="system"] #meldung div{background:#1d2738}}
 /* Reiter und Kundenliste ohne Glas-Kasten: Unterstrich wie gehabt. */
-html[data-app="crm"] .reiter button,html[data-app="crm"] .kundenliste button{background:none !important;border-color:transparent !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;box-shadow:none}
-html[data-app="crm"] .reiter button[aria-current=true]{border-bottom-color:var(--akzent) !important}
+html[data-glas] .reiter button,html[data-glas] .kundenliste button{background:none !important;border-color:transparent !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;box-shadow:none}
+html[data-glas] .reiter button[aria-current=true]{border-bottom-color:var(--akzent) !important}
 
 .feldraster{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;align-items:end;padding:14px 20px 18px;border-top:1px solid var(--linie)}
 .feldraster .breit{grid-column:1/-1}
@@ -337,6 +337,8 @@ html[data-app="crm"] .reiter button[aria-current=true]{border-bottom-color:var(-
 .feldraster.vier{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) auto}
 @media (max-width:760px){.feldraster.vier{grid-template-columns:repeat(2,minmax(0,1fr))}.feldraster.vier>div:first-child{grid-column:1/-1}}
 @media (max-width:520px){.feldraster,.feldraster.vier{grid-template-columns:1fr}}
+/* Darstellungsschalter im Kundenportal: unten rechts, auf Anmeldung und Seite. */
+.themaknopf{position:fixed;right:16px;bottom:16px;z-index:50;width:42px;height:42px;border-radius:50%;padding:0;font-size:18px;line-height:1}
 
 </style>
 </head>
@@ -360,6 +362,7 @@ html[data-app="crm"] .reiter button[aria-current=true]{border-bottom-color:var(-
 </div>
 <div id="app" hidden></div>
 <div id="meldung" aria-live="polite"></div>
+<button type="button" class="themaknopf" id="themaKnopf" title="Darstellung: wie das Gerät, hell oder dunkel" aria-label="Darstellung wechseln">◐</button>
 
 <script>
 "use strict";
@@ -431,9 +434,11 @@ function weiter(token) {
     ich = j;
     if (SEITE === "crm" && ich.rolle !== "admin") { sitzungWeg(); throw new Error("Zugangsname oder Passwort stimmt nicht."); }
     if (ich.eingeschraenkt) return { einrichten: true };
+    if (ich.passwortMuss) return { erstesPasswort: true };
     return ruf({ aktion: "inhalt" }, { sitzung: token });
   }).then(function (inhalt) {
     if (inhalt.einrichten) return totpEinrichtenZeigen(token, true);
+    if (inhalt.erstesPasswort) return erstesPasswortZeigen(token, ich.name);
     var P = { benutzer: ich.name, rolle: ich.rolle, zweiFaktor: ich.zweiFaktor, api: { url: API_URL, sitzung: token } };
     if (SEITE === "crm") { P.art = "crm"; P.portalKunden = inhalt.kunden || []; }
     else if (ich.rolle === "admin") { P.art = "admin"; P.kunden = inhalt.kunden || []; }
@@ -467,9 +472,36 @@ function anmelden(name, wort, merken) {
 function nachAnmelden(j) {
   if (j.zweiterFaktor) { codeSchrittZeigen(j.fehler); return; }
   if (j.totpEinrichten) { sitzungMerken(j.sitzung, false); return totpEinrichtenZeigen(j.sitzung, true); }
-  TOR.roh = null;
+  TOR.erst = TOR.roh; TOR.roh = null;   // für „eigenes Passwort festlegen“ direkt nach der Anmeldung
   sitzungMerken(j.sitzung, TOR.merken);
   return weiter(j.sitzung);
+}
+/** Erste Anmeldung mit dem Startpasswort: zuerst ein eigenes Passwort festlegen. Der Zugangsname bleibt gleich. */
+function erstesPasswortZeigen(token, name) {
+  document.getElementById("tor").hidden = false; document.getElementById("app").hidden = true;
+  var f = document.getElementById("torForm"), mitAlt = !TOR.erst;
+  f.innerHTML = '<span class="marke gross"><i></i>Alpha Blueprint</span><h1>Eigenes Passwort festlegen</h1>' +
+    '<p class="unter">Willkommen! Bitte legen Sie jetzt ein eigenes Passwort fest. Ihr Zugangsname bleibt <b>' + esc(name) + '</b>.</p>' +
+    (mitAlt ? '<label for="ealt">Bisheriges Passwort</label><input type="password" id="ealt" autocomplete="current-password" required>' : "") +
+    '<label for="eneu">Neues Passwort (mindestens 10 Zeichen)</label><input type="password" id="eneu" autocomplete="new-password" required>' +
+    '<label for="eneu2">Neues Passwort wiederholen</label><input type="password" id="eneu2" autocomplete="new-password" required>' +
+    '<button type="submit" class="haupt" id="eok">Passwort speichern und weiter</button><p class="sagt" id="sagt" role="status" aria-live="polite"></p>' +
+    '<p class="fuss"><a href="#" id="eweg">Abmelden</a></p>';
+  (mitAlt ? f.querySelector("#ealt") : f.querySelector("#eneu")).focus();
+  f.querySelector("#eweg").onclick = function (ev) { ev.preventDefault(); abmeldenUeberall(); };
+  f.onsubmit = function (ev) {
+    ev.preventDefault();
+    var neu = f.querySelector("#eneu").value, neu2 = f.querySelector("#eneu2").value, knopf = f.querySelector("#eok");
+    if (neu.length < 10) return torSagen("Das neue Passwort braucht mindestens 10 Zeichen.", true);
+    if (neu !== neu2) return torSagen("Die beiden Eingaben stimmen nicht überein.", true);
+    knopf.disabled = true; torSagen("Wird gespeichert …");
+    var roh = TOR.erst ? Promise.resolve(TOR.erst) : blockHolen(name).then(function (b) { return blockOeffnen(b, f.querySelector("#ealt").value).catch(function () { throw new Error("Das bisherige Passwort stimmt nicht."); }); });
+    roh.then(function (r) {
+      if (mitAlt && f.querySelector("#ealt").value === neu) throw new Error("Bitte ein anderes als das bisherige Passwort wählen.");
+      return blockSchliessen(r, neu).then(function (nb) { return ruf({ aktion: "passwort_setzen", block: nb }, { sitzung: token, schluessel: r.schluessel }); });
+    }).then(function () { TOR.erst = null; return weiter(token); })
+      .catch(function (x) { knopf.disabled = false; torSagen(x.message, true); });
+  };
 }
 function codeSchrittZeigen(fehlerText) {
   var f = document.getElementById("torForm");
@@ -652,6 +684,18 @@ document.addEventListener("click", function (e) {
   vorschauOeffnen(a.href, a.dataset.name || (a.textContent.trim() && !/^(Öffnen|Herunterladen)$/.test(a.textContent.trim()) ? a.textContent.trim() : dateinameAusLink(a.href)));
 });
 
+/* Darstellung: wie das Gerät, hell oder dunkel. Wird nur auf diesem Gerät gemerkt. */
+var THEMA = "system", THEMA_ZEICHEN = { system: "◐", hell: "☀", dunkel: "☾" };
+function themaSetzen(t) {
+  THEMA = THEMA_ZEICHEN[t] ? t : "system"; document.documentElement.dataset.thema = THEMA;
+  var k = document.getElementById("themaKnopf"); if (k) k.textContent = THEMA_ZEICHEN[THEMA];
+  try { localStorage.setItem("alpha-portal-thema", THEMA); } catch (e) {}
+}
+try { themaSetzen(localStorage.getItem("alpha-portal-thema") || "system"); } catch (e) { themaSetzen("system"); }
+document.getElementById("themaKnopf").onclick = function () {
+  var n = { system: "hell", hell: "dunkel", dunkel: "system" }[THEMA]; themaSetzen(n);
+  if (typeof melden === "function") melden("Darstellung: " + { system: "wie Ihr Gerät", hell: "hell", dunkel: "dunkel" }[n]);
+};
 /* ===================================================================== Hilfen */
 function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function groesse(n) { n = n || 0; if (n < 1024) return n + " B"; if (n < 1048576) return Math.round(n / 1024) + " kB"; return (n / 1048576).toFixed(1).replace(".", ",") + " MB"; }

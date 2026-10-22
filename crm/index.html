@@ -1,7 +1,7 @@
 <!doctype html>
-<html lang="de" data-app="crm" data-thema="system">
+<html lang="de" data-app="crm" data-glas data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-OTrTsv+Y6PQThr2k/B2X2SUjjRuM+kBL9p6q7nIyjeE='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-g4uI5L7LjXEkpgn6/V5Z5Y7/rfesvULGeUEAH7J6Oe8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -280,56 +280,56 @@ select{font:500 14.5px var(--schrift);color:var(--text);background:var(--karte);
 
 /* ================================================================ CRM: Liquid Glass + Hell/Dunkel
    Gilt nur für das CRM (html[data-app=crm]); das Kundenportal bleibt schlicht hell. */
-html[data-app="crm"]{
+html[data-glas]{
   --glas:rgba(255,255,255,.58); --glas2:rgba(255,255,255,.42); --glaskante:rgba(255,255,255,.75); --glasschatten:0 1px 0 rgba(255,255,255,.7) inset,0 10px 30px -12px rgba(16,24,40,.22),0 1px 3px rgba(16,24,40,.06);
   --grund:#e9eef3;
 }
-html[data-app="crm"] body{background:
+html[data-glas] body{background:
   radial-gradient(900px 600px at 8% -5%,rgba(11,124,147,.20),transparent 60%),
   radial-gradient(800px 600px at 95% 10%,rgba(124,92,255,.14),transparent 60%),
   radial-gradient(900px 700px at 60% 110%,rgba(18,128,92,.12),transparent 60%),
   var(--grund);background-attachment:fixed;min-height:100vh}
-html[data-app="crm"] .karte,html[data-app="crm"] .tor{background:var(--glas);border:1px solid var(--glaskante);box-shadow:var(--glasschatten);
+html[data-glas] .karte,html[data-glas] .tor{background:var(--glas);border:1px solid var(--glaskante);box-shadow:var(--glasschatten);
   -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%)}
-html[data-app="crm"] .kopf{background:var(--glas2);border-bottom:1px solid var(--glaskante);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%)}
-html[data-app="crm"] .zustand{background:var(--glas2);border-color:var(--glaskante)}
-html[data-app="crm"] button:not(.haupt):not(.leise),html[data-app="crm"] .knopf,html[data-app="crm"] .chip:not([aria-pressed=true]){background:var(--glas2);border-color:var(--glaskante);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
-html[data-app="crm"] button.haupt{box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 6px 16px -6px rgba(11,124,147,.6)}
-html[data-app="crm"] input[type=text],html[data-app="crm"] input[type=password],html[data-app="crm"] input[type=date],html[data-app="crm"] input[type=number],html[data-app="crm"] textarea,html[data-app="crm"] select{background:rgba(255,255,255,.55);border-color:var(--glaskante)}
-html[data-app="crm"] .tabelle th{background:transparent}
-html[data-app="crm"] .dateien li,html[data-app="crm"] .inhalt a:hover{background:var(--glas2)}
-html[data-app="crm"] #tor{background:transparent}
+html[data-glas] .kopf{background:var(--glas2);border-bottom:1px solid var(--glaskante);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%)}
+html[data-glas] .zustand{background:var(--glas2);border-color:var(--glaskante)}
+html[data-glas] button:not(.haupt):not(.leise),html[data-glas] .knopf,html[data-glas] .chip:not([aria-pressed=true]){background:var(--glas2);border-color:var(--glaskante);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px)}
+html[data-glas] button.haupt{box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 6px 16px -6px rgba(11,124,147,.6)}
+html[data-glas] input[type=text],html[data-glas] input[type=password],html[data-glas] input[type=date],html[data-glas] input[type=number],html[data-glas] textarea,html[data-glas] select{background:rgba(255,255,255,.55);border-color:var(--glaskante)}
+html[data-glas] .tabelle th{background:transparent}
+html[data-glas] .dateien li,html[data-glas] .inhalt a:hover{background:var(--glas2)}
+html[data-glas] #tor{background:transparent}
 
 /* Dunkel: per Schalter, oder „System“ und das Gerät steht auf dunkel. */
-html[data-app="crm"][data-thema="dunkel"]{color-scheme:dark;
+html[data-glas][data-thema="dunkel"]{color-scheme:dark;
   --grund:#070b12; --karte:#111826; --karte2:rgba(255,255,255,.04); --linie:rgba(255,255,255,.09); --linie2:rgba(255,255,255,.18);
   --text:#eef2f7; --mittel:#c3cbd6; --leise:#8d98a8; --hauch:#6b7685;
   --akzent:#4cc9de; --akzent-hell:rgba(76,201,222,.14); --akzent-tief:#7fdbea;
   --gut:#4ad89a; --gut-hell:rgba(74,216,154,.14); --warn:#f5b04c; --warn-hell:rgba(245,176,76,.14); --schlecht:#ff7a66; --schlecht-hell:rgba(255,122,102,.14);
   --glas:rgba(22,30,44,.55); --glas2:rgba(255,255,255,.05); --glaskante:rgba(255,255,255,.10);
   --glasschatten:0 1px 0 rgba(255,255,255,.07) inset,0 18px 40px -16px rgba(0,0,0,.7)}
-@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"]{color-scheme:dark;
+@media (prefers-color-scheme:dark){html[data-glas][data-thema="system"]{color-scheme:dark;
   --grund:#070b12; --karte:#111826; --karte2:rgba(255,255,255,.04); --linie:rgba(255,255,255,.09); --linie2:rgba(255,255,255,.18);
   --text:#eef2f7; --mittel:#c3cbd6; --leise:#8d98a8; --hauch:#6b7685;
   --akzent:#4cc9de; --akzent-hell:rgba(76,201,222,.14); --akzent-tief:#7fdbea;
   --gut:#4ad89a; --gut-hell:rgba(74,216,154,.14); --warn:#f5b04c; --warn-hell:rgba(245,176,76,.14); --schlecht:#ff7a66; --schlecht-hell:rgba(255,122,102,.14);
   --glas:rgba(22,30,44,.55); --glas2:rgba(255,255,255,.05); --glaskante:rgba(255,255,255,.10);
   --glasschatten:0 1px 0 rgba(255,255,255,.07) inset,0 18px 40px -16px rgba(0,0,0,.7)}}
-html[data-app="crm"][data-thema="dunkel"] body{background:radial-gradient(900px 600px at 8% -5%,rgba(76,201,222,.16),transparent 60%),radial-gradient(800px 600px at 95% 10%,rgba(124,92,255,.16),transparent 60%),radial-gradient(900px 700px at 60% 110%,rgba(74,216,154,.08),transparent 60%),var(--grund);background-attachment:fixed}
-@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"] body{background:radial-gradient(900px 600px at 8% -5%,rgba(76,201,222,.16),transparent 60%),radial-gradient(800px 600px at 95% 10%,rgba(124,92,255,.16),transparent 60%),radial-gradient(900px 700px at 60% 110%,rgba(74,216,154,.08),transparent 60%),var(--grund);background-attachment:fixed}}
-html[data-app="crm"][data-thema="dunkel"] input,html[data-app="crm"][data-thema="dunkel"] textarea,html[data-app="crm"][data-thema="dunkel"] select{background:rgba(255,255,255,.06)}
-@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"] input,html[data-app="crm"][data-thema="system"] textarea,html[data-app="crm"][data-thema="system"] select{background:rgba(255,255,255,.06)}}
-html[data-app="crm"][data-thema="dunkel"] .marke i,html[data-app="crm"][data-thema="dunkel"] .marke{color:var(--text)}
-html[data-app="crm"] .marke i{background:currentColor}
-html[data-app="crm"] .chip[aria-pressed=true]{background:var(--text);color:var(--grund)}
-html[data-app="crm"] button.haupt{color:#fff}
-html[data-app="crm"][data-thema="dunkel"] button.haupt{color:#04141a}
-@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"] button.haupt{color:#04141a}}
-html[data-app="crm"][data-thema="dunkel"] #meldung div{background:#1d2738}
-@media (prefers-color-scheme:dark){html[data-app="crm"][data-thema="system"] #meldung div{background:#1d2738}}
+html[data-glas][data-thema="dunkel"] body{background:radial-gradient(900px 600px at 8% -5%,rgba(76,201,222,.16),transparent 60%),radial-gradient(800px 600px at 95% 10%,rgba(124,92,255,.16),transparent 60%),radial-gradient(900px 700px at 60% 110%,rgba(74,216,154,.08),transparent 60%),var(--grund);background-attachment:fixed}
+@media (prefers-color-scheme:dark){html[data-glas][data-thema="system"] body{background:radial-gradient(900px 600px at 8% -5%,rgba(76,201,222,.16),transparent 60%),radial-gradient(800px 600px at 95% 10%,rgba(124,92,255,.16),transparent 60%),radial-gradient(900px 700px at 60% 110%,rgba(74,216,154,.08),transparent 60%),var(--grund);background-attachment:fixed}}
+html[data-glas][data-thema="dunkel"] input,html[data-glas][data-thema="dunkel"] textarea,html[data-glas][data-thema="dunkel"] select{background:rgba(255,255,255,.06)}
+@media (prefers-color-scheme:dark){html[data-glas][data-thema="system"] input,html[data-glas][data-thema="system"] textarea,html[data-glas][data-thema="system"] select{background:rgba(255,255,255,.06)}}
+html[data-glas][data-thema="dunkel"] .marke i,html[data-glas][data-thema="dunkel"] .marke{color:var(--text)}
+html[data-glas] .marke i{background:currentColor}
+html[data-glas] .chip[aria-pressed=true]{background:var(--text);color:var(--grund)}
+html[data-glas] button.haupt{color:#fff}
+html[data-glas][data-thema="dunkel"] button.haupt{color:#04141a}
+@media (prefers-color-scheme:dark){html[data-glas][data-thema="system"] button.haupt{color:#04141a}}
+html[data-glas][data-thema="dunkel"] #meldung div{background:#1d2738}
+@media (prefers-color-scheme:dark){html[data-glas][data-thema="system"] #meldung div{background:#1d2738}}
 /* Reiter und Kundenliste ohne Glas-Kasten: Unterstrich wie gehabt. */
-html[data-app="crm"] .reiter button,html[data-app="crm"] .kundenliste button{background:none !important;border-color:transparent !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;box-shadow:none}
-html[data-app="crm"] .reiter button[aria-current=true]{border-bottom-color:var(--akzent) !important}
+html[data-glas] .reiter button,html[data-glas] .kundenliste button{background:none !important;border-color:transparent !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;box-shadow:none}
+html[data-glas] .reiter button[aria-current=true]{border-bottom-color:var(--akzent) !important}
 
 .feldraster{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px;align-items:end;padding:14px 20px 18px;border-top:1px solid var(--linie)}
 .feldraster .breit{grid-column:1/-1}
@@ -337,6 +337,8 @@ html[data-app="crm"] .reiter button[aria-current=true]{border-bottom-color:var(-
 .feldraster.vier{grid-template-columns:minmax(0,2fr) minmax(0,1fr) minmax(0,1fr) auto}
 @media (max-width:760px){.feldraster.vier{grid-template-columns:repeat(2,minmax(0,1fr))}.feldraster.vier>div:first-child{grid-column:1/-1}}
 @media (max-width:520px){.feldraster,.feldraster.vier{grid-template-columns:1fr}}
+/* Darstellungsschalter im Kundenportal: unten rechts, auf Anmeldung und Seite. */
+.themaknopf{position:fixed;right:16px;bottom:16px;z-index:50;width:42px;height:42px;border-radius:50%;padding:0;font-size:18px;line-height:1}
 
 </style>
 </head>
@@ -433,9 +435,11 @@ function weiter(token) {
     ich = j;
     if (SEITE === "crm" && ich.rolle !== "admin") { sitzungWeg(); throw new Error("Zugangsname oder Passwort stimmt nicht."); }
     if (ich.eingeschraenkt) return { einrichten: true };
+    if (ich.passwortMuss) return { erstesPasswort: true };
     return ruf({ aktion: "inhalt" }, { sitzung: token });
   }).then(function (inhalt) {
     if (inhalt.einrichten) return totpEinrichtenZeigen(token, true);
+    if (inhalt.erstesPasswort) return erstesPasswortZeigen(token, ich.name);
     var P = { benutzer: ich.name, rolle: ich.rolle, zweiFaktor: ich.zweiFaktor, api: { url: API_URL, sitzung: token } };
     if (SEITE === "crm") { P.art = "crm"; P.portalKunden = inhalt.kunden || []; }
     else if (ich.rolle === "admin") { P.art = "admin"; P.kunden = inhalt.kunden || []; }
@@ -469,9 +473,36 @@ function anmelden(name, wort, merken) {
 function nachAnmelden(j) {
   if (j.zweiterFaktor) { codeSchrittZeigen(j.fehler); return; }
   if (j.totpEinrichten) { sitzungMerken(j.sitzung, false); return totpEinrichtenZeigen(j.sitzung, true); }
-  TOR.roh = null;
+  TOR.erst = TOR.roh; TOR.roh = null;   // für „eigenes Passwort festlegen“ direkt nach der Anmeldung
   sitzungMerken(j.sitzung, TOR.merken);
   return weiter(j.sitzung);
+}
+/** Erste Anmeldung mit dem Startpasswort: zuerst ein eigenes Passwort festlegen. Der Zugangsname bleibt gleich. */
+function erstesPasswortZeigen(token, name) {
+  document.getElementById("tor").hidden = false; document.getElementById("app").hidden = true;
+  var f = document.getElementById("torForm"), mitAlt = !TOR.erst;
+  f.innerHTML = '<span class="marke gross"><i></i>Alpha Blueprint</span><h1>Eigenes Passwort festlegen</h1>' +
+    '<p class="unter">Willkommen! Bitte legen Sie jetzt ein eigenes Passwort fest. Ihr Zugangsname bleibt <b>' + esc(name) + '</b>.</p>' +
+    (mitAlt ? '<label for="ealt">Bisheriges Passwort</label><input type="password" id="ealt" autocomplete="current-password" required>' : "") +
+    '<label for="eneu">Neues Passwort (mindestens 10 Zeichen)</label><input type="password" id="eneu" autocomplete="new-password" required>' +
+    '<label for="eneu2">Neues Passwort wiederholen</label><input type="password" id="eneu2" autocomplete="new-password" required>' +
+    '<button type="submit" class="haupt" id="eok">Passwort speichern und weiter</button><p class="sagt" id="sagt" role="status" aria-live="polite"></p>' +
+    '<p class="fuss"><a href="#" id="eweg">Abmelden</a></p>';
+  (mitAlt ? f.querySelector("#ealt") : f.querySelector("#eneu")).focus();
+  f.querySelector("#eweg").onclick = function (ev) { ev.preventDefault(); abmeldenUeberall(); };
+  f.onsubmit = function (ev) {
+    ev.preventDefault();
+    var neu = f.querySelector("#eneu").value, neu2 = f.querySelector("#eneu2").value, knopf = f.querySelector("#eok");
+    if (neu.length < 10) return torSagen("Das neue Passwort braucht mindestens 10 Zeichen.", true);
+    if (neu !== neu2) return torSagen("Die beiden Eingaben stimmen nicht überein.", true);
+    knopf.disabled = true; torSagen("Wird gespeichert …");
+    var roh = TOR.erst ? Promise.resolve(TOR.erst) : blockHolen(name).then(function (b) { return blockOeffnen(b, f.querySelector("#ealt").value).catch(function () { throw new Error("Das bisherige Passwort stimmt nicht."); }); });
+    roh.then(function (r) {
+      if (mitAlt && f.querySelector("#ealt").value === neu) throw new Error("Bitte ein anderes als das bisherige Passwort wählen.");
+      return blockSchliessen(r, neu).then(function (nb) { return ruf({ aktion: "passwort_setzen", block: nb }, { sitzung: token, schluessel: r.schluessel }); });
+    }).then(function () { TOR.erst = null; return weiter(token); })
+      .catch(function (x) { knopf.disabled = false; torSagen(x.message, true); });
+  };
 }
 function codeSchrittZeigen(fehlerText) {
   var f = document.getElementById("torForm");
@@ -707,6 +738,73 @@ function portalPunkte(kennung) {
   return { kunde: k, punkte: m };
 }
 
+/* ===================================================================== Kundenzugänge
+ * Elia legt Zugänge fürs Kundenportal selbst an. Den Zugangsnamen vergibt das CRM: Portal-Kennung des
+ * Kunden + Nachname des Ansprechpartners (Kennung-Nachname), sonst Kennung + Nummer. Er bleibt fest.
+ * Passwort und Portalschlüssel entstehen hier im Browser; zum Server gehen nur Hash, Kennung und der
+ * damit verschlüsselte Block. Der Kunde muss beim ersten Anmelden ein eigenes Passwort festlegen. */
+var ZG = { liste: null, laedt: false, kunde: "", kontakt: "", ergebnis: null, laeuft: false };
+var PW_ZEICHEN = "abcdefghjkmnpqrstuvwxyz23456789";
+function startPasswort() {
+  var aus = [], u = new Uint8Array(1);
+  while (aus.length < 16) { crypto.getRandomValues(u); if (u[0] < 248) aus.push(PW_ZEICHEN[u[0] % 31]); }
+  return [0, 4, 8, 12].map(function (i) { return aus.slice(i, i + 4).join(""); }).join("-");
+}
+function zufallsSchluessel() { return zuB64(crypto.getRandomValues(new Uint8Array(32))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+function sha256Hex(t) { return crypto.subtle.digest("SHA-256", new TextEncoder().encode(t)).then(hex); }
+function kurzwort(t) {
+  return String(t || "").toLowerCase().replace(/ä/g, "ae").replace(/ö/g, "oe").replace(/ü/g, "ue").replace(/ß/g, "ss").normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+}
+/* Portal-Kennung für Kunden ohne: erstes sinnvolles Wort der Firma („Brechtel Immobilien GmbH“ → „brechtel“). */
+function kennungVorschlag(k) {
+  var w = kurzwort(k.firma).split("-").filter(function (x) { return x.length > 1 && ["gmbh", "ag", "ug", "kg", "die", "der", "das"].indexOf(x) < 0; })[0] || "kunde";
+  var vergeben = (S.liste || []).map(function (x) { return x.kennung; }), v = w.slice(0, 30), i = 2;
+  while (vergeben.indexOf(v) >= 0) v = w.slice(0, 27) + "-" + i++;
+  return v;
+}
+function zugangsName(k, kontakt) {
+  var kenn = k.kennung || kennungVorschlag(k), teile = String(kontakt || "").trim().split(/\s+/), nach = kurzwort(teile[teile.length - 1] || "");
+  var vergeben = (ZG.liste || []).map(function (z) { return z.name; }), basis = (kenn + (nach ? "-" + nach : "")).slice(0, 36), v = basis, i = 2;
+  if (!nach) { v = kenn + "-1"; while (vergeben.indexOf(v) >= 0) v = kenn + "-" + i++; return v; }
+  while (vergeben.indexOf(v) >= 0) v = basis + "-" + i++;
+  return v;
+}
+function zugaengeLaden() { ZG.laedt = true; return api("crm_zugaenge").then(function (j) { ZG.liste = j.zugaenge; ZG.laedt = false; zeichnen(); }, function (f) { ZG.laedt = false; melden(f.message, true); }); }
+function zugaengeKarte() {
+  if (!ZG.liste) { if (!ZG.laedt) setTimeout(zugaengeLaden, 0); return '<div class="karte pad" style="margin-top:16px"><h2>Kundenzugänge</h2><div class="leer">Lädt …</div></div>'; }
+  var kunden = (S.liste || []).filter(function (k) { return k.status !== "verloren"; });
+  var firma = function (kenn) { var k = (S.liste || []).filter(function (x) { return x.kennung === kenn; })[0]; return k ? k.firma : kenn; };
+  var gew = kunden.filter(function (k) { return k.id === ZG.kunde; })[0];
+  var kontakte = gew ? (gew.kontakte || []).filter(function (c) { return c.name; }) : [];
+  var vorschau = gew ? zugangsName(gew, ZG.kontakt) : "";
+  var e = ZG.ergebnis;
+  return '<div class="karte" style="margin-top:16px"><div style="padding:18px 20px 4px" class="kartenkopf"><h2>Kundenzugänge</h2><span class="klein leise">für das Kundenportal</span></div>' +
+    '<p class="klein leise" style="margin:0 20px 8px">Den Zugangsnamen vergibt das CRM und er bleibt fest. Das Startpasswort siehst du nur einmal. Der Kunde legt beim ersten Anmelden ein eigenes fest.</p>' +
+    (e ? '<div class="linieninfo" style="margin:0 20px 12px"><div><b>' + esc(e.titel) + '</b><div class="klein" style="margin-top:6px;line-height:1.7">Adresse: <b>alphablueprint.de/portal</b><br>Zugangsname: <b>' + esc(e.name) + '</b><br>Startpasswort: <b style="font-family:var(--mono, monospace);letter-spacing:.04em">' + esc(e.pw) + "</b></div>" +
+      '<div class="klein leise" style="margin-top:6px">Jetzt weitergeben, danach ist das Passwort hier nicht mehr zu sehen.</div></div>' +
+      '<div style="display:grid;gap:6px"><button type="button" class="klein haupt" data-zgkopie>Text für den Kunden kopieren</button><button type="button" class="klein leise" data-zgzu>Ausblenden</button></div></div>' : "") +
+    ((ZG.liste.length) ? '<table class="tabelle"><thead><tr><th>Zugangsname</th><th>Kunde</th><th>Stand</th><th></th></tr></thead><tbody>' + ZG.liste.map(function (z) {
+      var stand = z.passwort_muss ? '<span class="pille warn">wartet auf erste Anmeldung</span>' : z.passwort_geaendert ? '<span class="pille gut">eigenes Passwort</span>' : '<span class="pille">aktiv</span>';
+      return "<tr><td><b>" + esc(z.name) + "</b></td><td>" + esc(firma(z.kunde)) + "</td><td>" + stand + (z.totp_aktiv ? ' <span class="pille">2FA</span>' : "") + "</td><td style=\"white-space:nowrap\">" +
+        (z.aus_crm ? '<button type="button" class="klein leise" data-zgneupw="' + esc(z.name) + '"' + (ZG.laeuft ? " disabled" : "") + ">Neues Startpasswort</button> " +
+          (S.bestaetigen === "zg" + z.name ? '<button type="button" class="klein gefahr" data-zgweg="' + esc(z.name) + '">Wirklich entfernen?</button>' : '<button type="button" class="klein leise" data-frage="zg' + esc(z.name) + '">Entfernen</button>')
+          : '<span class="klein leise">am Mac verwaltet (zugang.mjs)</span>') + "</td></tr>";
+    }).join("") + "</tbody></table>" : '<div class="leer">Noch keine Kundenzugänge.</div>') +
+    '<div class="feldraster"><div><label>Kunde</label><select data-zgfeld="kunde"><option value="">– Kunde wählen –</option>' + kunden.map(function (k) {
+      return '<option value="' + k.id + '"' + (k.id === ZG.kunde ? " selected" : "") + ">" + esc(k.firma) + "</option>"; }).join("") + "</select></div>" +
+    '<div><label>Für wen (Ansprechpartner)</label><select data-zgfeld="kontakt"' + (gew ? "" : " disabled") + '><option value="">' + (kontakte.length ? "– ohne Namen –" : "keine Ansprechpartner eingetragen") + "</option>" +
+      kontakte.map(function (c) { return '<option value="' + esc(c.name) + '"' + (c.name === ZG.kontakt ? " selected" : "") + ">" + esc(c.name) + (c.rolle ? " (" + esc(c.rolle) + ")" : "") + "</option>"; }).join("") + "</select></div>" +
+    '<div class="breit klein">' + (gew ? "Zugangsname wird: <b>" + esc(vorschau) + "</b>" + (gew.kennung ? "" : ' <span class="leise">(die Portal-Kennung „' + esc(kennungVorschlag(gew)) + '“ wird dabei für ' + esc(gew.firma) + " eingetragen)</span>") : '<span class="leise">Kunde wählen, dann siehst du den Zugangsnamen.</span>') + "</div>" +
+    '<div class="breit"><button type="button" class="haupt" data-zgneu' + (gew && !ZG.laeuft ? "" : " disabled") + ">" + (ZG.laeuft ? "Wird angelegt …" : "Zugang anlegen") + "</button></div></div></div>";
+}
+/** Legt einen Zugang an (neu) oder vergibt ein neues Startpasswort (name gesetzt). */
+function zugangSchreiben(name, kennung, kundeKennung) {
+  var pw = startPasswort(), sch = zufallsSchluessel();
+  return Promise.all([kennungVon(name), sha256Hex(sch), blockSchliessen({ schluessel: sch, name: name, rolle: "kunde" }, pw)]).then(function (x) {
+    return api(kundeKennung ? "crm_zugang_neu" : "crm_zugang_passwort", { name: name, kunde: kundeKennung || undefined, kennung: x[0], hash: x[1], block: x[2] });
+  }).then(function () { return pw; });
+}
+
 /* ===================================================================== Zeichnen */
 function zeichnen() {
   var f = document.activeElement, schl = f && f.dataset ? f.dataset.schluessel : null, pos = schl && f.setSelectionRange ? [f.selectionStart, f.selectionEnd] : null;
@@ -764,7 +862,7 @@ function ereignis(e) {
 }
 
 function einstellungen() {
-  return '<div class="seitenkopf"><div><span class="etikett">Einstellungen</span><h1>Dein Zugang</h1><p>Gilt für CRM und Kundenportal, es ist derselbe Zugang.</p></div></div>' + '<div class="raster zwei">' + passwortKarte(S.P.benutzer, true) + '<div style="display:grid;gap:16px;align-content:start">' + sicherheitKarten(true) + "</div></div>";
+  return '<div class="seitenkopf"><div><span class="etikett">Einstellungen</span><h1>Dein Zugang</h1><p>Gilt für CRM und Kundenportal, es ist derselbe Zugang.</p></div></div>' + '<div class="raster zwei">' + passwortKarte(S.P.benutzer, true) + '<div style="display:grid;gap:16px;align-content:start">' + sicherheitKarten(true) + "</div></div>" + zugaengeKarte();
 }
 
 /* ---------------------------------------------------------------- Liste */
@@ -865,17 +963,24 @@ function portalReiter() {
   if (!kennung) return '<div class="karte pad leer">Dieser Kunde hat kein Kundenportal. Trag unter Stammdaten eine Portal-Kennung ein.</div>';
   if (!p) return '<div class="leer">Lädt …</div>';
   var info = portalPunkte(kennung), k = info.kunde;
+  var anfordern = '<div class="karte" style="margin-bottom:16px"><div style="padding:16px 20px ' + (AF.offen ? "4px" : "16px") + '" class="kartenkopf"><h2 style="font-size:15.5px">Unterlagen anfordern</h2>' +
+    (AF.offen ? "" : '<button type="button" class="klein haupt" data-afauf>+ Neues Dokument anfordern</button>') + "</div>" +
+    (AF.offen ? '<div class="feldraster" style="border-top:0;padding-top:4px"><div class="breit"><label>Was brauchst du vom Kunden?</label><input type="text" placeholder="z. B. Mietvertrag Schulungsraum Kleve" data-schluessel="af-frage" data-af="frage" value="' + esc(AF.frage) + '"></div>' +
+      '<div class="breit"><label>Hinweis für den Kunden (optional, wird so angezeigt)</label><input type="text" placeholder="z. B. Als PDF, gern auch abfotografiert." data-schluessel="af-warum" data-af="warum" value="' + esc(AF.warum) + '"></div>' +
+      '<div class="breit"><label class="check" style="margin:0;font-weight:400"><input type="checkbox" data-afnachricht' + (AF.nachricht ? " checked" : "") + "> Kunden im Portal per Nachricht darauf hinweisen</label></div>" +
+      '<div class="breit reihe" style="gap:10px"><button type="button" class="haupt" data-afneu' + (AF.laeuft ? " disabled" : "") + ">" + (AF.laeuft ? "Wird angefordert …" : "Anfordern") + '</button><button type="button" class="leise" data-afzu>Abbrechen</button></div></div>' : "") + "</div>";
   var antworten = {}; p.antworten.forEach(function (a) { antworten[a.punkt] = a; });
   var hoch = {}; p.uploads.forEach(function (u) { (hoch[u.punkt] = hoch[u.punkt] || []).push(u); });
   var alle = k ? k.abschnitte.reduce(function (s, a) { return s + a.punkte.length; }, 0) : 0;
   var fertig = k ? k.abschnitte.reduce(function (s, a) { return s + a.punkte.filter(function (x) { return (antworten[x.id] && antworten[x.id].text.trim()) || hoch[x.id]; }).length; }, 0) : 0;
   return '<div class="raster zwei"><div>' +
-    (k ? '<div class="karte pad" style="margin-bottom:16px"><div class="held"><div><span class="etikett">Unterlagen im Portal</span><div style="margin-top:8px"><span class="zahl">' + fertig + '</span> <span class="leise">von ' + alle + ' Punkten</span></div><div class="balken"><i style="width:' + (alle ? fertig / alle * 100 : 0) + '%"></i></div></div>' +
+    anfordern + (k ? '<div class="karte pad" style="margin-bottom:16px"><div class="held"><div><span class="etikett">Unterlagen im Portal</span><div style="margin-top:8px"><span class="zahl">' + fertig + '</span> <span class="leise">von ' + alle + ' Punkten</span></div><div class="balken"><i style="width:' + (alle ? fertig / alle * 100 : 0) + '%"></i></div></div>' +
       '<a class="knopf klein" href="/portal/" target="_blank" rel="noopener">Im Portal öffnen ↗</a></div></div>' +
       k.abschnitte.map(function (a) {
         return '<div class="karte" style="margin-bottom:12px"><div style="padding:14px 18px 2px"><h2 style="font-size:15.5px">' + esc(a.titel) + '</h2></div><table class="tabelle"><tbody>' + a.punkte.map(function (x) {
           var t = antworten[x.id] && antworten[x.id].text.trim(), f = hoch[x.id] || [];
-          return "<tr><td style=\"width:40%\">" + (t || f.length ? '<span class="pille gut">✓</span> ' : '<span class="pille">offen</span> ') + esc(x.frage) + "</td><td>" + (t ? '<div style="white-space:pre-wrap">' + esc(antworten[x.id].text) + "</div>" : "") +
+          return "<tr><td style=\"width:40%\">" + (t || f.length ? '<span class="pille gut">✓</span> ' : '<span class="pille">offen</span> ') + esc(x.frage) +
+            (x.anforderung ? (x.warum ? '<div class="klein leise">' + esc(x.warum) + "</div>" : "") + '<div style="margin-top:4px">' + (S.bestaetigen === "af" + x.anforderung ? '<button type="button" class="klein gefahr" data-afweg="' + x.anforderung + '">Wirklich zurücknehmen?</button>' : '<button type="button" class="klein leise" data-frage="af' + x.anforderung + '">Anforderung zurücknehmen</button>') + "</div>" : "") + "</td><td>" + (t ? '<div style="white-space:pre-wrap">' + esc(antworten[x.id].text) + "</div>" : "") +
             f.map(function (u) { return '<div class="klein">' + (u.url ? '<a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.datei) + "</a>" : esc(u.datei)) + ' <span class="leise">' + groesse(u.groesse) + "</span></div>"; }).join("") +
             (!t && !f.length ? '<span class="leise">–</span>' : "") + "</td></tr>";
         }).join("") + "</tbody></table></div>";
@@ -905,6 +1010,7 @@ var FZ = { daten: null, laedt: false, ohneTermin: true, konto: "", ruecklage: ""
   ausgabe: { titel: "", betrag_monat: "", ab: "", bis: "" }, gross: { titel: "", betrag: "", datum: "" }, neuK: { name: "", einmal: "", monatlich: "", ab: "" }, reiter: "uebersicht", rechnung: false };
 var ZN = { titel: "", betrag: "", faellig: "" };   // neue Zahlung in der Kundenakte
 var ZE = null;                                     // Zahlung, die gerade bearbeitet wird (Kopie)
+var AF = { offen: false, frage: "", warum: "", nachricht: true, laeuft: false };  // Dokument beim Kunden anfordern
 var ST = { wahl: {}, teilen: null, anzahl: "2", laeuft: false };  // Raten zusammenlegen oder aufteilen
 function finanzenLaden() {
   FZ.laedt = true;
@@ -1316,6 +1422,51 @@ function aufteilen(id) {
 function zahlungSpeichern(daten, danach) {
   return api("crm_zahlung_speichern", { daten: daten }).then(function () { FZ.daten = null; if (S.sicht === "akte" && S.id) akteLaden(S.id); if (danach) danach(); else zeichnen(); }, function (f) { melden(f.message, true); });
 }
+function portalListenNeu() { return api("inhalt").then(function (j) { S.P.portalKunden = j.kunden || []; zeichnen(); }); }
+function portalExtrasVerdrahten(w) {
+  /* Dokument anfordern */
+  w.querySelectorAll("[data-afauf]").forEach(function (b) { b.onclick = function () { AF.offen = true; zeichnen(); var i = w.querySelector("[data-af=frage]"); if (i) i.focus(); }; });
+  w.querySelectorAll("[data-afzu]").forEach(function (b) { b.onclick = function () { AF = { offen: false, frage: "", warum: "", nachricht: true, laeuft: false }; zeichnen(); }; });
+  w.querySelectorAll("[data-af]").forEach(function (t) { t.oninput = function () { AF[t.dataset.af] = t.value; }; });
+  w.querySelectorAll("[data-afnachricht]").forEach(function (t) { t.onchange = function () { AF.nachricht = t.checked; }; });
+  w.querySelectorAll("[data-afneu]").forEach(function (b) { b.onclick = function () {
+    if (!AF.frage.trim()) return melden("Bitte eintragen, was der Kunde hochladen soll.", true);
+    AF.laeuft = true; zeichnen();
+    api("crm_anforderung_neu", { kunde: S.form.kennung, frage: AF.frage, warum: AF.warum, nachricht: AF.nachricht })
+      .then(function () { melden("Angefordert. Der Punkt steht jetzt im Portal des Kunden."); AF = { offen: false, frage: "", warum: "", nachricht: true, laeuft: false };
+        return Promise.all([portalListenNeu(), api("stand", { kunde: S.form.kennung, gelesen: false }).then(function (p) { S.portal = p; })]); })
+      .then(function () { zeichnen(); }, function (f) { AF.laeuft = false; zeichnen(); melden(f.message, true); });
+  }; });
+  w.querySelectorAll("[data-afweg]").forEach(function (b) { b.onclick = function () {
+    api("crm_anforderung_weg", { id: b.dataset.afweg }).then(function () { S.bestaetigen = null; melden("Anforderung zurückgenommen."); return portalListenNeu(); }, function (f) { melden(f.message, true); }); }; });
+  /* Kundenzugänge */
+  w.querySelectorAll("[data-zgfeld]").forEach(function (t) { t.onchange = function () { ZG[t.dataset.zgfeld] = t.value; if (t.dataset.zgfeld === "kunde") ZG.kontakt = ""; zeichnen(); }; });
+  w.querySelectorAll("[data-zgzu]").forEach(function (b) { b.onclick = function () { ZG.ergebnis = null; zeichnen(); }; });
+  w.querySelectorAll("[data-zgkopie]").forEach(function (b) { b.onclick = function () {
+    var e = ZG.ergebnis; if (!e) return;
+    var t = "Ihr Zugang zum Kundenportal von Alpha Blueprint\n\nAdresse: https://alphablueprint.de/portal/\nZugangsname: " + e.name + "\nStartpasswort: " + e.pw +
+      "\n\nBeim ersten Anmelden legen Sie ein eigenes Passwort fest. Der Zugangsname bleibt gleich.";
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function () { melden("Kopiert. Jetzt in Mail oder WhatsApp einfügen."); }, function () { melden("Kopieren ging nicht, bitte von Hand abschreiben.", true); });
+  }; });
+  w.querySelectorAll("[data-zgneu]").forEach(function (b) { b.onclick = function () {
+    var k = (S.liste || []).filter(function (x) { return x.id === ZG.kunde; })[0]; if (!k) return;
+    var name = zugangsName(k, ZG.kontakt), vorher = k.kennung ? Promise.resolve(k.kennung) : (function () {
+      var d = {}; for (var q in k) if (q !== "portal") d[q] = k[q]; d.kennung = kennungVorschlag(k);
+      return api("crm_speichern", { daten: d }).then(function () { return d.kennung; });
+    })();
+    ZG.laeuft = true; zeichnen();
+    vorher.then(function (kenn) { return zugangSchreiben(name, null, kenn); })
+      .then(function (pw) { ZG.ergebnis = { titel: "Zugang für " + k.firma + " angelegt", name: name, pw: pw }; ZG.laeuft = false; ZG.kunde = ""; ZG.kontakt = ""; listeLaden(); return zugaengeLaden(); })
+      .then(null, function (f) { ZG.laeuft = false; zeichnen(); melden(f.message, true); });
+  }; });
+  w.querySelectorAll("[data-zgneupw]").forEach(function (b) { b.onclick = function () {
+    var name = b.dataset.zgneupw; ZG.laeuft = true; zeichnen();
+    zugangSchreiben(name, null, null).then(function (pw) { ZG.ergebnis = { titel: "Neues Startpasswort für " + name, name: name, pw: pw }; ZG.laeuft = false; return zugaengeLaden(); })
+      .then(null, function (f) { ZG.laeuft = false; zeichnen(); melden(f.message, true); });
+  }; });
+  w.querySelectorAll("[data-zgweg]").forEach(function (b) { b.onclick = function () {
+    api("crm_zugang_weg", { name: b.dataset.zgweg }).then(function () { S.bestaetigen = null; melden("Zugang entfernt."); return zugaengeLaden(); }, function (f) { melden(f.message, true); }); }; });
+}
 function finanzVerdrahten() {
   var w = document.getElementById("app");
   w.querySelectorAll("[data-feedaus]").forEach(function (b) { b.onclick = function () {
@@ -1410,7 +1561,7 @@ function finanzVerdrahten() {
 
 /* ===================================================================== Handeln */
 function akteOeffnen(id, zu) {
-  S.sicht = "akte"; S.id = id; S.akte = null; S.portal = null; S.form = null; S.geaendert = false; S.reiter = zu || "stammdaten"; S.bestaetigen = null; S.hoch = []; ZE = null; ZN = { titel: "", betrag: "", faellig: "" }; ST = { wahl: {}, teilen: null, anzahl: "2", laeuft: false };
+  S.sicht = "akte"; S.id = id; S.akte = null; S.portal = null; S.form = null; S.geaendert = false; S.reiter = zu || "stammdaten"; S.bestaetigen = null; S.hoch = []; ZE = null; ZN = { titel: "", betrag: "", faellig: "" }; AF = { offen: false, frage: "", warum: "", nachricht: true, laeuft: false }; ST = { wahl: {}, teilen: null, anzahl: "2", laeuft: false };
   zeichnen(); window.scrollTo(0, 0); akteLaden(id);
 }
 var TUN = {
@@ -1466,6 +1617,7 @@ function verdrahten() {
   w.querySelectorAll("[data-dateiweg]").forEach(function (b) { b.onclick = function () { api("crm_datei_weg", { id: b.dataset.dateiweg }).then(function () { S.bestaetigen = null; akteLaden(S.id); }, function (f) { melden(f.message, true); }); }; });
   sicherheitVerdrahten();
   finanzVerdrahten();
+  portalExtrasVerdrahten(w);
   var cd = document.getElementById("crmDatei");
   if (cd) cd.onchange = function () {
     Array.prototype.forEach.call(cd.files, function (datei) {
