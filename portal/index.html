@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="portal" data-glas data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-Llyr/ntr3o19CkN21b4DZdA2Wsx37YOUH16l/MDloLk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-sWUECURpjDsNuhIqR9O5+I9GHc1LKXD2JNJWf3n6Ytc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -476,8 +476,11 @@ function torSagen(text, schlecht) { var s = document.getElementById("sagt"); if 
 function anmelden(name, wort, merken) {
   TOR.merken = merken;
   torSagen("Wird geöffnet …");
-  return blockHolen(name).then(function (b) { return blockOeffnen(b, wort); }).then(function (roh) {
-    if (SEITE === "crm" && roh.rolle !== "admin") throw new Error("Zugangsname oder Passwort stimmt nicht.");
+  /* Beim Einfügen rutschen oft Leerzeichen mit: erst genau so probieren, dann ohne Leerzeichen am Rand. */
+  return blockHolen(name).then(function (b) {
+    return blockOeffnen(b, wort).catch(function (f) { if (String(wort).trim() !== String(wort)) return blockOeffnen(b, String(wort).trim()); throw f; });
+  }).then(function (roh) {
+    if (SEITE === "crm" && roh.rolle !== "admin") throw new Error("Das ist ein Kundenzugang. Bitte im Kundenportal anmelden: alphablueprint.de/portal");
     TOR.roh = roh;
     return ruf({ aktion: "anmelden", merken: merken, geraet: geraetName() }, { schluessel: roh.schluessel });
   }).then(nachAnmelden);
