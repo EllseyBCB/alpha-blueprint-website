@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="crm" data-glas data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-7yvaKatvnWBdt/TeEHE9mZb7OBnKqLBTmNr9uNb4E0g='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-yYJfOZz9DRSTYKg+fkFLlS5Rzgx3u2wy8H0ijlyrxy0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -353,6 +353,12 @@ html[data-glas] .reiter button[aria-current=true]{border-bottom-color:var(--akze
 @media (max-width:860px){.zg-neu{grid-template-columns:repeat(2,minmax(0,1fr))}.zg-kopf{grid-template-columns:1fr auto}.zg-stand{grid-column:1/-1;grid-row:2}}
 @media (max-width:520px){.zg-neu{grid-template-columns:1fr}}
 
+/* Anmeldung: Passwort anzeigen */
+.pwfeld{position:relative}
+.pwfeld input{padding-right:46px}
+.pwauge{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;padding:0;border:0 !important;background:none !important;box-shadow:none !important;opacity:.55;font-size:16px;line-height:1;-webkit-backdrop-filter:none !important;backdrop-filter:none !important}
+.tor .pwfeld{margin-bottom:14px}.tor .pwfeld input{margin-bottom:0}
+
 </style>
 </head>
 <body>
@@ -365,7 +371,7 @@ html[data-glas] .reiter button[aria-current=true]{border-bottom-color:var(--akze
     <label for="wer">Zugangsname</label>
     <input type="text" id="wer" name="username" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username" required>
     <label for="wort">Passwort</label>
-    <input type="password" id="wort" name="password" autocomplete="current-password" required>
+    <div class="pwfeld"><input type="password" id="wort" name="password" autocomplete="current-password" required><button type="button" class="pwauge" id="pwAuge" aria-label="Passwort anzeigen" title="Passwort anzeigen">👁</button></div>
     <label class="check" style="margin:2px 0 14px"><input type="checkbox" id="merken"> Auf diesem Gerät angemeldet bleiben</label>
     <button type="submit" class="haupt" id="oeffnen">Anmelden</button>
     <p class="sagt" id="sagt" role="status" aria-live="polite"></p>
@@ -477,9 +483,17 @@ function torSagen(text, schlecht) { var s = document.getElementById("sagt"); if 
 function anmelden(name, wort, merken) {
   TOR.merken = merken;
   torSagen("Wird geöffnet …");
-  /* Beim Einfügen rutschen oft Leerzeichen mit: erst genau so probieren, dann ohne Leerzeichen am Rand. */
+  /* Erst genau so probieren. Dann typische Abweichungen beim Abtippen oder Einfügen eines Startpassworts:
+     Leerzeichen am Rand, ganzer kopierter Text („Startpasswort: …“), Gedankenstrich statt Bindestrich,
+     automatisch großgeschriebener Anfang. Startpasswörter bestehen nur aus a–z, 2–9 und Bindestrichen. */
+  var w = String(wort), kand = [w], t = w.trim(), m = /Startpasswort:\s*([a-z2-9]{4}(?:[-\u2010-\u2015\u2212][a-z2-9]{4}){3})/i.exec(w);
+  if (m) t = m[1];
+  t = t.replace(/[\u2010-\u2015\u2212]/g, "-");
+  [t, t.toLowerCase()].forEach(function (x) { if (kand.indexOf(x) < 0) kand.push(x); });
   return blockHolen(name).then(function (b) {
-    return blockOeffnen(b, wort).catch(function (f) { if (String(wort).trim() !== String(wort)) return blockOeffnen(b, String(wort).trim()); throw f; });
+    var i = 0;
+    var naechster = function () { return blockOeffnen(b, kand[i]).catch(function (f) { if (++i < kand.length) return naechster(); throw f; }); };
+    return naechster();
   }).then(function (roh) {
     if (SEITE === "crm" && roh.rolle !== "admin") throw new Error("Das ist ein Kundenzugang. Bitte im Kundenportal anmelden: alphablueprint.de/portal");
     TOR.roh = roh;
@@ -631,6 +645,8 @@ function sicherheitVerdrahten() {
 (function anmeldung() {
   if (window.top !== window.self) { document.body.innerHTML = ""; return; }   // nicht in fremde Rahmen einbetten
   var form = document.getElementById("torForm"), knopf = document.getElementById("oeffnen");
+  var auge = document.getElementById("pwAuge");
+  if (auge) auge.onclick = function () { var f = document.getElementById("wort"), zu = f.type === "password"; f.type = zu ? "text" : "password"; auge.title = zu ? "Passwort verbergen" : "Passwort anzeigen"; auge.style.opacity = zu ? "1" : ".55"; f.focus(); };
   form.addEventListener("submit", function (ev) {
     ev.preventDefault();
     knopf.disabled = true;
