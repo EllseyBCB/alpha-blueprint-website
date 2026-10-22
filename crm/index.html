@@ -57,7 +57,7 @@ label.check{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--m
 .marke i{display:block;width:26px;height:23px;background:var(--text);-webkit-mask:url(/assets/neu/marke-a-hell.png) center/contain no-repeat;mask:url(/assets/neu/marke-a-hell.png) center/contain no-repeat}
 .etikett{font:500 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--leise)}
 .leise{color:var(--leise)} .klein{font-size:13px}
-.pille{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;background:var(--linie);color:var(--mittel)}
+.pille{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:600;background:var(--linie);color:var(--mittel)}
 .pille.gut{background:var(--gut-hell);color:var(--gut)} .pille.warn{background:var(--warn-hell);color:var(--warn)} .pille.akzent{background:var(--akzent-hell);color:var(--akzent)}
 .zahlpunkt{min-width:20px;height:20px;border-radius:10px;background:var(--akzent);color:#fff;font-size:11.5px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;padding:0 6px}
 .balken{height:6px;border-radius:3px;background:var(--linie);overflow:hidden}
@@ -501,7 +501,7 @@ function portalPunkte(kennung) {
 /* ===================================================================== Zeichnen */
 function zeichnen() {
   var f = document.activeElement, schl = f && f.dataset ? f.dataset.schluessel : null, pos = schl && f.setSelectionRange ? [f.selectionStart, f.selectionEnd] : null;
-  document.getElementById("app").innerHTML = kopf() + '<main class="rahmen">' + (S.sicht === "kunden" ? kundenListe() : S.sicht === "akte" ? akte() : S.sicht === "einstellungen" ? einstellungen() : start()) + "</main>";
+  document.getElementById("app").innerHTML = kopf() + '<main class="rahmen">' + (S.sicht === "kunden" ? kundenListe() : S.sicht === "akte" ? akte() : S.sicht === "einstellungen" ? einstellungen() : S.sicht === "finanzen" ? finanzen() : start()) + "</main>";
   verdrahten();
   if (schl) { var n = document.querySelector('[data-schluessel="' + schl + '"]'); if (n) { n.focus(); try { if (pos) n.setSelectionRange(pos[0], pos[1]); } catch (x) {} } }
 }
@@ -511,6 +511,7 @@ function kopf() {
     '<span class="rechts"><a class="knopf klein" href="/portal/" target="_blank" rel="noopener">Kundenportal ↗</a><span class="wer">' + esc(S.P.benutzer) + '</span><button type="button" class="klein" data-tun="abmelden">Abmelden</button></span></div>' +
     '<nav class="reiter"><button type="button" data-sicht="start" aria-current="' + (S.sicht === "start") + '">Start' + (neu ? ' <span class="zahlpunkt">' + neu + "</span>" : "") + "</button>" +
     '<button type="button" data-sicht="kunden" aria-current="' + (S.sicht === "kunden" || S.sicht === "akte") + '">Kunden</button>' +
+    '<button type="button" data-sicht="finanzen" aria-current="' + (S.sicht === "finanzen") + '">Finanzen</button>' +
     '<button type="button" data-sicht="einstellungen" aria-current="' + (S.sicht === "einstellungen") + '">Einstellungen</button></nav></header>';
 }
 
@@ -578,7 +579,7 @@ function akte() {
   var F = S.form;
   if (!F) return '<div class="leer">Lädt …</div>';
   var neu = !F.id, p = S.portal;
-  var reiter = [["stammdaten", "Stammdaten"], ["verlauf", "Verlauf" + (S.akte && S.akte.verlauf.length ? " · " + S.akte.verlauf.length : "")], ["dateien", "Dateien"], ["portal", "Kundenportal"]];
+  var reiter = [["stammdaten", "Stammdaten"], ["verlauf", "Verlauf" + (S.akte && S.akte.verlauf.length ? " · " + S.akte.verlauf.length : "")], ["zahlungen", "Zahlungen"], ["dateien", "Dateien"], ["portal", "Kundenportal"]];
   var ungelesen = p ? p.nachrichten.filter(function (n) { return n.von_rolle === "kunde" && !n.gelesen_admin; }).length : 0;
   return '<div class="seitenkopf"><div><button type="button" class="klein leise" data-sicht="kunden">← Alle Kunden</button><h1>' + esc(F.firma || "Neuer Kunde") + "</h1>" +
     '<p>' + (neu ? "Noch nicht gespeichert." : statusPille(F.status) + (F.kennung ? ' <span class="pille akzent">Portal: ' + esc(F.kennung) + "</span>" : "")) + "</p></div>" +
@@ -586,7 +587,7 @@ function akte() {
     (neu ? "" : '<nav class="reiter" style="padding:0;margin:-6px 0 18px;border-bottom:1px solid var(--linie)">' + reiter.map(function (r) {
       return '<button type="button" data-reiter="' + r[0] + '" aria-current="' + (S.reiter === r[0]) + '">' + r[1] + (r[0] === "portal" && ungelesen ? ' <span class="zahlpunkt">' + ungelesen + "</span>" : "") + "</button>";
     }).join("") + "</nav>") +
-    (neu || S.reiter === "stammdaten" ? stammdaten() : S.reiter === "verlauf" ? verlauf() : S.reiter === "dateien" ? dateien() : portalReiter());
+    (neu || S.reiter === "stammdaten" ? stammdaten() : S.reiter === "verlauf" ? verlauf() : S.reiter === "zahlungen" ? zahlungenReiter() : S.reiter === "dateien" ? dateien() : portalReiter());
 }
 function feld(name, titel, art) {
   var v = S.form[name] == null ? "" : S.form[name];
@@ -604,6 +605,7 @@ function stammdaten() {
     "</div></div>" +
     '<div class="karte pad"><h2 style="margin-bottom:14px">Auftrag</h2><div class="felder">' +
     feld("wert", "Auftragswert einmalig (€)") + feld("monatlich", "Monatlich (€)") +
+    feld("monatlich_ab", "Monatsbetrag ab", "datum") + feld("monatlich_bis", "Monatsbetrag bis (leer = offen)", "datum") +
     feld("naechster_schritt", "Nächster Schritt", "breit") + feld("naechster_termin", "Bis wann", "datum") +
     '<div><label>Portal-Kennung</label><input type="text" data-schluessel="f-kennung" data-feld="kennung" value="' + esc(F.kennung || "") + '" placeholder="z. B. kas"><div class="klein leise" style="margin-top:4px">Verbindet den Kunden mit seinem Kundenportal.</div></div>' +
     "</div></div></div>" +
@@ -677,9 +679,229 @@ function portalReiter() {
     }).join("") : '<p class="leise klein">Noch nichts bereitgestellt. Das geht im Kundenportal unter Verwaltung.</p>') + "</div></div></div>";
 }
 
+/* ===================================================================== Finanzen
+ * Elia (22.10.2026): sehen, wie viel bezahlt ist, wie viel offen, und wie viel er im
+ * Monat ausgeben kann, immer auf 12 Monate hochgerechnet.
+ *
+ *   Monatsrahmen = (Kontostand + Einnahmen der nächsten 12 Monate − Rücklage − Fixkosten 12 Monate) ÷ 12
+ *
+ * „Sicher“ zählen nur Kunden mit Status „Kunde“. Offene Angebote stehen als zweite Zahl daneben.
+ * Kontostand, Rücklage-% und Fixkosten trägt Elia selbst ein; hier wird nichts geschätzt.
+ */
+var FZ = { daten: null, laedt: false, ohneTermin: true, konto: "", ruecklage: "",
+  ausgabe: { titel: "", betrag_monat: "", ab: "", bis: "" } };
+var ZN = { titel: "", betrag: "", faellig: "" };   // neue Zahlung in der Kundenakte
+var ZE = null;                                     // Zahlung, die gerade bearbeitet wird (Kopie)
+function finanzenLaden() {
+  FZ.laedt = true;
+  return api("crm_finanzen").then(function (j) {
+    FZ.daten = j; FZ.laedt = false;
+    FZ.konto = String(j.einstellungen.kontostand || 0).replace(".", ","); FZ.ruecklage = String(j.einstellungen.ruecklage || 0).replace(".", ",");
+    zeichnen();
+  }, function (f) { FZ.laedt = false; melden(f.message, true); });
+}
+function heuteIso() { var d = new Date(); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
+function zwoelfMonate() { var d = new Date(), a = []; for (var i = 0; i < 12; i++) { var x = new Date(d.getFullYear(), d.getMonth() + i, 1); a.push(x.getFullYear() + "-" + ("0" + (x.getMonth() + 1)).slice(-2)); } return a; }
+function aktivIm(mon, ab, bis) { return !!ab && ab.slice(0, 7) <= mon && (!bis || bis.slice(0, 7) >= mon); }
+function betrag(n) { var x = Number(n); return isFinite(x) ? x : 0; }
+function eingabeZahl(t) { var s = String(t || "").replace(/\s|€/g, ""); if (s.indexOf(",") !== -1) s = s.replace(/\./g, "").replace(",", "."); else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, ""); var n = Number(s); return isFinite(n) ? n : 0; }
+function euro2(n) { return (Number(n) || 0).toLocaleString("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: Math.round(n) === n ? 0 : 2 }); }
+function monatsName(m) { return new Date(+m.slice(0, 4), +m.slice(5, 7) - 1, 1).toLocaleDateString("de-DE", { month: "short" }).replace(".", ""); }
+
+function rechnen(d, mitAngeboten) {
+  var heute = heuteIso(), monate = zwoelfMonate(), letzter = monate[11], jahr = heute.slice(0, 4);
+  var K = {}; d.kunden.forEach(function (k) { K[k.id] = k; });
+  var zaehlt = function (k) { return k && (k.status === "kunde" || (mitAngeboten && k.status === "angebot")); };
+  var r = { gezahltJahr: 0, gezahltGesamt: 0, ueberfaellig: 0, faellig12: 0, ohneTermin: 0, spaeter: 0, einnahmen12: 0, laufend: 0, fix12: 0, fixMonat: 0, ein: {}, fix: {}, startOffen: [], monate: monate };
+  monate.forEach(function (m) { r.ein[m] = 0; r.fix[m] = 0; });
+  d.zahlungen.forEach(function (z) {
+    var k = K[z.kunde_id], b = betrag(z.betrag);
+    if (z.bezahlt_am) { r.gezahltGesamt += b; if (z.bezahlt_am.slice(0, 4) === jahr) r.gezahltJahr += b; return; }
+    if (!zaehlt(k)) return;
+    if (!z.faellig) { r.ohneTermin += b; if (FZ.ohneTermin) r.einnahmen12 += b; return; }
+    if (z.faellig < heute) { r.ueberfaellig += b; r.einnahmen12 += b; r.ein[monate[0]] += b; return; }
+    if (z.faellig.slice(0, 7) <= letzter) { r.faellig12 += b; r.einnahmen12 += b; r.ein[z.faellig.slice(0, 7)] += b; } else r.spaeter += b;
+  });
+  d.kunden.forEach(function (k) {
+    if (!zaehlt(k) || !betrag(k.monatlich)) return;
+    if (!k.monatlich_ab) { r.startOffen.push(k); return; }
+    monate.forEach(function (m) { if (aktivIm(m, k.monatlich_ab, k.monatlich_bis)) { r.einnahmen12 += betrag(k.monatlich); r.ein[m] += betrag(k.monatlich); } });
+    if (aktivIm(monate[0], k.monatlich_ab, k.monatlich_bis)) r.laufend += betrag(k.monatlich);
+  });
+  d.ausgaben.forEach(function (a) {
+    monate.forEach(function (m) { if (aktivIm(m, a.ab || "0000-01-01", a.bis)) { r.fix12 += betrag(a.betrag_monat); r.fix[m] += betrag(a.betrag_monat); } });
+    if (aktivIm(monate[0], a.ab || "0000-01-01", a.bis)) r.fixMonat += betrag(a.betrag_monat);
+  });
+  r.konto = betrag(d.einstellungen.kontostand); r.ruecklageProzent = betrag(d.einstellungen.ruecklage);
+  r.ruecklage = r.einnahmen12 * r.ruecklageProzent / 100;
+  r.verfuegbar = r.konto + r.einnahmen12 - r.ruecklage - r.fix12;
+  r.rahmen = r.verfuegbar / 12;
+  return r;
+}
+
+function finanzen() {
+  if (!FZ.daten) { if (!FZ.laedt) setTimeout(finanzenLaden, 0); return '<div class="leer">Lädt …</div>'; }
+  var d = FZ.daten, r = rechnen(d, false), m = rechnen(d, true), heute = heuteIso();
+  var K = {}; d.kunden.forEach(function (k) { K[k.id] = k; });
+  var offen = d.zahlungen.filter(function (z) { return !z.bezahlt_am; })
+    .sort(function (a, b) { return (a.faellig || "9999") < (b.faellig || "9999") ? -1 : 1; });
+  var bezahlt = d.zahlungen.filter(function (z) { return z.bezahlt_am; }).sort(function (a, b) { return a.bezahlt_am < b.bezahlt_am ? 1 : -1; }).slice(0, 10);
+  var max = Math.max.apply(null, r.monate.map(function (x) { return Math.max(r.ein[x], r.fix[x]); }).concat([1]));
+  var zeile = function (t, w, art) { return '<tr' + (art === "summe" ? ' style="font-weight:700"' : "") + '><td>' + t + '</td><td style="text-align:right;white-space:nowrap' + (w < 0 ? ";color:var(--schlecht)" : "") + '">' + (art === "minus" ? "− " + euro2(Math.abs(w)) : euro2(w)) + "</td></tr>"; };
+
+  return '<div class="seitenkopf"><div><span class="etikett">Finanzen</span><h1>Zahlungen und Rahmen</h1><p>Was bezahlt ist, was noch kommt, und wie viel du im Monat ausgeben kannst, gerechnet auf die nächsten 12 Monate.</p></div></div>' +
+    '<div class="kennzahlen">' +
+    '<div class="karte kennzahl"><span class="etikett">Bezahlt ' + heute.slice(0, 4) + '</span><div class="z">' + euro2(r.gezahltJahr) + '</div><div class="u">' + euro2(r.gezahltGesamt) + " insgesamt</div></div>" +
+    '<div class="karte kennzahl"><span class="etikett">Offen, fällig</span><div class="z"' + (r.ueberfaellig ? ' style="color:var(--schlecht)"' : "") + ">" + euro2(r.ueberfaellig + r.faellig12) + '</div><div class="u">' + (r.ueberfaellig ? euro2(r.ueberfaellig) + " überfällig" : "nichts überfällig") + "</div></div>" +
+    '<div class="karte kennzahl"><span class="etikett">Offen, ohne Termin</span><div class="z">' + euro2(r.ohneTermin) + '</div><div class="u">Raten nach Projektschritten</div></div>' +
+    '<div class="karte kennzahl"><span class="etikett">Laufend</span><div class="z">' + euro2(r.laufend) + '</div><div class="u">im Monat, aktuell</div></div></div>' +
+
+    '<div class="raster zwei"><div class="karte pad"><span class="etikett">Dein Monatsrahmen</span>' +
+    '<div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:8px 0 2px"><span class="zahl" style="font:700 44px/1 var(--anzeige);' + (r.rahmen < 0 ? "color:var(--schlecht)" : "") + '">' + euro2(Math.round(r.rahmen)) + '</span><span class="leise">im Monat, 12 Monate lang</span></div>' +
+    '<p class="klein leise" style="margin:0 0 14px">Nur sichere Einnahmen (unterschriebene Kunden). Wenn alle offenen Angebote kommen: <b style="color:var(--text)">' + euro2(Math.round(m.rahmen)) + "</b> im Monat.</p>" +
+    '<table class="tabelle"><tbody>' +
+    zeile("Kontostand heute", r.konto) +
+    zeile("+ Einnahmen nächste 12 Monate", r.einnahmen12) +
+    zeile("− Rücklage " + String(r.ruecklageProzent).replace(".", ",") + " % (Steuern, Puffer)", r.ruecklage, "minus") +
+    zeile("− Fixkosten 12 Monate", r.fix12, "minus") +
+    zeile("= verfügbar", r.verfuegbar, "summe") +
+    zeile("÷ 12 = Rahmen im Monat", r.rahmen, "summe") + "</tbody></table>" +
+    (r.startOffen.length ? '<p class="klein" style="color:var(--warn);margin:10px 0 0">Nicht eingerechnet, weil das Startdatum fehlt: ' + r.startOffen.map(function (k) { return esc(k.firma) + " (" + euro2(k.monatlich) + "/Monat)"; }).join(", ") + ". Startdatum in der Kundenakte unter Stammdaten eintragen.</p>" : "") +
+    "</div>" +
+    '<div class="karte pad"><h2 style="margin-bottom:12px">Deine Werte</h2><div class="formular">' +
+    '<label class="klein" style="font-weight:600">Kontostand heute (€)</label><input type="text" inputmode="decimal" data-schluessel="fz-konto" data-fz="konto" value="' + esc(FZ.konto) + '">' +
+    '<label class="klein" style="font-weight:600">Rücklage für Steuern und Puffer (%)</label><input type="text" inputmode="decimal" data-schluessel="fz-ruecklage" data-fz="ruecklage" value="' + esc(FZ.ruecklage) + '">' +
+    '<label class="check"><input type="checkbox" data-fzohne' + (FZ.ohneTermin ? " checked" : "") + "> Raten ohne Termin mitrechnen (" + euro2(r.ohneTermin) + ")</label>" +
+    '<div class="reihe"><button type="button" class="haupt" data-fzspeichern>Werte speichern</button><span class="klein leise">Die Rücklage setzt du selbst, ich rate keine Steuerquote.</span></div></div></div></div>' +
+
+    '<div class="karte pad" style="margin-top:16px"><div class="kartenkopf"><h2>Die nächsten 12 Monate</h2><span class="klein leise"><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--akzent);vertical-align:-1px"></span> Einnahmen sicher &nbsp; <span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--linie2);vertical-align:-1px"></span> Fixkosten</span></div>' +
+    '<div style="display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;align-items:end;height:170px;margin-top:8px">' +
+    r.monate.map(function (x) {
+      var e = r.ein[x], f = r.fix[x];
+      return '<div style="display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end" title="' + monatsName(x) + ": " + euro2(e) + " Einnahmen, " + euro2(f) + ' Fixkosten">' +
+        '<div style="display:flex;gap:2px;align-items:flex-end;height:140px;width:100%;justify-content:center">' +
+        '<div style="width:42%;max-width:18px;border-radius:4px 4px 0 0;background:var(--akzent);height:' + (e / max * 100) + '%"></div>' +
+        '<div style="width:42%;max-width:18px;border-radius:4px 4px 0 0;background:var(--linie2);height:' + (f / max * 100) + '%"></div></div>' +
+        '<span class="klein leise">' + monatsName(x) + "</span></div>";
+    }).join("") + "</div></div>" +
+
+    '<div class="raster zwei" style="margin-top:16px"><div class="karte"><div style="padding:18px 20px 6px"><h2>Offene Zahlungen</h2></div>' +
+    (offen.length ? '<table class="tabelle"><thead><tr><th>Kunde</th><th>Wofür</th><th style="text-align:right">Betrag</th><th>Fällig</th><th></th></tr></thead><tbody>' +
+      offen.map(function (z) {
+        var k = K[z.kunde_id] || {}, ueber = z.faellig && z.faellig < heute;
+        return '<tr><td><a href="#" data-akte="' + z.kunde_id + '" data-zu="zahlungen">' + esc(k.firma || "?") + "</a>" + (k.status !== "kunde" ? '<div class="klein leise">' + esc(STATUS[k.status] || k.status || "") + ", nicht eingerechnet</div>" : "") + "</td>" +
+          '<td class="klein">' + esc(z.titel) + "</td><td style=\"text-align:right;white-space:nowrap\">" + euro2(z.betrag) + "</td>" +
+          '<td class="klein" style="white-space:nowrap' + (ueber ? ";color:var(--schlecht);font-weight:600" : "") + '">' + (z.faellig ? datum(z.faellig) + (ueber ? " · überfällig" : "") : '<span class="leise">ohne Termin</span>') + "</td>" +
+          '<td><button type="button" class="klein" data-bezahlt="' + z.id + '">Bezahlt</button></td></tr>';
+      }).join("") + "</tbody></table>" : '<div class="leer">Nichts offen.</div>') + "</div>" +
+    '<div class="karte"><div style="padding:18px 20px 6px"><h2>Zuletzt eingegangen</h2></div>' +
+    (bezahlt.length ? '<table class="tabelle"><tbody>' + bezahlt.map(function (z) {
+      return "<tr><td>" + esc((K[z.kunde_id] || {}).firma || "?") + '<div class="klein leise">' + esc(z.titel) + '</div></td><td style="text-align:right;white-space:nowrap">' + euro2(z.betrag) + '<div class="klein leise">' + datum(z.bezahlt_am) + "</div></td></tr>";
+    }).join("") + "</tbody></table>" : '<div class="leer">Noch kein Eingang verbucht.</div>') + "</div></div>" +
+
+    '<div class="karte pad" style="margin-top:16px"><div class="kartenkopf"><h2>Deine Fixkosten</h2><span class="klein leise">' + euro2(r.fixMonat) + " im Monat · " + euro2(r.fix12) + " in 12 Monaten</span></div>" +
+    '<p class="klein leise" style="margin-top:-4px">Was jeden Monat abgeht: Server, Software, Versicherungen, Miete … Mit „ab“ und „bis“ für Verträge, die starten oder enden.</p>' +
+    '<table class="tabelle"><thead><tr><th>Bezeichnung</th><th style="text-align:right">€ im Monat</th><th>ab</th><th>bis</th><th></th></tr></thead><tbody>' +
+    d.ausgaben.map(function (a) {
+      return "<tr><td>" + esc(a.titel) + '</td><td style="text-align:right">' + euro2(a.betrag_monat) + '</td><td class="klein">' + (a.ab ? datum(a.ab) : "–") + '</td><td class="klein">' + (a.bis ? datum(a.bis) : "–") + "</td><td>" +
+        (S.bestaetigen === "a" + a.id ? '<button type="button" class="klein gefahr" data-ausgabeweg="' + a.id + '">Wirklich löschen?</button>' : '<button type="button" class="klein leise" data-frage="a' + a.id + '">Löschen</button>') + "</td></tr>";
+    }).join("") +
+    '<tr><td><input type="text" placeholder="z. B. Hetzner Server" data-schluessel="fa-titel" data-fa="titel" value="' + esc(FZ.ausgabe.titel) + '"></td>' +
+    '<td><input type="text" inputmode="decimal" placeholder="0,00" style="text-align:right" data-schluessel="fa-betrag" data-fa="betrag_monat" value="' + esc(FZ.ausgabe.betrag_monat) + '"></td>' +
+    '<td><input type="date" data-schluessel="fa-ab" data-fa="ab" value="' + esc(FZ.ausgabe.ab) + '"></td><td><input type="date" data-schluessel="fa-bis" data-fa="bis" value="' + esc(FZ.ausgabe.bis) + '"></td>' +
+    '<td><button type="button" class="klein haupt" data-ausgabeneu>Hinzufügen</button></td></tr></tbody></table></div>';
+}
+
+/* ---------------------------------------------------------------- Zahlungen in der Kundenakte */
+function zahlungenReiter() {
+  var z = (S.akte && S.akte.zahlungen) || [], k = S.form, heute = heuteIso();
+  var bez = z.filter(function (x) { return x.bezahlt_am; }).reduce(function (s, x) { return s + betrag(x.betrag); }, 0);
+  var off = z.filter(function (x) { return !x.bezahlt_am; }).reduce(function (s, x) { return s + betrag(x.betrag); }, 0);
+  var ueber = z.filter(function (x) { return !x.bezahlt_am && x.faellig && x.faellig < heute; }).reduce(function (s, x) { return s + betrag(x.betrag); }, 0);
+  var monat = new Date().toLocaleDateString("de-DE", { month: "long", year: "numeric" });
+  return '<div class="kennzahlen" style="grid-template-columns:repeat(3,minmax(0,1fr))">' +
+    '<div class="karte kennzahl"><span class="etikett">Bezahlt</span><div class="z" style="color:var(--gut)">' + euro2(bez) + "</div></div>" +
+    '<div class="karte kennzahl"><span class="etikett">Offen</span><div class="z">' + euro2(off) + '</div><div class="u">' + (ueber ? '<span style="color:var(--schlecht)">' + euro2(ueber) + " überfällig</span>" : "nichts überfällig") + "</div></div>" +
+    '<div class="karte kennzahl"><span class="etikett">Monatlich</span><div class="z">' + euro2(k.monatlich) + '</div><div class="u">' + (betrag(k.monatlich) ? (k.monatlich_ab ? "ab " + datum(k.monatlich_ab) + (k.monatlich_bis ? " bis " + datum(k.monatlich_bis) : "") : '<span style="color:var(--warn)">Startdatum fehlt (Stammdaten)</span>') : "kein Monatsbetrag") + "</div></div></div>" +
+    '<div class="karte"><div style="padding:18px 20px 6px" class="kartenkopf"><h2>Zahlungsplan</h2>' +
+    (betrag(k.monatlich) && k.monatlich_ab && k.monatlich_ab <= heute && (!k.monatlich_bis || k.monatlich_bis >= heute) ? '<button type="button" class="klein" data-monatbezahlt>Monatsbetrag ' + esc(monat) + " als bezahlt eintragen</button>" : "") + "</div>" +
+    '<table class="tabelle"><thead><tr><th>Wofür</th><th style="text-align:right">Betrag</th><th>Fällig</th><th>Stand</th><th></th></tr></thead><tbody>' +
+    z.map(function (x) {
+      if (ZE && ZE.id === x.id) {
+        return '<tr><td><input type="text" data-schluessel="ze-titel" data-ze="titel" value="' + esc(ZE.titel) + '"><input type="text" placeholder="Notiz" style="margin-top:6px" data-schluessel="ze-notiz" data-ze="notiz" value="' + esc(ZE.notiz || "") + '"></td>' +
+          '<td><input type="text" inputmode="decimal" style="text-align:right" data-schluessel="ze-betrag" data-ze="betrag" value="' + esc(String(ZE.betrag).replace(".", ",")) + '"></td>' +
+          '<td><input type="date" data-schluessel="ze-faellig" data-ze="faellig" value="' + esc(ZE.faellig || "") + '"></td>' +
+          '<td><label class="klein" style="font-weight:600">bezahlt am</label><input type="date" data-schluessel="ze-bezahlt" data-ze="bezahlt_am" value="' + esc(ZE.bezahlt_am || "") + '"></td>' +
+          '<td style="white-space:nowrap"><button type="button" class="klein haupt" data-zespeichern>Speichern</button> <button type="button" class="klein leise" data-zeabbruch>Abbrechen</button></td></tr>';
+      }
+      var ue = !x.bezahlt_am && x.faellig && x.faellig < heute;
+      return "<tr><td>" + esc(x.titel) + (x.notiz ? '<div class="klein leise">' + esc(x.notiz) + "</div>" : "") + '</td><td style="text-align:right;white-space:nowrap">' + euro2(x.betrag) + "</td>" +
+        '<td class="klein" style="white-space:nowrap">' + (x.faellig ? datum(x.faellig) : '<span class="leise">ohne Termin</span>') + "</td>" +
+        "<td>" + (x.bezahlt_am ? '<span class="pille gut">bezahlt ' + datum(x.bezahlt_am) + "</span>" : ue ? '<span class="pille" style="background:var(--schlecht-hell);color:var(--schlecht)">überfällig</span>' : '<span class="pille">offen</span>') + "</td>" +
+        '<td style="white-space:nowrap">' + (!x.bezahlt_am ? '<button type="button" class="klein" data-bezahlt="' + x.id + '">Bezahlt</button> ' : "") +
+        '<button type="button" class="klein leise" data-zebearbeiten="' + x.id + '">Bearbeiten</button>' +
+        (S.bestaetigen === "z" + x.id ? ' <button type="button" class="klein gefahr" data-zahlungweg="' + x.id + '">Wirklich löschen?</button>' : ' <button type="button" class="klein leise" data-frage="z' + x.id + '">Löschen</button>') + "</td></tr>";
+    }).join("") +
+    '<tr><td><input type="text" placeholder="z. B. Rate 1, Rechnung 2026-014" data-schluessel="zn-titel" data-zn="titel" value="' + esc(ZN.titel) + '"></td>' +
+    '<td><input type="text" inputmode="decimal" placeholder="0,00" style="text-align:right" data-schluessel="zn-betrag" data-zn="betrag" value="' + esc(ZN.betrag) + '"></td>' +
+    '<td><input type="date" data-schluessel="zn-faellig" data-zn="faellig" value="' + esc(ZN.faellig) + '"></td><td></td>' +
+    '<td><button type="button" class="klein haupt" data-zneu>Hinzufügen</button></td></tr></tbody></table></div>';
+}
+
+function zahlungSpeichern(daten, danach) {
+  return api("crm_zahlung_speichern", { daten: daten }).then(function () { FZ.daten = null; if (S.sicht === "akte" && S.id) akteLaden(S.id); if (danach) danach(); else zeichnen(); }, function (f) { melden(f.message, true); });
+}
+function finanzVerdrahten() {
+  var w = document.getElementById("app");
+  w.querySelectorAll("[data-fz]").forEach(function (t) { t.oninput = function () { FZ[t.dataset.fz] = t.value; }; });
+  w.querySelectorAll("[data-fzohne]").forEach(function (t) { t.onchange = function () { FZ.ohneTermin = t.checked; zeichnen(); }; });
+  w.querySelectorAll("[data-fzspeichern]").forEach(function (b) { b.onclick = function () {
+    b.disabled = true;
+    api("crm_einstellungen_setzen", { wert: { kontostand: eingabeZahl(FZ.konto), ruecklage: eingabeZahl(FZ.ruecklage) } })
+      .then(function () { melden("Gespeichert."); finanzenLaden(); }, function (f) { b.disabled = false; melden(f.message, true); });
+  }; });
+  w.querySelectorAll("[data-fa]").forEach(function (t) { t.oninput = function () { FZ.ausgabe[t.dataset.fa] = t.value; }; });
+  w.querySelectorAll("[data-ausgabeneu]").forEach(function (b) { b.onclick = function () {
+    var a = FZ.ausgabe; if (!a.titel.trim()) return melden("Bitte eine Bezeichnung eintragen.", true);
+    b.disabled = true;
+    api("crm_ausgabe_speichern", { daten: { titel: a.titel, betrag_monat: eingabeZahl(a.betrag_monat), ab: a.ab || null, bis: a.bis || null } })
+      .then(function () { FZ.ausgabe = { titel: "", betrag_monat: "", ab: "", bis: "" }; finanzenLaden(); }, function (f) { b.disabled = false; melden(f.message, true); });
+  }; });
+  w.querySelectorAll("[data-ausgabeweg]").forEach(function (b) { b.onclick = function () {
+    api("crm_ausgabe_weg", { id: b.dataset.ausgabeweg }).then(function () { S.bestaetigen = null; finanzenLaden(); }, function (f) { melden(f.message, true); }); }; });
+  w.querySelectorAll("[data-bezahlt]").forEach(function (b) { b.onclick = function () {
+    var alle = (FZ.daten ? FZ.daten.zahlungen : []).concat(S.akte && S.akte.zahlungen ? S.akte.zahlungen : []);
+    var z = alle.filter(function (x) { return x.id === b.dataset.bezahlt; })[0]; if (!z) return;
+    b.disabled = true;
+    zahlungSpeichern(Object.assign({}, z, { bezahlt_am: heuteIso() }), function () { melden("Als bezahlt verbucht (" + euro2(z.betrag) + "). Das Datum kannst du unter Bearbeiten ändern."); if (S.sicht === "finanzen") finanzenLaden(); });
+  }; });
+  w.querySelectorAll("[data-zn]").forEach(function (t) { t.oninput = function () { ZN[t.dataset.zn] = t.value; }; });
+  w.querySelectorAll("[data-zneu]").forEach(function (b) { b.onclick = function () {
+    if (!ZN.titel.trim()) return melden("Bitte eintragen, wofür die Zahlung ist.", true);
+    b.disabled = true;
+    zahlungSpeichern({ kunde_id: S.id, titel: ZN.titel, betrag: eingabeZahl(ZN.betrag), faellig: ZN.faellig || null }, function () { ZN = { titel: "", betrag: "", faellig: "" }; });
+  }; });
+  w.querySelectorAll("[data-monatbezahlt]").forEach(function (b) { b.onclick = function () {
+    b.disabled = true;
+    var monat = new Date().toLocaleDateString("de-DE", { month: "long", year: "numeric" });
+    zahlungSpeichern({ kunde_id: S.id, titel: "Monatsbetrag " + monat, betrag: betrag(S.form.monatlich), faellig: heuteIso(), bezahlt_am: heuteIso() }, function () { melden("Monatsbetrag " + monat + " verbucht."); });
+  }; });
+  w.querySelectorAll("[data-zebearbeiten]").forEach(function (b) { b.onclick = function () {
+    var z = S.akte.zahlungen.filter(function (x) { return x.id === b.dataset.zebearbeiten; })[0]; ZE = Object.assign({}, z); zeichnen(); }; });
+  w.querySelectorAll("[data-ze]").forEach(function (t) { t.oninput = function () { ZE[t.dataset.ze] = t.value; }; });
+  w.querySelectorAll("[data-zeabbruch]").forEach(function (b) { b.onclick = function () { ZE = null; zeichnen(); }; });
+  w.querySelectorAll("[data-zespeichern]").forEach(function (b) { b.onclick = function () {
+    b.disabled = true;
+    var d = Object.assign({}, ZE, { betrag: eingabeZahl(ZE.betrag), faellig: ZE.faellig || null, bezahlt_am: ZE.bezahlt_am || null });
+    zahlungSpeichern(d, function () { ZE = null; });
+  }; });
+  w.querySelectorAll("[data-zahlungweg]").forEach(function (b) { b.onclick = function () {
+    api("crm_zahlung_weg", { id: b.dataset.zahlungweg }).then(function () { S.bestaetigen = null; FZ.daten = null; akteLaden(S.id); }, function (f) { melden(f.message, true); }); }; });
+}
+
 /* ===================================================================== Handeln */
 function akteOeffnen(id, zu) {
-  S.sicht = "akte"; S.id = id; S.akte = null; S.portal = null; S.form = null; S.geaendert = false; S.reiter = zu || "stammdaten"; S.bestaetigen = null; S.hoch = [];
+  S.sicht = "akte"; S.id = id; S.akte = null; S.portal = null; S.form = null; S.geaendert = false; S.reiter = zu || "stammdaten"; S.bestaetigen = null; S.hoch = []; ZE = null; ZN = { titel: "", betrag: "", faellig: "" };
   zeichnen(); window.scrollTo(0, 0); akteLaden(id);
 }
 var TUN = {
@@ -714,7 +936,7 @@ function verdrahten() {
   w.querySelectorAll("[data-tun]").forEach(function (b) { b.onclick = function () { TUN[b.dataset.tun](b); }; });
   w.querySelectorAll("[data-sicht]").forEach(function (b) { b.onclick = function () {
     if (S.geaendert && S.sicht === "akte" && !b.dataset.weiter) { b.dataset.weiter = "1"; b.textContent = "Nicht gespeichert. Trotzdem verlassen?"; return; }
-    S.sicht = b.dataset.sicht; S.geaendert = false; zeichnen(); window.scrollTo(0, 0); }; });
+    S.sicht = b.dataset.sicht; S.geaendert = false; if (S.sicht === "finanzen") FZ.daten = null; zeichnen(); window.scrollTo(0, 0); }; });
   w.querySelectorAll("[data-akte]").forEach(function (b) { b.onclick = function (ev) { ev.preventDefault(); akteOeffnen(b.dataset.akte, b.dataset.zu); }; });
   w.querySelectorAll("[data-filter]").forEach(function (b) { b.onclick = function () { S.filter = b.dataset.filter; zeichnen(); }; });
   w.querySelectorAll("[data-suche]").forEach(function (t) { t.oninput = function () { S.suche = t.value; zeichnen(); }; });
@@ -733,6 +955,7 @@ function verdrahten() {
   w.querySelectorAll("[data-verlaufweg]").forEach(function (b) { b.onclick = function () { api("crm_verlauf_weg", { id: b.dataset.verlaufweg }).then(function () { S.bestaetigen = null; akteLaden(S.id); }, function (f) { melden(f.message, true); }); }; });
   w.querySelectorAll("[data-dateiweg]").forEach(function (b) { b.onclick = function () { api("crm_datei_weg", { id: b.dataset.dateiweg }).then(function () { S.bestaetigen = null; akteLaden(S.id); }, function (f) { melden(f.message, true); }); }; });
   passwortVerdrahten(zeichnen);
+  finanzVerdrahten();
   var cd = document.getElementById("crmDatei");
   if (cd) cd.onchange = function () {
     Array.prototype.forEach.call(cd.files, function (datei) {
