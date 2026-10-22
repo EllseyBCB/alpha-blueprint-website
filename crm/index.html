@@ -358,6 +358,8 @@ html[data-glas] .reiter button[aria-current=true]{border-bottom-color:var(--akze
 .pwfeld input{padding-right:46px}
 .pwauge{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:36px;height:36px;padding:0;border:0 !important;background:none !important;box-shadow:none !important;opacity:.55;font-size:16px;line-height:1;-webkit-backdrop-filter:none !important;backdrop-filter:none !important}
 .tor .pwfeld{margin-bottom:14px}.tor .pwfeld input{margin-bottom:0}
+/* Auge: klein, ganz rechts im Feld; der Rest des Feldes bleibt anklickbar. */
+.tor .pwfeld .pwauge,.pwfeld .pwauge{width:34px !important;height:34px;padding:0 !important;margin:0 !important;left:auto;right:6px;display:flex;align-items:center;justify-content:center;border-radius:8px}
 
 </style>
 </head>
