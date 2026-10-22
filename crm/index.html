@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="crm" data-glas data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-uS/8XXgSxx5YhjMUvmk5k6PDDKbIP+VV4txsD13EGDw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-NmWsfz1WQ2SO6ssSeteSUwEbmELVdgBvmzGBmyNbOv4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -978,7 +978,7 @@ function stammdaten() {
     feld("monatlich_ab", "Monatsbetrag ab", "datum") + feld("monatlich_bis", "Monatsbetrag bis (leer = offen)", "datum") +
     feld("naechster_schritt", "Nächster Schritt", "breit") + feld("naechster_termin", "Bis wann", "datum") +
     '<div><label>Portal-Kennung</label><input type="text" data-schluessel="f-kennung" data-feld="kennung" value="' + esc(F.kennung || "") + '" placeholder="z. B. kas"><div class="klein leise" style="margin-top:4px">Verbindet den Kunden mit seinem Kundenportal.</div></div>' +
-    "</div></div></div>" +
+    "</div></div></div>" + wertAbgleich() +
     '<div class="karte pad" style="margin-top:16px"><div class="kartenkopf"><h2>Ansprechpartner</h2><button type="button" class="klein" data-tun="kontaktNeu">+ Ansprechpartner</button></div>' +
     ((F.kontakte || []).length ? (F.kontakte || []).map(function (c, i) {
       return '<div class="kontaktzeile">' + ["name", "rolle", "mail", "telefon"].map(function (x) {
@@ -1071,6 +1071,7 @@ var ZN = { titel: "", betrag: "", faellig: "" };   // neue Zahlung in der Kunden
 var ZE = null;                                     // Zahlung, die gerade bearbeitet wird (Kopie)
 var AF = { offen: false, frage: "", warum: "", nachricht: true, laeuft: false };  // Dokument beim Kunden anfordern
 var ST = { wahl: {}, teilen: null, anzahl: "2", laeuft: false };  // Raten zusammenlegen oder aufteilen
+var AW = { faellig: "", laeuft: false };  // Auftragswert und Raten abgleichen
 function finanzenLaden() {
   FZ.laedt = true;
   return api("crm_finanzen").then(function (j) {
@@ -1422,7 +1423,7 @@ function zahlungenReiter() {
     '<div class="karte kennzahl"><span class="etikett">Monatlich</span><div class="z">' + euro2(k.monatlich) + '</div><div class="u">' + (betrag(k.monatlich) ? (k.monatlich_ab ? "ab " + datum(k.monatlich_ab) + (k.monatlich_bis ? " bis " + datum(k.monatlich_bis) : "") : '<span style="color:var(--warn)">Startdatum fehlt (Stammdaten)</span>') : "kein Monatsbetrag") + "</div></div></div>" +
     '<div class="karte"><div style="padding:18px 20px 6px" class="kartenkopf"><h2>Zahlungsplan</h2>' +
     (betrag(k.monatlich) && k.monatlich_ab && k.monatlich_ab <= heute && (!k.monatlich_bis || k.monatlich_bis >= heute) ? '<button type="button" class="klein" data-monatbezahlt>Monatsbetrag ' + esc(monat) + " als bezahlt eintragen</button>" : "") + "</div>" +
-    stueckelLeiste(z) +
+    wertAbgleich() + stueckelLeiste(z) +
     '<table class="tabelle"><thead><tr><th>Wofür</th><th style="text-align:right">Betrag</th><th>Fällig</th><th>Stand</th><th></th></tr></thead><tbody>' +
     z.map(function (x) {
       if (ZE && ZE.id === x.id) {
@@ -1465,6 +1466,54 @@ function stueckelLeiste(z) {
     '<span class="klein"><b>' + gew.length + " ausgewählt</b> · zusammen " + euro2(summe) + "</span>" +
     (gew.length >= 2 ? '<button type="button" class="klein haupt" data-stzusammen' + (ST.laeuft ? " disabled" : "") + ">Zu einer Zahlung über " + euro2(summe) + " zusammenlegen</button>" : '<span class="klein leise">Mindestens zwei Raten anhaken.</span>') +
     '<button type="button" class="klein leise" data-stleeren>Auswahl aufheben</button></div>';
+}
+/**
+ * Auftragswert (Stammdaten) gegen die Raten: Finanzen rechnet nur mit den Raten. Weicht der gespeicherte
+ * Auftragswert ab, zeigt die Akte den Unterschied und gleicht auf Klick an. Bezahlte Raten bleiben unberührt.
+ */
+function wertStand() {
+  if (!S.akte || !S.akte.kunde || !S.id) return null;
+  var wert = betrag(S.akte.kunde.wert), z = (S.akte.zahlungen || []).filter(function (x) { return !istMonatsposten(x); });
+  if (!wert) return null;
+  var summe = z.reduce(function (s, x) { return s + betrag(x.betrag); }, 0), offen = z.filter(function (x) { return !x.bezahlt_am; });
+  var diff = Math.round((wert - summe) * 100) / 100;
+  return Math.abs(diff) < 0.01 ? null : { wert: wert, summe: summe, diff: diff, offen: offen, offenSumme: offen.reduce(function (s, x) { return s + betrag(x.betrag); }, 0), raten: z };
+}
+function wertAbgleich() {
+  var w = wertStand(); if (!w) return "";
+  var dis = AW.laeuft ? " disabled" : "", knopf;
+  if (w.diff > 0) knopf = '<input type="date" style="width:auto" data-schluessel="aw-faellig" data-awfaellig value="' + esc(AW.faellig) + '" title="Fällig am (leer = ohne Termin)">' +
+    '<button type="button" class="klein haupt" data-awneu' + dis + ">" + euro2(w.diff) + " als neue offene Rate anlegen</button>" +
+    (w.offen.length ? '<button type="button" class="klein" data-awdazu' + dis + ">Zur letzten offenen Rate dazurechnen</button>" : "");
+  else knopf = w.offenSumme + w.diff >= -0.005 ? '<button type="button" class="klein haupt" data-awab' + dis + ">" + euro2(-w.diff) + " von den offenen Raten abziehen</button>"
+    : '<span class="klein" style="color:var(--schlecht)">Offen sind nur ' + euro2(w.offenSumme) + ", bezahlt ist schon mehr als der neue Auftragswert. Bitte die Raten von Hand prüfen.</span>";
+  return '<div class="karte pad" style="margin:16px 0;border-color:var(--warn)"><b>Auftragswert und Raten passen nicht zusammen</b>' +
+    '<div class="klein" style="margin:4px 0 10px">Auftragswert ' + euro2(w.wert) + ", die Raten ergeben " + euro2(w.summe) + " → " + (w.diff > 0 ? "es fehlen " : "zu viel: ") + euro2(Math.abs(w.diff)) +
+    ". Finanzen rechnet nur mit den Raten." + (S.geaendert ? " Geänderte Stammdaten erst speichern." : "") + "</div>" +
+    '<div class="reihe" style="gap:8px;flex-wrap:wrap;align-items:center">' + knopf + "</div></div>";
+}
+function wertAngleichen(art) {
+  var w = wertStand(); if (!w || AW.laeuft) return;
+  var nr = w.raten.map(function (x) { return praefix(x.titel); }).filter(Boolean)[0];
+  var notiz = "Auftragswert am " + datum(heuteIso()) + " auf " + euro2(w.wert) + " geändert (Raten vorher " + euro2(w.summe) + ").";
+  var schritte = [];
+  if (art === "neu") schritte.push({ kunde_id: S.id, titel: (nr ? nr + ": " : "") + "Anpassung Auftragswert", betrag: w.diff, faellig: AW.faellig || null, notiz: notiz });
+  else if (art === "dazu") { var l = w.offen[w.offen.length - 1]; schritte.push({ id: l.id, kunde_id: S.id, titel: l.titel, betrag: Math.round((betrag(l.betrag) + w.diff) * 100) / 100, faellig: l.faellig, bezahlt_am: null, notiz: ((l.notiz ? l.notiz + " " : "") + notiz).slice(0, 2000) }); }
+  else {
+    /* Von hinten abziehen: die späteste offene Rate zuerst; was auf 0 fällt, wird gelöscht. */
+    var rest = -w.diff, weg = [];
+    w.offen.slice().reverse().forEach(function (x) {
+      if (rest < 0.005) return;
+      var b = betrag(x.betrag), ab = Math.min(b, rest); rest = Math.round((rest - ab) * 100) / 100;
+      if (b - ab < 0.005) weg.push(x);
+      else schritte.push({ id: x.id, kunde_id: S.id, titel: x.titel, betrag: Math.round((b - ab) * 100) / 100, faellig: x.faellig, bezahlt_am: null, notiz: ((x.notiz ? x.notiz + " " : "") + notiz).slice(0, 2000) });
+    });
+  }
+  AW.laeuft = true; zeichnen();
+  schritte.reduce(function (p, d) { return p.then(function () { return api("crm_zahlung_speichern", { daten: d }); }); }, Promise.resolve())
+    .then(function () { return weg ? rateWeg(weg) : null; })
+    .then(function () { AW = { faellig: "", laeuft: false }; FZ.daten = null; melden("Raten an den Auftragswert " + euro2(w.wert) + " angeglichen."); akteLaden(S.id); },
+      function (f) { AW.laeuft = false; melden(f.message, true); akteLaden(S.id); });
 }
 function praefix(t) { var m = /^([A-Z]{1,4}-\d{4}-\d{2,4}):\s*/.exec(t || ""); return m ? m[1] : null; }
 function rateWeg(liste) {
@@ -1614,6 +1663,10 @@ function finanzVerdrahten() {
     zahlungSpeichern(Object.assign({}, z, { bezahlt_am: heuteIso() }), function () { melden("Als bezahlt verbucht (" + euro2(z.betrag) + "). Das Datum kannst du unter Bearbeiten ändern."); if (S.sicht === "finanzen") finanzenLaden(); });
   }; });
   w.querySelectorAll("[data-zn]").forEach(function (t) { t.oninput = function () { ZN[t.dataset.zn] = t.value; }; });
+  w.querySelectorAll("[data-awfaellig]").forEach(function (t) { t.oninput = function () { AW.faellig = t.value; }; });
+  w.querySelectorAll("[data-awneu]").forEach(function (b) { b.onclick = function () { wertAngleichen("neu"); }; });
+  w.querySelectorAll("[data-awdazu]").forEach(function (b) { b.onclick = function () { wertAngleichen("dazu"); }; });
+  w.querySelectorAll("[data-awab]").forEach(function (b) { b.onclick = function () { wertAngleichen("ab"); }; });
   w.querySelectorAll("[data-zneu]").forEach(function (b) { b.onclick = function () {
     if (!ZN.titel.trim()) return melden("Bitte eintragen, wofür die Zahlung ist.", true);
     b.disabled = true;
@@ -1646,7 +1699,7 @@ function finanzVerdrahten() {
 
 /* ===================================================================== Handeln */
 function akteOeffnen(id, zu) {
-  S.sicht = "akte"; S.id = id; S.akte = null; S.portal = null; S.form = null; S.geaendert = false; S.reiter = zu || "stammdaten"; S.bestaetigen = null; S.hoch = []; ZE = null; ZN = { titel: "", betrag: "", faellig: "" }; AF = { offen: false, frage: "", warum: "", nachricht: true, laeuft: false }; ST = { wahl: {}, teilen: null, anzahl: "2", laeuft: false };
+  S.sicht = "akte"; S.id = id; S.akte = null; S.portal = null; S.form = null; S.geaendert = false; S.reiter = zu || "stammdaten"; S.bestaetigen = null; S.hoch = []; ZE = null; ZN = { titel: "", betrag: "", faellig: "" }; AF = { offen: false, frage: "", warum: "", nachricht: true, laeuft: false }; ST = { wahl: {}, teilen: null, anzahl: "2", laeuft: false }; AW = { faellig: "", laeuft: false };
   zeichnen(); window.scrollTo(0, 0); akteLaden(id);
 }
 var TUN = {
@@ -1662,7 +1715,7 @@ var TUN = {
     if (!S.form.firma.trim()) return melden("Bitte einen Firmennamen eintragen.", true);
     b.disabled = true;
     api("crm_speichern", { daten: S.form }).then(function (j) {
-      var warNeu = !S.form.id; S.geaendert = false; S.form = JSON.parse(JSON.stringify(j.kunde)); melden("Gespeichert.");
+      var warNeu = !S.form.id; S.geaendert = false; S.form = JSON.parse(JSON.stringify(j.kunde)); FZ.daten = null; melden("Gespeichert.");
       listeLaden(); if (warNeu) akteOeffnen(j.kunde.id); else akteLaden(j.kunde.id);
     }, function (f) { b.disabled = false; melden(f.message, true); });
   },
