@@ -548,3 +548,19 @@ main { display: block; }
 @media (max-width: 700px) { .buehne .iphone { width: 30%; right: -2%; border-width: 3px; border-radius: 18px; } }
 .mac-bild { margin: 0 auto clamp(56px, 8vw, 96px); max-width: 1060px; }
 .mac-bild img { width: 100%; border-radius: 14px; border: 1px solid #23495c; box-shadow: 0 50px 120px -40px rgba(0, 0, 0, .95); }
+
+/* ===== Überzeilen ohne Schrift (Elia, 26.10.2026) =====
+   Die kleinen Versal-Überzeilen („▲ SO FUNKTIONIERT ES“) wirkten wie typischer KI-Seitenbau.
+   Sichtbar bleibt nur ein kurzer Akzentstrich über der Überschrift; der Text bleibt für
+   Screenreader erhalten (font-size 0 statt display:none). */
+.kennung, p.kennung, .kopfzeile p.kennung { display: flex; font-size: 0; line-height: 0; letter-spacing: 0; gap: 0; color: transparent; margin-bottom: 20px; }
+.kennung::before, p.kennung::before { display: block; flex: none; width: 36px; height: 2px; border-radius: 2px; clip-path: none; background: var(--akzent); opacity: .9; }
+
+/* ===== Handy: Überschriften passen in die Breite (Elia, 26.10.2026) =====
+   „Automatisierungen,“ ragte auf dem iPhone über den Rand und das Komma wurde abgeschnitten.
+   Auf schmalen Bildschirmen etwas kleiner und ohne Breitlauf; sehr lange Wörter
+   (z. B. „Datenschutzerklärung“) dürfen als letzte Rettung getrennt werden. */
+@media (max-width: 560px) {
+  h1, .start h1 { font-size: clamp(1.8rem, 8vw, 2.6rem); font-stretch: 100%; letter-spacing: -.02em; }
+  h1, h2, h3 { hyphens: auto; -webkit-hyphens: auto; overflow-wrap: break-word; }
+}
