@@ -1,12 +1,16 @@
 <!doctype html>
-<html lang="de" data-app="portal" data-glas data-thema="system">
+<html lang="de" data-app="portal" data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-Bs6loI9DsTUN7WpPGwvSmXIPM09Ap9BMxJMTrCeIxNA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-cuxHpOoZSYY/V4EVOAih6RTVGDI7s5HvhGpo6AcwR2U='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#f6f7f9">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Alpha Portal">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Kundenportal · Alpha Blueprint</title>
 <link rel="icon" href="/icon-192.png">
 <!--
@@ -360,6 +364,208 @@ html[data-glas] .reiter button[aria-current=true]{border-bottom-color:var(--akze
 .tor .pwfeld{margin-bottom:14px}.tor .pwfeld input{margin-bottom:0}
 /* Auge: klein, ganz rechts im Feld; der Rest des Feldes bleibt anklickbar. */
 .tor .pwfeld .pwauge,.pwfeld .pwauge{width:34px !important;height:34px;padding:0 !important;margin:0 !important;left:auto;right:6px;display:flex;align-items:center;justify-content:center;border-radius:8px}
+
+/* ================================================================ Kundenportal im Stil der Alpha-CRM-App (23.11.2026)
+   Gilt nur für das Kundenportal (html[data-app=portal], ohne data-glas). Systemschrift, gruppierte Karten auf
+   hellgrauem Grund, Reiter als Kapsel oben (Rechner) bzw. als Leiste unten (Handy), hell und dunkel. Das CRM bleibt, wie es ist. */
+html[data-app=portal]{
+  --grund:#f2f2f7; --karte:#fff; --karte2:#f2f2f7; --linie:rgba(60,60,67,.13); --linie2:rgba(60,60,67,.24);
+  --text:#000; --mittel:#3a3a3c; --leise:#6e6e73; --hauch:#aeaeb2;
+  --fuell:rgba(118,118,128,.12); --fuell2:rgba(118,118,128,.2); --leiste:rgba(249,249,249,.82);
+  --akzent:#0b7c93; --akzent-hell:rgba(11,124,147,.12); --akzent-tief:#096a7e; --auf-akzent:#fff;
+  --gut:#248a3d; --gut-hell:rgba(52,199,89,.16); --warn:#b25000; --warn-hell:rgba(255,149,0,.16); --schlecht:#d70015; --schlecht-hell:rgba(255,59,48,.12);
+  --schrift:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --anzeige:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --r:18px; --rk:12px; --schatten:none; --schatten2:0 20px 50px -20px rgba(0,0,0,.25);
+  color-scheme:light;
+}
+html[data-app=portal][data-thema="dunkel"]{color-scheme:dark;
+  --grund:#000; --karte:#1c1c1e; --karte2:#2c2c2e; --linie:rgba(84,84,88,.6); --linie2:rgba(84,84,88,.9);
+  --text:#fff; --mittel:#ebebf0; --leise:#98989f; --hauch:#636366;
+  --fuell:rgba(118,118,128,.24); --fuell2:rgba(118,118,128,.36); --leiste:rgba(29,29,31,.8);
+  --akzent:#46bed8; --akzent-hell:rgba(70,190,216,.18); --akzent-tief:#7fd6e8; --auf-akzent:#00222b;
+  --gut:#30d158; --gut-hell:rgba(48,209,88,.18); --warn:#ff9f0a; --warn-hell:rgba(255,159,10,.18); --schlecht:#ff453a; --schlecht-hell:rgba(255,69,58,.18);
+  --schatten2:0 20px 50px -20px rgba(0,0,0,.8)}
+@media (prefers-color-scheme:dark){html[data-app=portal][data-thema="system"]{color-scheme:dark;
+  --grund:#000; --karte:#1c1c1e; --karte2:#2c2c2e; --linie:rgba(84,84,88,.6); --linie2:rgba(84,84,88,.9);
+  --text:#fff; --mittel:#ebebf0; --leise:#98989f; --hauch:#636366;
+  --fuell:rgba(118,118,128,.24); --fuell2:rgba(118,118,128,.36); --leiste:rgba(29,29,31,.8);
+  --akzent:#46bed8; --akzent-hell:rgba(70,190,216,.18); --akzent-tief:#7fd6e8; --auf-akzent:#00222b;
+  --gut:#30d158; --gut-hell:rgba(48,209,88,.18); --warn:#ff9f0a; --warn-hell:rgba(255,159,10,.18); --schlecht:#ff453a; --schlecht-hell:rgba(255,69,58,.18);
+  --schatten2:0 20px 50px -20px rgba(0,0,0,.8)}}
+
+html[data-app=portal] body{font:400 16px/1.5 var(--schrift);background:var(--grund)}
+html[data-app=portal] h1,html[data-app=portal] h2,html[data-app=portal] h3{letter-spacing:-.02em}
+html[data-app=portal] .marke i{background:currentColor}
+html[data-app=portal] .etikett{font:600 13px/1 var(--schrift);letter-spacing:0;text-transform:none;color:var(--akzent)}
+
+/* Knöpfe und Felder wie in iOS: gefüllt, ohne Rahmen, 44 px hoch */
+html[data-app=portal] button,html[data-app=portal] .knopf{font:600 15px var(--schrift);border:0;border-radius:12px;padding:0 16px;min-height:44px;background:var(--fuell);color:var(--akzent);justify-content:center}
+html[data-app=portal] button:hover,html[data-app=portal] .knopf:hover{background:var(--fuell2)}
+html[data-app=portal] button.haupt{background:var(--akzent);color:var(--auf-akzent)}
+html[data-app=portal] button.haupt:hover{background:var(--akzent-tief)}
+html[data-app=portal] button.leise{background:transparent;color:var(--akzent)}
+html[data-app=portal] button.leise:hover{background:var(--fuell)}
+html[data-app=portal] button.gefahr{color:var(--schlecht)}
+html[data-app=portal] button.klein,html[data-app=portal] .knopf.klein{min-height:36px;padding:0 13px;font-size:14px;border-radius:10px}
+html[data-app=portal] button:focus-visible,html[data-app=portal] .knopf:focus-visible,html[data-app=portal] a:focus-visible{outline:3px solid var(--akzent);outline-offset:2px}
+html[data-app=portal] input[type=text],html[data-app=portal] input[type=password],html[data-app=portal] textarea,html[data-app=portal] select{
+  font:400 16px/1.45 var(--schrift);background:var(--fuell);border:1px solid transparent;border-radius:12px;padding:11px 13px;color:var(--text)}
+html[data-app=portal] input:focus,html[data-app=portal] textarea:focus{border-color:var(--akzent);box-shadow:0 0 0 3px var(--akzent-hell);background:var(--karte)}
+html[data-app=portal] ::placeholder{color:var(--leise);opacity:1}
+html[data-app=portal] .karte{border:0;box-shadow:none;border-radius:var(--r)}
+html[data-app=portal] .karte h2{font-size:20px;font-weight:700}
+html[data-app=portal] .pille{font-size:13px;padding:3px 10px;background:var(--fuell);color:var(--mittel)}
+html[data-app=portal] .pille.gut{background:var(--gut-hell);color:var(--gut)} html[data-app=portal] .pille.warn{background:var(--warn-hell);color:var(--warn)} html[data-app=portal] .pille.akzent{background:var(--akzent-hell);color:var(--akzent)}
+html[data-app=portal] .zahlpunkt{background:#ff3b30;color:#fff}
+html[data-app=portal] .balken{background:var(--fuell)}
+html[data-app=portal] .leer{font-size:15px;padding:22px}
+html[data-app=portal] .klein{font-size:14px}
+html[data-app=portal] .hinweis{background:var(--akzent-hell);border-radius:14px;padding:13px 15px;font-size:15px;color:var(--text)}
+
+/* Anmeldung */
+html[data-app=portal] #tor{background:var(--grund)}
+html[data-app=portal] .tor{border:0;border-radius:24px;padding:34px 26px 24px;box-shadow:var(--schatten2);max-width:410px;text-align:center}
+html[data-app=portal] .tor .marke.gross{flex-direction:column;gap:12px;font-size:15px;color:var(--leise);font-weight:600}
+html[data-app=portal] .tor .marke.gross i{width:64px;height:56px;color:var(--text)}
+html[data-app=portal] .tor h1{font-size:30px;font-weight:700;margin:14px 0 6px}
+html[data-app=portal] .tor p.unter{font-size:16px;margin-bottom:24px}
+html[data-app=portal] .tor label,html[data-app=portal] .tor .sagt,html[data-app=portal] .tor .fuss,html[data-app=portal] .tor .klein,html[data-app=portal] .tor .check{text-align:left}
+html[data-app=portal] .tor label{font-size:14px;color:var(--leise)}
+html[data-app=portal] .tor button.haupt{min-height:50px;font-size:17px;border-radius:14px}
+html[data-app=portal] .tor .fuss{border-top-color:var(--linie);font-size:14px}
+html[data-app=portal] .qr{margin-left:auto;margin-right:auto}
+
+/* Kopfleiste und Reiter */
+html[data-app=portal] .kopf{background:var(--leiste);border-bottom:1px solid var(--linie);-webkit-backdrop-filter:saturate(1.8) blur(20px);backdrop-filter:saturate(1.8) blur(20px)}
+html[data-app=portal] .kopf .innen{max-width:980px;height:56px}
+html[data-app=portal] .kopf .firma{border-left-color:var(--linie);font-size:15px}
+html[data-app=portal] .rahmen{max-width:980px;padding:26px 20px 90px}
+html[data-app=portal] .seitenkopf{margin-bottom:18px}
+html[data-app=portal] .seitenkopf h1{font-size:clamp(30px,5vw,36px);font-weight:700;line-height:1.1;margin:6px 0 0}
+html[data-app=portal] .seitenkopf p{font-size:17px;color:var(--leise);max-width:640px}
+.ptabs{position:sticky;top:57px;z-index:19;display:flex;justify-content:center;padding:10px 12px 0;pointer-events:none}
+.ptabs .reihe{pointer-events:auto;display:flex;gap:2px;padding:4px;border-radius:999px;background:var(--leiste);border:1px solid var(--linie);
+  -webkit-backdrop-filter:saturate(1.8) blur(20px);backdrop-filter:saturate(1.8) blur(20px);box-shadow:0 6px 20px -10px rgba(0,0,0,.25)}
+html[data-app=portal] .ptabs button{position:relative;min-height:36px;padding:0 16px;border-radius:999px;background:transparent;color:var(--mittel);font:600 15px var(--schrift);gap:7px}
+html[data-app=portal] .ptabs button:hover{background:var(--fuell)}
+html[data-app=portal] .ptabs button[aria-current=true]{background:var(--fuell2);color:var(--text)}
+.ptabs svg{display:none;width:25px;height:25px;flex:none}
+.ptabs .zahlpunkt{min-width:18px;height:18px;font-size:11px;padding:0 5px}
+
+/* Übersicht */
+.pheld{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.pring{flex:none;position:relative;width:104px;height:104px}
+.pring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.pring circle{fill:none;stroke-width:11;stroke-linecap:round}
+.pring .bahn{stroke:var(--fuell)} .pring .wert{stroke:var(--akzent);transition:stroke-dashoffset .5s}
+.pring.voll .wert{stroke:var(--gut)}
+.pring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:700 24px var(--anzeige)}
+.pheld .worte{flex:1;min-width:210px}
+.pheld .worte .gross{font:700 22px/1.2 var(--anzeige);letter-spacing:-.02em}
+.pheld .worte p{margin:4px 0 14px;color:var(--leise);font-size:16px}
+.ptitel{font:700 22px/1.2 var(--anzeige);letter-spacing:-.02em;margin:28px 4px 10px}
+.pliste{background:var(--karte);border-radius:var(--r);overflow:hidden}
+.pzeile{display:flex;align-items:center;gap:13px;width:100%;padding:13px 16px;text-align:left;text-decoration:none;color:var(--text);position:relative}
+html[data-app=portal] button.pzeile{border-radius:0;background:transparent;color:var(--text);font:400 16px/1.35 var(--schrift);justify-content:flex-start;white-space:normal;min-height:56px}
+html[data-app=portal] button.pzeile:hover{background:var(--fuell)}
+.pzeile+.pzeile::before{content:"";position:absolute;left:58px;right:0;top:0;border-top:1px solid var(--linie)}
+.pzeile .symbol{flex:none;width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;background:var(--fuell);color:var(--leise);font:700 14px var(--schrift)}
+.pzeile .symbol.gut{background:var(--gut);color:#fff} .pzeile .symbol.teil{background:var(--akzent-hell);color:var(--akzent)}
+.pzeile .mitte{flex:1;min-width:0}
+.pzeile .mitte b{display:block;font-weight:600}
+.pzeile .mitte span{display:block;font-size:14px;color:var(--leise)}
+.pzeile .rechts{flex:none;font-size:15px;color:var(--leise);display:flex;align-items:center;gap:6px}
+.pzeile .pfeil{color:var(--hauch);font-size:20px;line-height:1}
+.pschritte{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:16px}
+.pschritte div{background:var(--karte);border-radius:var(--r);padding:16px}
+.pschritte i{display:flex;width:30px;height:30px;border-radius:50%;background:var(--akzent);color:var(--auf-akzent);align-items:center;justify-content:center;font:700 15px var(--schrift);font-style:normal;margin-bottom:10px}
+.pschritte b{display:block;font-size:16px} .pschritte span{font-size:14.5px;color:var(--leise)}
+html[data-app=portal] .nachrichtvorschau{border:0;background:var(--fuell);border-radius:16px;padding:10px 14px;margin:8px 0;font-size:15px;color:var(--text)}
+html[data-app=portal] .nachrichtvorschau.admin{background:var(--akzent-hell)}
+html[data-app=portal] .doczeile{border-top-color:var(--linie)}
+html[data-app=portal] .docsymbol{border-radius:9px;font:700 10px var(--schrift)}
+html[data-app=portal] .doczeile .titel{font-weight:600}
+
+/* Unterlagen */
+html[data-app=portal] .unterlagen{grid-template-columns:240px minmax(0,1fr);gap:24px}
+html[data-app=portal] .inhalt{top:122px;background:var(--karte);border-radius:var(--r);padding:8px}
+html[data-app=portal] .inhalt a{font-size:15px;border-radius:10px;color:var(--text);align-items:center}
+html[data-app=portal] .inhalt a:hover{background:var(--fuell)}
+html[data-app=portal] .inhalt a .z{font:600 13px var(--schrift);color:var(--leise)}
+html[data-app=portal] .inhalt a.fertig .z{color:var(--gut)}
+html[data-app=portal] .abschnitt{scroll-margin-top:124px;margin-bottom:30px}
+html[data-app=portal] .abschnitt>.kopfzeile h2{font-size:22px;font-weight:700}
+html[data-app=portal] .punkt{padding:18px;margin-bottom:12px}
+html[data-app=portal] .status{width:26px;height:26px;border:2px solid var(--linie2);font-size:14px;font-weight:700;margin-top:0}
+html[data-app=portal] .punkt.fertig .status{background:var(--gut);border-color:var(--gut)}
+html[data-app=portal] .punkt h3{font:600 17px/1.35 var(--schrift)}
+html[data-app=portal] .punkt .warum{font-size:15px}
+html[data-app=portal] .punkt .koerper{margin-left:38px}
+html[data-app=portal] .punkt ul.details{font-size:15px;color:var(--mittel)}
+html[data-app=portal] .punkt .gespeichert{font-size:13px;color:var(--gut);font-weight:600}
+html[data-app=portal] button.hoch{width:100%;min-height:52px;border:1.5px dashed var(--linie2);background:transparent;color:var(--akzent);border-radius:14px;font-size:16px;gap:9px;white-space:normal}
+html[data-app=portal] button.hoch:hover{background:var(--akzent-hell);border-color:var(--akzent)}
+.hoch svg{width:22px;height:22px;flex:none}
+html[data-app=portal] .werkzeuge{flex-direction:column;align-items:stretch}
+html[data-app=portal] .werkzeuge .zusatz{align-self:flex-start}
+html[data-app=portal] .dateien li{background:var(--fuell);border:0;border-radius:12px;padding:10px 12px;font-size:15px}
+html[data-app=portal] .dateien .g{font:400 13px var(--schrift);color:var(--leise)}
+html[data-app=portal] .dateien .s{font-size:14px;font-weight:600}
+
+/* Nachrichten */
+html[data-app=portal] .blase{font-size:16px;border-radius:19px;padding:9px 14px}
+html[data-app=portal] .blase.ich{color:var(--auf-akzent)}
+html[data-app=portal] .blase.ich .von{color:inherit;opacity:.75}
+html[data-app=portal] .blase.du{background:var(--fuell);border:0}
+html[data-app=portal] .schreiben{border-top-color:var(--linie)}
+html[data-app=portal] .tabelle th{background:transparent;font-size:13px;border-bottom-color:var(--linie)}
+html[data-app=portal] .tabelle td{border-bottom-color:var(--linie);font-size:15px}
+html[data-app=portal] .kundenliste button{justify-content:space-between;color:var(--text);background:transparent;min-height:52px}
+html[data-app=portal] .kundenliste button[aria-current=true]{background:var(--akzent-hell);color:var(--text)}
+html[data-app=portal] .reiter button{background:transparent;border-radius:0;color:var(--leise);min-height:44px}
+html[data-app=portal] .reiter button[aria-current=true]{color:var(--text)}
+html[data-app=portal] #meldung div{background:var(--karte2);color:var(--text);border-radius:14px;font-size:15px;box-shadow:var(--schatten2);border:1px solid var(--linie)}
+html[data-app=portal] #meldung div.fehler{background:var(--schlecht);color:#fff;border-color:transparent}
+html[data-app=portal] .themaknopf{width:44px;height:44px;border-radius:50%;padding:0;background:var(--karte);color:var(--mittel);box-shadow:0 4px 14px -6px rgba(0,0,0,.3);border:1px solid var(--linie)}
+html[data-app=portal] .pwauge{min-height:0}
+html[data-app=portal] #vorschau .kopf-v{border-bottom-color:var(--linie)}
+
+@media (max-width:760px){
+  /* Handy: Reiter als Leiste unten, wie in der App */
+  .ptabs{position:fixed;top:auto;left:0;right:0;bottom:0;padding:0;z-index:30}
+  .ptabs .reihe{width:100%;border-radius:0;border:0;border-top:1px solid var(--linie);padding:6px 4px calc(6px + env(safe-area-inset-bottom));gap:0;box-shadow:none;justify-content:space-around}
+  html[data-app=portal] .ptabs button{flex:1;flex-direction:column;gap:2px;min-height:50px;padding:2px 2px;font-size:11px;font-weight:600;color:var(--leise);border-radius:10px}
+  html[data-app=portal] .ptabs button[aria-current=true]{background:transparent;color:var(--akzent)}
+  html[data-app=portal] .ptabs button:hover{background:transparent}
+  .ptabs svg{display:block}
+  .ptabs .zahlpunkt{position:absolute;top:0;left:calc(50% + 6px)}
+  html[data-app=portal] .rahmen{padding:18px 16px calc(96px + env(safe-area-inset-bottom))}
+  html[data-app=portal] .themaknopf{bottom:calc(78px + env(safe-area-inset-bottom));right:14px}
+  html[data-app=portal] #meldung{bottom:calc(78px + env(safe-area-inset-bottom));left:14px;right:66px;max-width:none}
+  html[data-app=portal] .unterlagen{grid-template-columns:1fr}
+  html[data-app=portal] .inhalt{position:static;background:transparent;padding:0;border-radius:0;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px;padding:0 16px}
+  html[data-app=portal] .inhalt a{background:var(--karte);border:0;border-radius:999px;padding:8px 14px;white-space:nowrap;gap:8px}
+  html[data-app=portal] .punkt .koerper{margin-left:0}
+  html[data-app=portal] .abschnitt{scroll-margin-top:70px}
+  .pschritte{grid-template-columns:1fr}
+  .pschritte div{display:grid;grid-template-columns:30px 1fr;gap:2px 12px;padding:14px 16px}
+  .pschritte i{grid-row:1/3;margin:0}
+  .pheld{gap:16px}
+  .pring{width:84px;height:84px} .pring b{font-size:20px}
+  html[data-app=portal] .doczeile{flex-wrap:wrap}
+  html[data-app=portal] .doczeile .aktionen{flex-basis:100%;justify-content:flex-start;padding-left:50px}
+  html[data-app=portal] .schreiben{flex-direction:column;align-items:stretch}
+  html[data-app=portal] .kopf .wer{display:none}
+}
+/* Nach der Anmeldung steht die Darstellung unter „Zugang“; der schwebende Knopf bleibt nur auf der Anmeldeseite. */
+html[data-app=portal] #app:not([hidden]) ~ .themaknopf{display:none}
+.pwahl{display:flex;gap:4px;padding:4px;border-radius:12px;background:var(--fuell)}
+html[data-app=portal] .pwahl button{flex:1;min-height:36px;padding:0 8px;border-radius:9px;background:transparent;color:var(--text);font-size:14px;white-space:normal}
+html[data-app=portal] .pwahl button[aria-pressed=true]{background:var(--karte);box-shadow:0 1px 4px rgba(0,0,0,.18)}
+html[data-app=portal] .punkt textarea{min-height:88px}
+html[data-app=portal] .abschnitt>.kopfzeile .klein{flex:1 1 260px;min-width:0}
+@media (prefers-reduced-motion:reduce){html[data-app=portal] *{transition:none !important}}
 
 </style>
 </head>
@@ -830,36 +1036,68 @@ function kopf(reiter) {
     '<span class="rechts"><span class="wer">' + esc(S.P.benutzer) + '</span>' + (S.admin ? '<button type="button" class="klein leise" data-tun="einstellungen">Einstellungen</button>' : "") + '<button type="button" class="klein" data-tun="abmelden">Abmelden</button></span></div>' +
     (reiter ? '<nav class="reiter">' + reiter + "</nav>" : "") + "</header>";
 }
+/* Reiter der Kundenansicht: am Rechner eine Kapsel unter der Kopfleiste, am Handy die Leiste unten (wie in der App). */
+var TAB_BILD = {
+  uebersicht: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.8V20h13V9.8"/><path d="M10 20v-5h4v5"/></svg>',
+  unterlagen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 1.6 1.6L8.4 5"/><path d="m4 12.5 1.6 1.6 2.8-3.1"/><path d="m4 18.5 1.6 1.6 2.8-3.1"/><path d="M12 6.5h8M12 12.5h8M12 18.5h8"/></svg>',
+  dokumente: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3.5H7a1.5 1.5 0 0 0-1.5 1.5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3.5V8h4.5"/><path d="M9 13h6M9 16.5h6"/></svg>',
+  nachrichten: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6c0 4-3.8 7.2-8.5 7.2-1.1 0-2.2-.2-3.200-.5L4 20l1.300-3.600c-1.100-1.300-1.800-3-1.800-4.800 0-4 3.800-7.200 8.500-7.200s8.500 3.200 8.500 7.200z"/></svg>',
+  einstellungen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="3.6"/><path d="M5 20c.8-3.200 3.600-5.200 7-5.200s6.200 2 7 5.200"/></svg>'
+};
+function tabKnopf(id, text, zahl) {
+  return '<button type="button" data-sicht="' + id + '" aria-current="' + (S.sicht === id) + '">' + TAB_BILD[id] + "<span>" + text + "</span>" + (zahl ? ' <span class="zahlpunkt" aria-label="' + zahl + ' neu">' + zahl + "</span>" : "") + "</button>";
+}
+function ring(n, alle) {
+  var u = 2 * Math.PI * 44, anteil = alle ? n / alle : 0;
+  return '<div class="pring' + (alle && n === alle ? " voll" : "") + '" role="img" aria-label="' + n + " von " + alle + ' erledigt"><svg viewBox="0 0 104 104"><circle class="bahn" cx="52" cy="52" r="44"/>' +
+    '<circle class="wert" cx="52" cy="52" r="44" stroke-dasharray="' + u.toFixed(1) + '" stroke-dashoffset="' + (u * (1 - anteil)).toFixed(1) + '"/></svg><b>' + Math.round(anteil * 100) + " %</b></div>";
+}
+/* Die Einleitung ist bei Listen vom Mac ein Feld mit zwei Sätzen, bei im CRM angelegten Portalen ein einzelner Satz. */
+function einleitung(K, i) { var e = K.einleitung; return Array.isArray(e) ? (e[i] || "") : (i === 0 ? String(e || "") : ""); }
+var HOCH_BILD = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 15.500V4.500"/><path d="m7.500 8.800 4.500-4.500 4.500 4.500"/><path d="M5 14.500v3A1.500 1.500 0 0 0 6.500 19h11a1.500 1.500 0 0 0 1.500-1.500v-3"/></svg>';
+
 function reiterKnopf(id, text, zahl) {
   return '<button type="button" data-sicht="' + id + '" aria-current="' + (S.sicht === id) + '">' + text + (zahl ? ' <span class="zahlpunkt">' + zahl + "</span>" : "") + "</button>";
 }
 
 /* ---------------------------------------------------------------- Kunde */
 function kundenSeite() {
-  var neueDok = (S.stand && S.stand.dokumente || []).length;
-  var r = reiterKnopf("uebersicht", "Übersicht") + reiterKnopf("unterlagen", "Unterlagen") +
-    reiterKnopf("dokumente", "Dokumente", 0) + reiterKnopf("nachrichten", "Nachrichten", ungelesen()) + reiterKnopf("einstellungen", "Einstellungen");
+  var tabs = '<nav class="ptabs" aria-label="Bereiche"><div class="reihe">' + tabKnopf("uebersicht", "Übersicht") + tabKnopf("unterlagen", "Unterlagen") +
+    tabKnopf("dokumente", "Dokumente") + tabKnopf("nachrichten", "Nachrichten", ungelesen()) + tabKnopf("einstellungen", "Zugang") + "</div></nav>";
   var inhalt = S.sicht === "einstellungen" ? einstellungen() : !S.stand ? '<div class="leer">Lädt …</div>'
     : S.sicht === "unterlagen" ? kUnterlagen() : S.sicht === "dokumente" ? kDokumente() : S.sicht === "nachrichten" ? nachrichtenKarte("Ihre Nachricht an Alpha Blueprint …") : kUebersicht();
-  void neueDok;
-  return kopf(r) + '<main class="rahmen">' + inhalt + "</main>";
+  return kopf("") + tabs + '<main class="rahmen">' + inhalt + "</main>";
 }
 function kUebersicht() {
   var K = S.P.kunde, alle = allePunkte(), n = alle.filter(function (p) { return fertig(p.id); }).length;
   var naechster = null;
   K.abschnitte.forEach(function (a, i) { if (!naechster && a.punkte.some(function (p) { return !fertig(p.id); })) naechster = { a: a, i: i }; });
   var dok = S.stand.dokumente.slice(0, 3), msg = S.stand.nachrichten.slice(-2);
-  return '<div class="seitenkopf"><div><span class="etikett">Kundenportal</span><h1>Willkommen, ' + esc(K.kurzname) + '</h1><p>' + esc(K.einleitung[0]) + "</p></div></div>" +
-    '<div class="karte pad" style="margin-bottom:16px"><div class="held"><div><span class="etikett">Ihre Unterlagen</span><div style="margin-top:8px"><span class="zahl">' + n + '</span> <span class="leise">von ' + alle.length + ' Punkten erledigt</span></div>' +
-    '<div class="balken"><i style="width:' + (n / alle.length * 100) + '%"></i></div></div>' +
-    (naechster ? '<div><div class="klein leise">Als Nächstes</div><div style="font-weight:650;margin:2px 0 10px">' + esc(naechster.a.titel) + '</div><button type="button" class="haupt" data-gehe="' + naechster.i + '">Weiter ausfüllen</button></div>'
-      : '<span class="pille gut">Alles erledigt, vielen Dank</span>') + "</div></div>" +
-    '<div class="raster zwei"><div class="karte pad"><div class="kartenkopf"><h2>Dokumente von Alpha Blueprint</h2><button type="button" class="klein leise" data-sicht="dokumente">Alle</button></div>' +
-    (dok.length ? dok.map(dokZeile).join("") : '<div class="leer">Noch keine Dokumente.</div>') + "</div>" +
-    '<div class="karte pad"><div class="kartenkopf"><h2>Nachrichten</h2>' + (ungelesen() ? '<span class="pille akzent">' + ungelesen() + " neu</span>" : "") + "</div>" +
-    (msg.length ? msg.map(function (m) { return '<div class="nachrichtvorschau ' + m.von_rolle + '"><span class="klein leise">' + esc(m.von_name) + " · " + datum(m.angelegt, true) + "</span><br>" + esc(m.text.length > 160 ? m.text.slice(0, 160) + " …" : m.text) + "</div>"; }).join("") : '<p class="leise klein">Fragen? Schreiben Sie uns hier, wir antworten persönlich.</p>') +
-    '<button type="button" class="klein" data-sicht="nachrichten" style="margin-top:8px">Nachricht schreiben</button></div></div>' +
-    '<p class="klein leise" style="margin-top:22px">Ihre Dateien liegen in einem Rechenzentrum in Frankfurt. Bitte tragen Sie keine Passwörter ein. Zugänge richten wir gemeinsam ein.</p>';
+  var offeneRueckgaben = S.stand.dokumente.filter(function (d) { return d.rueckgabe && !uploadsVon("r-" + d.id.slice(0, 8)).length; }).length;
+  var held = !alle.length
+    ? '<div class="pheld"><div class="worte"><div class="gross">Im Moment brauchen wir nichts von Ihnen</div><p>Sobald wir Unterlagen benötigen, erscheinen sie hier. Dokumente und Nachrichten finden Sie in den Bereichen daneben.</p></div></div>'
+    : '<div class="pheld">' + ring(n, alle.length) + '<div class="worte">' +
+      (naechster ? '<div class="gross">' + n + " von " + alle.length + " Punkten erledigt</div><p>Als Nächstes: " + esc(naechster.a.titel.replace(/^\d+ · /, "")) + '</p><button type="button" class="haupt" data-gehe="' + naechster.i + '">' + (n ? "Weiter ausfüllen" : "Jetzt anfangen") + "</button>"
+        : '<div class="gross">Alles erledigt. Vielen Dank!</div><p>Wir haben alle Unterlagen. Wenn sich etwas ändert, können Sie Ihre Angaben jederzeit anpassen.</p>') + "</div></div>";
+  var schritte = alle.length && n < alle.length ? '<div class="pschritte">' +
+    "<div><i>1</i><b>Beantworten oder hochladen</b><span>Zu jedem Punkt schreiben Sie kurz etwas oder laden eine Datei hoch. Ein Foto vom Handy genügt.</span></div>" +
+    "<div><i>2</i><b>Speichert sich von selbst</b><span>Sie müssen nichts absenden. Sie können jederzeit aufhören und später weitermachen.</span></div>" +
+    "<div><i>3</i><b>Fragen? Einfach schreiben</b><span>Unter „Nachrichten“ erreichen Sie uns direkt. Wir antworten persönlich.</span></div></div>" : "";
+  var liste = alle.length ? '<h2 class="ptitel">Ihre Unterlagen</h2><div class="pliste">' + K.abschnitte.map(function (a, i) {
+    var f = a.punkte.filter(function (p) { return fertig(p.id); }).length, voll = f === a.punkte.length;
+    return '<button type="button" class="pzeile" data-gehe="' + i + '"><span class="symbol ' + (voll ? "gut" : f ? "teil" : "") + '">' + (voll ? "✓" : i + 1) + '</span><span class="mitte"><b>' + esc(a.titel.replace(/^\d+ · /, "")) + "</b><span>" +
+      (voll ? "erledigt" : f ? f + " von " + a.punkte.length + " erledigt" : a.punkte.length + (a.punkte.length === 1 ? " Punkt offen" : " Punkte offen")) + '</span></span><span class="rechts"><span class="pfeil" aria-hidden="true">›</span></span></button>';
+  }).join("") + "</div>" : "";
+  return '<div class="seitenkopf"><div><span class="etikett">Kundenportal</span><h1>Willkommen, ' + esc(K.kurzname || K.name) + "</h1>" + (einleitung(K, 0) ? "<p>" + esc(einleitung(K, 0)) + "</p>" : "") + "</div></div>" +
+    '<div class="karte pad">' + held + "</div>" + schritte + liste +
+    '<h2 class="ptitel">Dokumente von Alpha Blueprint</h2><div class="karte pad">' +
+    (offeneRueckgaben ? '<div class="hinweis" style="margin-bottom:10px"><span>✍︎</span><span><b>' + offeneRueckgaben + (offeneRueckgaben === 1 ? " Dokument wartet" : " Dokumente warten") + " auf Ihre Unterschrift.</b> Öffnen, unterschreiben und hier wieder hochladen.</span></div>" : "") +
+    (dok.length ? dok.map(dokZeile).join("") + (S.stand.dokumente.length > 3 ? '<button type="button" class="klein leise" data-sicht="dokumente" style="margin-top:6px">Alle ' + S.stand.dokumente.length + " Dokumente ansehen</button>" : "")
+      : '<div class="leer">Noch keine Dokumente. Verträge und Angebote stellen wir Ihnen hier bereit.</div>') + "</div>" +
+    '<h2 class="ptitel">Nachrichten' + (ungelesen() ? ' <span class="pille akzent" style="vertical-align:3px">' + ungelesen() + " neu</span>" : "") + '</h2><div class="karte pad">' +
+    (msg.length ? msg.map(function (m) { return '<div class="nachrichtvorschau ' + m.von_rolle + '"><span class="klein leise">' + esc(m.von_name) + " · " + datum(m.angelegt, true) + "</span><br>" + esc(m.text.length > 160 ? m.text.slice(0, 160) + " …" : m.text) + "</div>"; }).join("") : '<p class="leise" style="margin:0 0 10px">Fragen? Schreiben Sie uns hier, wir antworten persönlich.</p>') +
+    '<button type="button" data-sicht="nachrichten" style="margin-top:8px">Nachricht schreiben</button></div>' +
+    '<p class="klein leise" style="margin:22px 4px 0">Ihre Dateien liegen geschützt in einem Rechenzentrum in Frankfurt. Bitte tragen Sie keine Passwörter ein. Zugänge richten wir gemeinsam ein.</p>';
 }
 function kUnterlagen() {
   var K = S.P.kunde;
@@ -867,8 +1105,9 @@ function kUnterlagen() {
     var f = a.punkte.filter(function (p) { return fertig(p.id); }).length;
     return '<a href="#abschnitt-' + i + '" class="' + (f === a.punkte.length ? "fertig" : "") + '"><span>' + esc(a.titel.replace(/^\d+ · /, "")) + '</span><span class="z">' + f + "/" + a.punkte.length + "</span></a>";
   }).join("");
-  return '<div class="seitenkopf"><div><span class="etikett">Unterlagen</span><h1>' + esc(K.titel) + '</h1><p>' + esc(K.einleitung[1] || "") + '</p></div></div>' +
-    '<div class="hinweis" style="margin-bottom:22px"><span>ⓘ</span><span><b>Antworten speichern sich selbst.</b> Dateien gehen sofort hinaus, sobald Sie sie auswählen. Höchstens 50 MB je Datei.</span></div>' +
+  if (!K.abschnitte.length) return '<div class="seitenkopf"><div><span class="etikett">Unterlagen</span><h1>' + esc(K.titel || "Ihre Unterlagen") + '</h1></div></div><div class="karte pad leer">Im Moment brauchen wir keine Unterlagen von Ihnen.</div>';
+  return '<div class="seitenkopf"><div><span class="etikett">Unterlagen</span><h1>' + esc(K.titel || "Ihre Unterlagen") + "</h1>" + (einleitung(K, 1) ? "<p>" + esc(einleitung(K, 1)) + "</p>" : "") + '</div></div>' +
+    '<div class="hinweis" style="margin-bottom:20px"><span>ⓘ</span><span><b>Sie müssen nichts absenden.</b> Antworten speichern sich von selbst, Dateien sind hochgeladen, sobald der grüne Haken erscheint. Höchstens 50 MB je Datei.</span></div>' +
     '<div class="unterlagen"><nav class="inhalt">' + index + "</nav><div>" +
     K.abschnitte.map(function (a, i) {
       return '<section class="abschnitt" id="abschnitt-' + i + '"><div class="kopfzeile"><h2>' + esc(a.titel) + '</h2><span class="klein leise">' + esc(a.hinweis || "") + "</span></div>" + a.punkte.map(punktKarte).join("") + "</section>";
@@ -877,10 +1116,10 @@ function kUnterlagen() {
 function dateiListe(liste, laufend) {
   if (!liste.length && !laufend.length) return "";
   return '<ul class="dateien">' + liste.map(function (u) {
-    return '<li><span class="n">' + (u.url ? '<a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.datei) + "</a>" : esc(u.datei)) + '</span><span class="g">' + groesse(u.groesse) + '</span><span class="s ok">✓ ' + datum(u.angelegt) + "</span></li>";
+    return '<li><span class="n">' + (u.url ? '<a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.datei) + "</a>" : esc(u.datei)) + '</span><span class="g">' + groesse(u.groesse) + '</span><span class="s ok">✓ hochgeladen am ' + datum(u.angelegt) + "</span></li>";
   }).join("") + laufend.map(function (u) {
     return '<li data-upload="' + u.id + '"><span class="n">' + esc(u.name) + '</span><span class="g">' + groesse(u.groesse) + "</span>" +
-      (u.stand === "fehler" ? '<span class="s fehler">✗ ' + esc(u.grund) + '</span><button type="button" class="klein leise" data-weg="' + u.id + '">Ausblenden</button>'
+      (u.stand === "fehler" ? '<span class="s fehler">✗ Nicht hochgeladen: ' + esc(u.grund) + '</span><button type="button" class="klein leise" data-weg="' + u.id + '">Ausblenden</button>'
         : '<span class="s laeuft">wird hochgeladen …</span><span class="dbalken"><i style="width:' + Math.round(u.anteil * 100) + '%"></i></span>') + "</li>";
   }).join("") + "</ul>";
 }
@@ -891,8 +1130,8 @@ function punktKarte(p) {
     (p.warum ? '<p class="warum">' + esc(p.warum) + "</p>" : "") + '</div></div><div class="koerper">' +
     (p.details ? '<ul class="details">' + p.details.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : "") +
     '<div class="feld"><textarea rows="2" data-schluessel="a-' + p.id + '" data-antwort="' + p.id + '" placeholder="' + esc(p.feld || "Ihre Antwort") + '">' + esc(antwortVon(p.id)) + '</textarea><span class="gespeichert" data-gesp="' + p.id + '"></span></div>' +
-    '<div class="werkzeuge"><button type="button" class="klein" data-waehlen="' + p.id + '">↑ Dateien hochladen</button><input type="file" multiple hidden data-eingabe="' + p.id + '">' +
-    (v ? '<button type="button" class="klein leise" data-vorlage="' + esc(p.vorlage) + '">Excel-Vorlage herunterladen</button>' : "") + "</div>" +
+    '<div class="werkzeuge"><button type="button" class="hoch" data-waehlen="' + p.id + '">' + HOCH_BILD + '<span>Datei hochladen oder Foto aufnehmen</span></button><input type="file" multiple hidden data-eingabe="' + p.id + '">' +
+    (v ? '<button type="button" class="klein zusatz" data-vorlage="' + esc(p.vorlage) + '">Excel-Vorlage herunterladen</button>' : "") + "</div>" +
     dateiListe(uploadsVon(p.id), laufend) + "</div></div>";
 }
 function dokZeile(d) {
@@ -910,17 +1149,23 @@ function kDokumente() {
   var d = S.stand.dokumente, u = S.stand.uploads;
   return '<div class="seitenkopf"><div><span class="etikett">Dokumente</span><h1>Ihre Dokumente</h1><p>Was wir Ihnen bereitstellen, etwa Verträge und Angebote, und alles, was Sie uns geschickt haben.</p></div></div>' +
     '<div class="karte pad" style="margin-bottom:16px"><h2>Von Alpha Blueprint</h2>' + (d.length ? d.map(dokZeile).join("") : '<div class="leer">Noch keine Dokumente.</div>') + "</div>" +
-    '<div class="karte"><div class="pad" style="padding:20px 22px 6px"><h2>Von Ihnen hochgeladen</h2></div>' +
-    (u.length ? '<table class="tabelle"><thead><tr><th>Datei</th><th>Zu</th><th>Von</th><th>Datum</th></tr></thead><tbody>' +
-      u.slice().reverse().map(function (x) { return '<tr><td>' + (x.url ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.datei) + "</a>" : esc(x.datei)) + '<div class="klein leise">' + groesse(x.groesse) + '</div></td><td>' + esc(punktTitel(x.punkt)) + "</td><td>" + esc(x.zugang) + "</td><td>" + datum(x.angelegt, true) + "</td></tr>"; }).join("") + "</tbody></table>"
-      : '<div class="leer">Noch nichts hochgeladen.</div>') + "</div>";
+    '<div class="karte pad"><h2>Von Ihnen hochgeladen</h2>' +
+    (u.length ? u.slice().reverse().map(function (x) {
+      return '<div class="doczeile"><span class="docsymbol">' + esc(endung(x.datei)) + '</span><div class="mehr"><div class="titel">' + (x.url ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.datei) + "</a>" : esc(x.datei)) + "</div>" +
+        '<div class="klein leise">' + esc(punktTitel(x.punkt)) + " · " + datum(x.angelegt, true) + " · " + groesse(x.groesse) + "</div></div></div>";
+    }).join("") : '<div class="leer">Noch nichts hochgeladen.</div>') + "</div>";
 }
 function einstellungen() {
-  return '<div class="seitenkopf"><div><span class="etikett">Einstellungen</span><h1>' + (S.admin ? "Dein Zugang" : "Ihr Zugang") + '</h1></div></div>' + '<div class="raster zwei">' + passwortKarte(S.P.benutzer, S.admin) + '<div style="display:grid;gap:16px;align-content:start">' + sicherheitKarten(S.admin) + "</div></div>";
+  return '<div class="seitenkopf"><div><span class="etikett">Einstellungen</span><h1>' + (S.admin ? "Dein Zugang" : "Ihr Zugang") + "</h1>" + (S.admin ? "" : "<p>Angemeldet als " + esc(S.P.benutzer) + ". Hier ändern Sie Ihr Passwort und sehen, auf welchen Geräten Sie angemeldet sind.</p>") + '</div></div>' + '<div class="raster zwei">' + passwortKarte(S.P.benutzer, S.admin) + '<div style="display:grid;gap:16px;align-content:start">' + sicherheitKarten(S.admin) + darstellungKarte() + "</div></div>";
+}
+function darstellungKarte() {
+  var wahl = [["system", "Wie das Gerät"], ["hell", "Hell"], ["dunkel", "Dunkel"]];
+  return '<div class="karte pad"><h2>Darstellung</h2><p class="klein leise" style="margin:2px 0 12px">Gilt nur auf diesem Gerät.</p><div class="pwahl" role="group" aria-label="Darstellung">' +
+    wahl.map(function (x) { return '<button type="button" data-themawahl="' + x[0] + '" aria-pressed="' + (THEMA === x[0]) + '">' + x[1] + "</button>"; }).join("") + "</div></div>";
 }
 function nachrichtenKarte(platz) {
   var n = S.stand.nachrichten, ich = S.admin ? "admin" : "kunde";
-  return (S.admin ? "" : '<div class="seitenkopf"><div><span class="etikett">Nachrichten</span><h1>Austausch mit Alpha Blueprint</h1><p>Elia Nedvidek liest jede Nachricht persönlich.</p></div></div>') +
+  return (S.admin ? "" : '<div class="seitenkopf"><div><span class="etikett">Nachrichten</span><h1>Nachrichten</h1><p>Schreiben Sie uns hier. Elia Nedvidek liest jede Nachricht persönlich und antwortet Ihnen an dieser Stelle.</p></div></div>') +
     '<div class="karte"><div class="verlauf">' + (n.length ? n.map(function (m) {
       return '<div class="blase ' + (m.von_rolle === ich ? "ich" : "du") + '"><span class="von">' + esc(m.von_name) + " · " + datum(m.angelegt, true) + "</span>" + esc(m.text) + "</div>";
     }).join("") : '<div class="leer">Noch keine Nachrichten.</div>') + "</div>" +
@@ -1068,6 +1313,7 @@ function verdrahten() {
   w.querySelectorAll("[data-zurueck]").forEach(function (b) { b.onclick = function () {
     b.disabled = true; api("zurueckziehen", { id: b.dataset.zurueck }).then(function () { S.bestaetigen = null; melden("Zurückgezogen."); laden(true); }, function (f) { melden(f.message, true); }); }; });
   sicherheitVerdrahten();
+  w.querySelectorAll("[data-themawahl]").forEach(function (b) { b.onclick = function () { themaSetzen(b.dataset.themawahl); zeichnen(); }; });
   var bd = document.getElementById("bereitDatei");
   if (bd) bd.onchange = function () { S.datei = bd.files[0] || null; if (S.datei && !S.entwurf.titel) S.entwurf.titel = S.datei.name.replace(/\.[^.]+$/, ""); zeichnen(); };
 }
