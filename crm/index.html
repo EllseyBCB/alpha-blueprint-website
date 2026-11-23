@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="crm" data-glas data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-NmWsfz1WQ2SO6ssSeteSUwEbmELVdgBvmzGBmyNbOv4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-9BiVU+ZEmqcvgljDs5AQstRAM1tMrhk4sEZVJVUr8Zw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -561,6 +561,32 @@ html[data-app=portal] .pwahl button{flex:1;min-height:36px;padding:0 8px;border-
 html[data-app=portal] .pwahl button[aria-pressed=true]{background:var(--karte);box-shadow:0 1px 4px rgba(0,0,0,.18)}
 html[data-app=portal] .punkt textarea{min-height:88px}
 html[data-app=portal] .abschnitt>.kopfzeile .klein{flex:1 1 260px;min-width:0}
+/* „Bei uns nicht vorhanden“ und eigene Punkte */
+.zusatzreihe{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:center}
+.zusatzreihe:empty{display:none}
+.nvzeile{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+html[data-app=portal] .punkt.nichtda .status{background:var(--hauch);border-color:var(--hauch)}
+html[data-app=portal] .punkt.nichtda h3,html[data-app=portal] .punkt.nichtda .warum{color:var(--leise)}
+html[data-app=portal] .punkt.eigen .feld{display:grid;gap:8px}
+html[data-app=portal] .punkt.eigen .eigentitel{font-weight:600}
+html[data-app=portal] .punkt.eigen .koerper{margin-left:0}
+html[data-app=portal] button.hoch.neu{font-size:17px;min-height:56px;background:var(--karte);border-style:solid;border-color:transparent}
+html[data-app=portal] button.hoch.neu:hover{background:var(--akzent-hell);border-color:transparent}
+html[data-app=portal] #abschnitt-eigen{scroll-margin-top:124px}
+/* Punkte mit einzelnen Feldern */
+.feldblock{margin-top:12px;display:grid;gap:12px}
+.eintrag{background:var(--fuell);border-radius:14px;padding:12px 14px 14px}
+.eintrag .ekopf{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;font-size:15px}
+.efelder{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+.efelder label,.freifeld{display:block}
+.efelder label span,.freifeld span{display:block;font-size:13px;font-weight:600;color:var(--leise);margin:0 0 4px 2px}
+html[data-app=portal] .eintrag input[type=text],html[data-app=portal] .eintrag select{background:var(--karte);width:100%;padding:9px 12px}
+html[data-app=portal] .feldblock>button{justify-self:start}
+html[data-app=portal] .freifeld textarea{min-height:64px}
+html[data-app=portal] .zusatzreihe{margin-top:2px}
+.zusatzreihe .links,.zusatzreihe .rechtsg{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+html[data-app=portal] .punkt .gespeichert{position:static;font-size:14px}
+@media (max-width:760px){.efelder{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){html[data-app=portal] *{transition:none !important}}
 
 </style>
@@ -1108,12 +1134,18 @@ function start() {
         (k.naechster_termin ? '<span class="pille ' + (spaet ? "warn" : "") + '">' + datum(k.naechster_termin) + "</span>" : "") + "</div>";
     }).join("") : '<div class="leer">Keine offenen Schritte.</div>') + "</div></div>";
 }
+/* Eigene Punkte des Kunden im Portal: Kennung „eigen-…“, erste Zeile der Antwort ist die Überschrift. */
+function punktName(pp, id, text) {
+  if (pp[id]) return pp[id].frage;
+  if (String(id).indexOf("eigen-") === 0) return "Eigener Punkt" + (text ? ": " + String(text).split("\n")[0] : "");
+  return id;
+}
 function ereignis(e) {
   var k = kundeZuKennung(e.kunde), name = k ? k.firma : e.kunde;
   var pp = portalPunkte(e.kunde).punkte;
-  var was = e.art === "datei" ? '<b>' + esc(e.zugang) + "</b> hat eine Datei hochgeladen: " + (e.url ? '<a href="' + esc(e.url) + '" target="_blank" rel="noopener">' + esc(e.datei) + "</a>" : esc(e.datei)) + (e.punkt ? ' <span class="leise">· ' + esc((pp[e.punkt] || {}).frage || e.punkt) + "</span>" : "")
+  var was = e.art === "datei" ? '<b>' + esc(e.zugang) + "</b> hat eine Datei hochgeladen: " + (e.url ? '<a href="' + esc(e.url) + '" target="_blank" rel="noopener">' + esc(e.datei) + "</a>" : esc(e.datei)) + (e.punkt ? ' <span class="leise">· ' + esc(punktName(pp, e.punkt)) + "</span>" : "")
     : e.art === "nachricht" ? "<b>" + esc(e.zugang) + "</b> schreibt" + (e.neu ? ' <span class="pille akzent">neu</span>' : "") + ':<div class="text">' + esc(e.text.length > 220 ? e.text.slice(0, 220) + " …" : e.text) + "</div>"
-    : "<b>" + esc(e.zugang) + "</b> hat geantwortet: " + esc((pp[e.punkt] || {}).frage || e.punkt) + '<div class="text">' + esc(e.text.length > 160 ? e.text.slice(0, 160) + " …" : e.text) + "</div>";
+    : "<b>" + esc(e.zugang) + "</b> hat geantwortet: " + esc(punktName(pp, e.punkt, e.text)) + '<div class="text">' + esc(e.text.length > 160 ? e.text.slice(0, 160) + " …" : e.text) + "</div>";
   var frage = S.bestaetigen === "f" + e.schluessel;
   return '<div class="ereignis"><span class="icon ' + e.art + '">' + (e.art === "datei" ? "↑" : e.art === "nachricht" ? "✉" : "✓") + '</span><div class="was"><div class="klein leise">' +
     (k ? '<a href="#" data-akte="' + k.id + '" data-zu="portal">' + esc(name) + "</a>" : esc(name)) + " · " + datum(e.wann, true) + "</div>" + was + "</div>" +
@@ -1246,6 +1278,14 @@ function portalReiter() {
             (!t && !f.length ? '<span class="leise">–</span>' : "") + "</td></tr>";
         }).join("") + "</tbody></table></div>";
       }).join("") : '<div class="karte pad leer">Für die Kennung „' + esc(kennung) + '“ gibt es noch keine Portal-Liste.</div>') +
+    (function () {
+      var eigene = p.antworten.filter(function (a) { return a.punkt.indexOf("eigen-") === 0 && a.text.trim(); });
+      return eigene.length ? '<div class="karte" style="margin-bottom:12px"><div style="padding:14px 18px 2px"><h2 style="font-size:15.5px">Vom Kunden ergänzt</h2></div><table class="tabelle"><tbody>' + eigene.map(function (a) {
+        var i = a.text.indexOf("\n"), titel = i < 0 ? a.text : a.text.slice(0, i), rest = i < 0 ? "" : a.text.slice(i + 1), f = hoch[a.punkt] || [];
+        return '<tr><td style="width:40%"><span class="pille akzent">eigen</span> ' + esc(titel) + '</td><td><div style="white-space:pre-wrap">' + esc(rest) + "</div>" +
+          f.map(function (u) { return '<div class="klein">' + (u.url ? '<a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.datei) + "</a>" : esc(u.datei)) + "</div>"; }).join("") + "</td></tr>";
+      }).join("") + "</tbody></table></div>" : "";
+    })() +
     "</div><div>" +
     '<div class="karte" style="margin-bottom:16px"><div style="padding:16px 18px 0"><div class="kartenkopf"><h2>Nachrichten</h2><a class="knopf klein" href="/portal/" target="_blank" rel="noopener">Antworten im Portal ↗</a></div></div><div class="verlauf" style="max-height:420px">' +
     (p.nachrichten.length ? p.nachrichten.map(function (m) { return '<div class="blase ' + (m.von_rolle === "admin" ? "ich" : "du") + '"><span class="von">' + esc(m.von_name) + " · " + datum(m.angelegt, true) + "</span>" + esc(m.text) + "</div>"; }).join("") : '<div class="leer">Noch keine Nachrichten.</div>') + "</div></div>" +

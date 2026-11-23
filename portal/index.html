@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="portal" data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-cuxHpOoZSYY/V4EVOAih6RTVGDI7s5HvhGpo6AcwR2U='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-2WL89hVUR9yhwrXVyjggo4rMXvz72Bka9L9KQFq0QP4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -565,6 +565,32 @@ html[data-app=portal] .pwahl button{flex:1;min-height:36px;padding:0 8px;border-
 html[data-app=portal] .pwahl button[aria-pressed=true]{background:var(--karte);box-shadow:0 1px 4px rgba(0,0,0,.18)}
 html[data-app=portal] .punkt textarea{min-height:88px}
 html[data-app=portal] .abschnitt>.kopfzeile .klein{flex:1 1 260px;min-width:0}
+/* „Bei uns nicht vorhanden“ und eigene Punkte */
+.zusatzreihe{display:flex;gap:8px;flex-wrap:wrap;justify-content:space-between;align-items:center}
+.zusatzreihe:empty{display:none}
+.nvzeile{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px}
+html[data-app=portal] .punkt.nichtda .status{background:var(--hauch);border-color:var(--hauch)}
+html[data-app=portal] .punkt.nichtda h3,html[data-app=portal] .punkt.nichtda .warum{color:var(--leise)}
+html[data-app=portal] .punkt.eigen .feld{display:grid;gap:8px}
+html[data-app=portal] .punkt.eigen .eigentitel{font-weight:600}
+html[data-app=portal] .punkt.eigen .koerper{margin-left:0}
+html[data-app=portal] button.hoch.neu{font-size:17px;min-height:56px;background:var(--karte);border-style:solid;border-color:transparent}
+html[data-app=portal] button.hoch.neu:hover{background:var(--akzent-hell);border-color:transparent}
+html[data-app=portal] #abschnitt-eigen{scroll-margin-top:124px}
+/* Punkte mit einzelnen Feldern */
+.feldblock{margin-top:12px;display:grid;gap:12px}
+.eintrag{background:var(--fuell);border-radius:14px;padding:12px 14px 14px}
+.eintrag .ekopf{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px;font-size:15px}
+.efelder{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}
+.efelder label,.freifeld{display:block}
+.efelder label span,.freifeld span{display:block;font-size:13px;font-weight:600;color:var(--leise);margin:0 0 4px 2px}
+html[data-app=portal] .eintrag input[type=text],html[data-app=portal] .eintrag select{background:var(--karte);width:100%;padding:9px 12px}
+html[data-app=portal] .feldblock>button{justify-self:start}
+html[data-app=portal] .freifeld textarea{min-height:64px}
+html[data-app=portal] .zusatzreihe{margin-top:2px}
+.zusatzreihe .links,.zusatzreihe .rechtsg{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+html[data-app=portal] .punkt .gespeichert{position:static;font-size:14px}
+@media (max-width:760px){.efelder{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){html[data-app=portal] *{transition:none !important}}
 
 </style>
@@ -958,7 +984,7 @@ var DATEI_MAX = 50 * 1024 * 1024;
 var S = {
   P: null, admin: false, sicht: "uebersicht", kunde: null,
   stand: null, laedt: false, uebersicht: {},
-  entwurf: { nachricht: "", antworten: {}, titel: "", notiz: "", rueckgabe: false },
+  entwurf: { nachricht: "", antworten: {}, titel: "", notiz: "", rueckgabe: false, eigene: [], anzahl: {} },
   datei: null,            // Admin: gewählte Datei zum Bereitstellen
   uploads: [],            // laufende Uploads {id, punkt, name, groesse, anteil, stand, grund}
   bestaetigen: null,      // id, die gerade auf den zweiten Klick wartet
@@ -1012,7 +1038,20 @@ function antwortVon(id) {
 }
 function uploadsVon(id) { return (S.stand && S.stand.uploads || []).filter(function (u) { return u.punkt === id; }); }
 function fertig(id) { return !!antwortVon(id).trim() || uploadsVon(id).length > 0; }
+/* „Bei uns nicht vorhanden“: eine feste Antwort. Der Punkt gilt damit als erledigt, und im CRM steht genau dieser Satz. */
+var NICHT_DA = "Bei uns nicht vorhanden.";
+function nichtDa(id) { return antwortVon(id).trim() === NICHT_DA; }
+/* Eigene Punkte des Kunden („Was Jarvis noch wissen soll“): gewöhnliche Antworten unter einer Kennung „eigen-…“.
+   Erste Zeile = Überschrift, der Rest = Text. So brauchen sie am Server nichts Neues und erscheinen im CRM mit. */
+function eigeneIds() {
+  var ids = S.entwurf.eigene.slice();
+  (S.stand && S.stand.antworten || []).forEach(function (a) { if (a.punkt.indexOf("eigen-") === 0 && a.text.trim() && ids.indexOf(a.punkt) < 0) ids.push(a.punkt); });
+  (S.stand && S.stand.uploads || []).forEach(function (u) { if (u.punkt.indexOf("eigen-") === 0 && ids.indexOf(u.punkt) < 0) ids.push(u.punkt); });
+  return ids.sort();
+}
+function eigenTeile(id) { var t = antwortVon(id), i = t.indexOf("\n"); return i < 0 ? { titel: t, text: "" } : { titel: t.slice(0, i), text: t.slice(i + 1) }; }
 function punktTitel(id) {
+  if (id.indexOf("eigen-") === 0) return "Eigener Punkt: " + (eigenTeile(id).titel.trim() || "ohne Überschrift");
   if (id.indexOf("r-") === 0) { var d = (S.stand.dokumente || []).filter(function (x) { return x.id.slice(0, 8) === id.slice(2); })[0]; return "Rückgabe: " + (d ? d.titel : "Dokument"); }
   var p = allePunkte().filter(function (x) { return x.id === id; })[0]; return p ? p.frage : id;
 }
@@ -1087,7 +1126,8 @@ function kUebersicht() {
     var f = a.punkte.filter(function (p) { return fertig(p.id); }).length, voll = f === a.punkte.length;
     return '<button type="button" class="pzeile" data-gehe="' + i + '"><span class="symbol ' + (voll ? "gut" : f ? "teil" : "") + '">' + (voll ? "✓" : i + 1) + '</span><span class="mitte"><b>' + esc(a.titel.replace(/^\d+ · /, "")) + "</b><span>" +
       (voll ? "erledigt" : f ? f + " von " + a.punkte.length + " erledigt" : a.punkte.length + (a.punkte.length === 1 ? " Punkt offen" : " Punkte offen")) + '</span></span><span class="rechts"><span class="pfeil" aria-hidden="true">›</span></span></button>';
-  }).join("") + "</div>" : "";
+  }).join("") + '<button type="button" class="pzeile" data-gehe="eigen"><span class="symbol teil">＋</span><span class="mitte"><b>Eigene Punkte</b><span>' +
+    (eigeneIds().length ? eigeneIds().length + (eigeneIds().length === 1 ? " Punkt von Ihnen" : " Punkte von Ihnen") : "Etwas ergänzen, das Ihr Jarvis wissen soll") + '</span></span><span class="rechts"><span class="pfeil" aria-hidden="true">›</span></span></button>' + "</div>" : "";
   return '<div class="seitenkopf"><div><span class="etikett">Kundenportal</span><h1>Willkommen, ' + esc(K.kurzname || K.name) + "</h1>" + (einleitung(K, 0) ? "<p>" + esc(einleitung(K, 0)) + "</p>" : "") + "</div></div>" +
     '<div class="karte pad">' + held + "</div>" + schritte + liste +
     '<h2 class="ptitel">Dokumente von Alpha Blueprint</h2><div class="karte pad">' +
@@ -1104,14 +1144,26 @@ function kUnterlagen() {
   var index = K.abschnitte.map(function (a, i) {
     var f = a.punkte.filter(function (p) { return fertig(p.id); }).length;
     return '<a href="#abschnitt-' + i + '" class="' + (f === a.punkte.length ? "fertig" : "") + '"><span>' + esc(a.titel.replace(/^\d+ · /, "")) + '</span><span class="z">' + f + "/" + a.punkte.length + "</span></a>";
-  }).join("");
+  }).join("") + '<a href="#abschnitt-eigen"><span>Eigene Punkte</span><span class="z">' + (eigeneIds().length || "+") + "</span></a>";
   if (!K.abschnitte.length) return '<div class="seitenkopf"><div><span class="etikett">Unterlagen</span><h1>' + esc(K.titel || "Ihre Unterlagen") + '</h1></div></div><div class="karte pad leer">Im Moment brauchen wir keine Unterlagen von Ihnen.</div>';
   return '<div class="seitenkopf"><div><span class="etikett">Unterlagen</span><h1>' + esc(K.titel || "Ihre Unterlagen") + "</h1>" + (einleitung(K, 1) ? "<p>" + esc(einleitung(K, 1)) + "</p>" : "") + '</div></div>' +
     '<div class="hinweis" style="margin-bottom:20px"><span>ⓘ</span><span><b>Sie müssen nichts absenden.</b> Antworten speichern sich von selbst, Dateien sind hochgeladen, sobald der grüne Haken erscheint. Höchstens 50 MB je Datei.</span></div>' +
     '<div class="unterlagen"><nav class="inhalt">' + index + "</nav><div>" +
     K.abschnitte.map(function (a, i) {
       return '<section class="abschnitt" id="abschnitt-' + i + '"><div class="kopfzeile"><h2>' + esc(a.titel) + '</h2><span class="klein leise">' + esc(a.hinweis || "") + "</span></div>" + a.punkte.map(punktKarte).join("") + "</section>";
-    }).join("") + "</div></div>";
+    }).join("") + eigenerAbschnitt() + "</div></div>";
+}
+function eigenerAbschnitt() {
+  var ids = eigeneIds();
+  return '<section class="abschnitt" id="abschnitt-eigen"><div class="kopfzeile"><h2>Möchten Sie noch etwas ergänzen?</h2><span class="klein leise">Alles, was Ihr Jarvis zusätzlich wissen oder können soll</span></div>' +
+    ids.map(function (id) {
+      var t = eigenTeile(id), hoch = uploadsVon(id), laufend = S.uploads.filter(function (u) { return u.punkt === id; });
+      return '<div class="karte punkt eigen' + (fertig(id) ? " fertig" : "") + '" data-punkt="' + id + '"><div class="feld" style="margin-top:0"><input type="text" class="eigentitel" data-schluessel="et-' + id + '" data-eigen="' + id + '" data-teil="titel" placeholder="Worum geht es? z. B. Abrechnung mit Firmenkunden" value="' + esc(t.titel) + '">' +
+        '<textarea rows="3" data-schluessel="ex-' + id + '" data-eigen="' + id + '" data-teil="text" placeholder="Beschreiben Sie es in Ihren Worten">' + esc(t.text) + '</textarea><span class="gespeichert" data-gesp="' + id + '"></span></div>' +
+        '<div class="werkzeuge"><button type="button" class="hoch" data-waehlen="' + id + '">' + HOCH_BILD + '<span>Datei hochladen oder Foto aufnehmen</span></button><input type="file" multiple hidden data-eingabe="' + id + '">' +
+        (hoch.length ? "" : '<button type="button" class="klein leise zusatz gefahr" data-eigenweg="' + id + '">Diesen Punkt entfernen</button>') + "</div>" + dateiListe(hoch, laufend) + "</div>";
+    }).join("") +
+    '<button type="button" class="hoch neu" data-eigenneu>＋ <span>Eigenen Punkt hinzufügen</span></button></section>';
 }
 function dateiListe(liste, laufend) {
   if (!liste.length && !laufend.length) return "";
@@ -1123,16 +1175,76 @@ function dateiListe(liste, laufend) {
         : '<span class="s laeuft">wird hochgeladen …</span><span class="dbalken"><i style="width:' + Math.round(u.anteil * 100) + '%"></i></span>') + "</li>";
   }).join("") + "</ul>";
 }
+/* ---- Punkte mit einzelnen Feldern (p.felder) statt eines freien Textfelds ----
+ * Gespeichert wird weiterhin EINE Antwort als gut lesbarer Text, damit CRM, App und Jarvis nichts Neues brauchen:
+ *     Person 1
+ *     Vorname: Anke
+ *     Nachname: Neuhaus
+ *
+ *     Besonderheiten:
+ *     nur vormittags
+ * feldTeile() liest diesen Text zurück in die Felder. Was sich keinem Feld zuordnen lässt (alte freie Antworten), landet bei den Besonderheiten. */
+var FREI_MARKE = "Besonderheiten:";
+function feldTeile(p) {
+  var t = antwortVon(p.id), frei = "";
+  if (t.trim() === NICHT_DA) t = "";
+  if (t.indexOf(FREI_MARKE + "\n") === 0) { frei = t.slice(FREI_MARKE.length + 1); t = ""; }
+  else { var i = t.lastIndexOf("\n" + FREI_MARKE + "\n"); if (i >= 0) { frei = t.slice(i + FREI_MARKE.length + 2); t = t.slice(0, i); } }
+  var nachName = {}; p.felder.forEach(function (f) { nachName[f.name] = f.id; });
+  var eintraege = [], akt = null, fremd = [];
+  t.split("\n").forEach(function (z) {
+    if (!z.trim()) return;
+    var k = z.indexOf(": "), name = k > 0 ? z.slice(0, k) : null;
+    if (name && nachName[name]) { if (!akt) { akt = {}; eintraege.push(akt); } akt[nachName[name]] = z.slice(k + 2); }
+    else if (p.mehrfach && z.trim().indexOf(p.eintrag + " ") === 0 && /^\d+$/.test(z.trim().slice(p.eintrag.length + 1))) { akt = {}; eintraege.push(akt); }
+    else fremd.push(z);
+  });
+  if (fremd.length) frei = fremd.join("\n") + (frei ? "\n" + frei : "");
+  return { eintraege: eintraege, frei: frei };
+}
+/** Baut aus den Feldern einer Karte den lesbaren Antworttext. Leere Felder und leere Einträge fallen weg. */
+function feldText(karte, p) {
+  var bloecke = [];
+  karte.querySelectorAll(".eintrag").forEach(function (e) {
+    var z = [];
+    p.felder.forEach(function (f) { var el = e.querySelector('[data-fid="' + f.id + '"]'), v = el ? el.value.replace(/\s*\n\s*/g, " ").trim() : ""; if (v) z.push(f.name + ": " + v); });
+    if (z.length) bloecke.push(z);
+  });
+  var t = bloecke.map(function (z, i) { return (p.mehrfach ? p.eintrag + " " + (i + 1) + "\n" : "") + z.join("\n"); }).join("\n\n");
+  var fr = karte.querySelector("[data-frei]"), frei = fr ? fr.value.trim() : "";
+  if (frei) t += (t ? "\n\n" : "") + FREI_MARKE + "\n" + frei;
+  return t;
+}
+function punktVon(id) { return allePunkte().filter(function (x) { return x.id === id; })[0]; }
+function feldBlock(p) {
+  var d = feldTeile(p), n = Math.max(d.eintraege.length, S.entwurf.anzahl[p.id] || 0, 1), aus = "";
+  for (var i = 0; i < n; i++) {
+    var e = d.eintraege[i] || {};
+    aus += '<div class="eintrag">' + (p.mehrfach ? '<div class="ekopf"><b>' + esc(p.eintrag) + " " + (i + 1) + "</b>" + (n > 1 ? '<button type="button" class="klein leise gefahr" data-eintragweg="' + p.id + '" data-nr="' + i + '">Entfernen</button>' : "") + "</div>" : "") +
+      '<div class="efelder">' + p.felder.map(function (f) {
+        var sch = "f-" + p.id + "-" + i + "-" + f.id, v = e[f.id] || "";
+        return '<label><span>' + esc(f.name) + "</span>" + (f.optionen
+          ? '<select data-feldpunkt="' + p.id + '" data-fid="' + f.id + '">' + f.optionen.map(function (o) { return '<option value="' + esc(o) + '"' + (o === v ? " selected" : "") + ">" + esc(o || "bitte wählen") + "</option>"; }).join("") + "</select>"
+          : '<input type="text" data-schluessel="' + sch + '" data-feldpunkt="' + p.id + '" data-fid="' + f.id + '" placeholder="' + esc(f.hilfe || "") + '" value="' + esc(v) + '">') + "</label>";
+      }).join("") + "</div></div>";
+  }
+  return '<div class="feldblock">' + aus + (p.mehrfach ? '<button type="button" class="klein" data-eintragneu="' + p.id + '">＋ ' + esc(p.mehr || "Weiteren Eintrag hinzufügen") + "</button>" : "") +
+    '<label class="freifeld"><span>Besonderheiten</span><textarea rows="2" data-schluessel="fr-' + p.id + '" data-feldpunkt="' + p.id + '" data-frei placeholder="' + esc(p.feld || "Besonderheiten oder Hinweise") + '">' + esc(d.frei) + "</textarea></label></div>";
+}
 function punktKarte(p) {
   var v = p.vorlage && S.P.vorlagen && S.P.vorlagen[p.vorlage];
-  var laufend = S.uploads.filter(function (u) { return u.punkt === p.id; });
-  return '<div class="karte punkt' + (fertig(p.id) ? " fertig" : "") + '" data-punkt="' + p.id + '"><div class="zeile1"><span class="status">✓</span><div><h3>' + esc(p.frage) + "</h3>" +
-    (p.warum ? '<p class="warum">' + esc(p.warum) + "</p>" : "") + '</div></div><div class="koerper">' +
+  var hoch = uploadsVon(p.id), laufend = S.uploads.filter(function (u) { return u.punkt === p.id; }), nv = nichtDa(p.id);
+  var kopf = '<div class="karte punkt' + (fertig(p.id) ? " fertig" : "") + (nv ? " nichtda" : "") + '" data-punkt="' + p.id + '"><div class="zeile1"><span class="status">' + (nv ? "–" : "✓") + '</span><div><h3>' + esc(p.frage) + "</h3>" +
+    (p.warum ? '<p class="warum">' + esc(p.warum) + "</p>" : "") + '</div></div><div class="koerper">';
+  if (nv) return kopf + '<div class="nvzeile"><span class="pille">Bei uns nicht vorhanden</span><button type="button" class="klein leise" data-nvweg="' + p.id + '">Doch vorhanden</button></div>' + dateiListe(hoch, laufend) + "</div></div>";
+  return kopf +
     (p.details ? '<ul class="details">' + p.details.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : "") +
-    '<div class="feld"><textarea rows="2" data-schluessel="a-' + p.id + '" data-antwort="' + p.id + '" placeholder="' + esc(p.feld || "Ihre Antwort") + '">' + esc(antwortVon(p.id)) + '</textarea><span class="gespeichert" data-gesp="' + p.id + '"></span></div>' +
+    (p.felder ? feldBlock(p) : '<div class="feld"><textarea rows="2" data-schluessel="a-' + p.id + '" data-antwort="' + p.id + '" placeholder="' + esc(p.feld || "Ihre Antwort") + '">' + esc(antwortVon(p.id)) + "</textarea></div>") +
     '<div class="werkzeuge"><button type="button" class="hoch" data-waehlen="' + p.id + '">' + HOCH_BILD + '<span>Datei hochladen oder Foto aufnehmen</span></button><input type="file" multiple hidden data-eingabe="' + p.id + '">' +
-    (v ? '<button type="button" class="klein zusatz" data-vorlage="' + esc(p.vorlage) + '">Excel-Vorlage herunterladen</button>' : "") + "</div>" +
-    dateiListe(uploadsVon(p.id), laufend) + "</div></div>";
+    '<div class="zusatzreihe"><span class="links"><button type="button" class="klein haupt" data-speichern="' + p.id + '">Speichern</button><span class="gespeichert" data-gesp="' + p.id + '"></span></span>' +
+    '<span class="rechtsg">' + (v ? '<button type="button" class="klein" data-vorlage="' + esc(p.vorlage) + '">Excel-Vorlage herunterladen</button>' : "") +
+    (hoch.length ? "" : '<button type="button" class="klein leise" data-nv="' + p.id + '">Bei uns nicht vorhanden</button>') + "</span></div></div>" +
+    dateiListe(hoch, laufend) + "</div></div>";
 }
 function dokZeile(d) {
   var rpunkt = "r-" + d.id.slice(0, 8), zurueck = uploadsVon(rpunkt), laufend = S.uploads.filter(function (u) { return u.punkt === rpunkt; });
@@ -1217,9 +1329,12 @@ function aListe() {
     k.abschnitte.map(function (a) {
       return '<div class="karte" style="margin-bottom:14px"><div style="padding:16px 20px 4px"><h2>' + esc(a.titel) + '</h2></div><table class="tabelle"><tbody>' + a.punkte.map(function (p) {
         var t = antwortVon(p.id), f = uploadsVon(p.id).length;
-        return "<tr><td style=\"width:38%\">" + (fertig(p.id) ? '<span class="pille gut">✓</span> ' : '<span class="pille">offen</span> ') + esc(p.frage) + "</td><td>" + (t ? esc(t) : '<span class="leise">–</span>') + (f ? '<div class="klein leise">' + f + " Datei" + (f === 1 ? "" : "en") + "</div>" : "") + "</td></tr>";
+        return "<tr><td style=\"width:38%\">" + (fertig(p.id) ? '<span class="pille gut">✓</span> ' : '<span class="pille">offen</span> ') + esc(p.frage) + "</td><td>" + (t ? '<div style="white-space:pre-wrap">' + esc(t) + "</div>" : '<span class="leise">–</span>') + (f ? '<div class="klein leise">' + f + " Datei" + (f === 1 ? "" : "en") + "</div>" : "") + "</td></tr>";
       }).join("") + "</tbody></table></div>";
-    }).join("");
+    }).join("") + (eigeneIds().length ? '<div class="karte" style="margin-bottom:14px"><div style="padding:16px 20px 4px"><h2>Vom Kunden ergänzt</h2></div><table class="tabelle"><tbody>' + eigeneIds().map(function (id) {
+      var t = eigenTeile(id), f = uploadsVon(id).length;
+      return '<tr><td style="width:38%"><span class="pille akzent">eigen</span> ' + esc(t.titel || "ohne Überschrift") + "</td><td>" + (t.text ? '<div style="white-space:pre-wrap">' + esc(t.text) + "</div>" : '<span class="leise">–</span>') + (f ? '<div class="klein leise">' + f + " Datei" + (f === 1 ? "" : "en") + "</div>" : "") + "</td></tr>";
+    }).join("") + "</tbody></table></div>" : "");
 }
 
 /* ===================================================================== Handeln */
@@ -1234,6 +1349,16 @@ function antwortSpeichern(punkt) {
       var g2 = document.querySelector('[data-gesp="' + punkt + '"]'); if (g2) g2.textContent = "✓ gespeichert";
     }, function (f) { var g3 = document.querySelector('[data-gesp="' + punkt + '"]'); if (g3) g3.textContent = "nicht gespeichert"; melden(f.message, true); });
   }, 900);
+}
+/** Setzt eine Antwort sofort (ohne Wartezeit) und zeichnet neu: für „Bei uns nicht vorhanden“ und das Entfernen eigener Punkte. */
+function antwortSetzen(punkt, text) {
+  clearTimeout(speichernUhr[punkt]);
+  S.entwurf.antworten[punkt] = text;
+  return api("antwort", { punkt: punkt, text: text }).then(function () {
+    var a = S.stand.antworten.filter(function (x) { return x.punkt === punkt; })[0];
+    if (a) a.text = text; else S.stand.antworten.push({ punkt: punkt, text: text });
+    zeichnen();
+  }, function (f) { melden(f.message, true); return laden(true); });
 }
 function dateienHoch(punkt, liste) {
   Array.prototype.forEach.call(liste, function (datei) {
@@ -1298,6 +1423,68 @@ function verdrahten() {
       antwortSpeichern(p);
     };
   });
+  /* Punkte mit einzelnen Feldern: jede Eingabe baut den Antworttext neu und speichert ihn (wie beim freien Feld). */
+  w.querySelectorAll("[data-feldpunkt]").forEach(function (t) {
+    var tun = function () {
+      var id = t.dataset.feldpunkt, k = t.closest(".punkt");
+      S.entwurf.antworten[id] = feldText(k, punktVon(id));
+      k.classList.toggle("fertig", fertig(id));
+      var g = document.querySelector('[data-gesp="' + id + '"]'); if (g) g.textContent = "";
+      antwortSpeichern(id);
+    };
+    t.oninput = tun; if (t.tagName === "SELECT") t.onchange = tun;
+  });
+  w.querySelectorAll("[data-eintragneu]").forEach(function (b) { b.onclick = function () {
+    var id = b.dataset.eintragneu, k = b.closest(".punkt"), n = k.querySelectorAll(".eintrag").length;
+    S.entwurf.antworten[id] = feldText(k, punktVon(id));
+    /* Leere Einträge stehen nicht im Text; die Zahl merkt sich, wie viele Blöcke offen sind. */
+    S.entwurf.anzahl[id] = Math.max(feldTeile(punktVon(id)).eintraege.length, 0) + 1 > n ? n + 1 : n + 1;
+    zeichnen();
+    var neu = document.querySelectorAll('[data-punkt="' + id + '"] .eintrag'), f = neu.length ? neu[neu.length - 1].querySelector("input,select") : null; if (f) f.focus();
+  }; });
+  w.querySelectorAll("[data-eintragweg]").forEach(function (b) { b.onclick = function () {
+    var id = b.dataset.eintragweg, k = b.closest(".punkt"), e = b.closest(".eintrag"), n = k.querySelectorAll(".eintrag").length;
+    e.remove(); S.entwurf.anzahl[id] = Math.max(n - 1, 1);
+    b.disabled = true; antwortSetzen(id, feldText(k, punktVon(id)));
+  }; });
+  /* „Speichern“: sofort sichern, ohne die Seite neu zu zeichnen (die Eingabe bleibt, wo sie ist). */
+  w.querySelectorAll("[data-speichern]").forEach(function (b) { b.onclick = function () {
+    var id = b.dataset.speichern, text = S.entwurf.antworten[id] != null ? S.entwurf.antworten[id] : antwortVon(id), g = document.querySelector('[data-gesp="' + id + '"]');
+    clearTimeout(speichernUhr[id]); b.disabled = true; if (g) g.textContent = "speichert …";
+    api("antwort", { punkt: id, text: text }).then(function () {
+      var a = S.stand.antworten.filter(function (x) { return x.punkt === id; })[0];
+      if (a) a.text = text; else S.stand.antworten.push({ punkt: id, text: text });
+      b.disabled = false; if (g) g.textContent = "✓ gespeichert";
+    }, function (f) { b.disabled = false; if (g) g.textContent = "nicht gespeichert"; melden(f.message, true); });
+  }; });
+  w.querySelectorAll("[data-nv]").forEach(function (b) { b.onclick = function () {
+    var p = b.dataset.nv, t = (S.entwurf.antworten[p] != null ? S.entwurf.antworten[p] : antwortVon(p)).trim();
+    if (t && t !== NICHT_DA) return melden("Sie haben hier schon etwas eingetragen. Löschen Sie den Text, wenn es das bei Ihnen nicht gibt.", true);
+    b.disabled = true; antwortSetzen(p, NICHT_DA);
+  }; });
+  w.querySelectorAll("[data-nvweg]").forEach(function (b) { b.onclick = function () { b.disabled = true; antwortSetzen(b.dataset.nvweg, ""); }; });
+  var en = w.querySelector("[data-eigenneu]");
+  if (en) en.onclick = function () {
+    var id = "eigen-" + Array.prototype.map.call(crypto.getRandomValues(new Uint8Array(4)), function (x) { return ("0" + x.toString(16)).slice(-2); }).join("");
+    S.entwurf.eigene.push(id); S.entwurf.antworten[id] = ""; zeichnen();
+    var f = document.querySelector('[data-schluessel="et-' + id + '"]'); if (f) f.focus();
+  };
+  w.querySelectorAll("[data-eigen]").forEach(function (t) {
+    t.oninput = function () {
+      var id = t.dataset.eigen, k = t.closest(".punkt");
+      var titel = k.querySelector('[data-teil="titel"]').value.replace(/\n/g, " "), text = k.querySelector('[data-teil="text"]').value;
+      S.entwurf.antworten[id] = (titel.trim() || text.trim()) ? titel + "\n" + text : "";
+      k.classList.toggle("fertig", fertig(id));
+      var g = document.querySelector('[data-gesp="' + id + '"]'); if (g) g.textContent = "";
+      antwortSpeichern(id);
+    };
+  });
+  w.querySelectorAll("[data-eigenweg]").forEach(function (b) { b.onclick = function () {
+    var id = b.dataset.eigenweg; b.disabled = true;
+    S.entwurf.eigene = S.entwurf.eigene.filter(function (x) { return x !== id; });
+    var gab = (S.stand.antworten || []).some(function (a) { return a.punkt === id && a.text.trim(); });
+    if (gab) antwortSetzen(id, ""); else { clearTimeout(speichernUhr[id]); delete S.entwurf.antworten[id]; zeichnen(); }
+  }; });
   w.querySelectorAll("[data-entwurf]").forEach(function (t) {
     t.oninput = function () { S.entwurf[t.dataset.entwurf] = t.value; };
     if (t.dataset.entwurf === "nachricht") t.onkeydown = function (e) { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); TUN.senden(w.querySelector('[data-tun="senden"]')); } };
