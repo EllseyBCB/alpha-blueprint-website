@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0A84FF">
+<meta property="og:title" content="Komm zu Zack!">
+<meta property="og:description" content="Du bist zu einer Runde eingeladen. Tippen, und du bist im Raum.">
+<title>Einladung zu Zack!</title>
+<style>
+  *{box-sizing:border-box;margin:0}
+  html,body{height:100%}
+  body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",system-ui,sans-serif;color:#fff;
+    background:radial-gradient(120% 70% at 50% 0%,#3b8cff 0%,#0A5BD6 38%,#0b1d4d 100%);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top) + 28px) 24px calc(env(safe-area-inset-bottom) + 28px);text-align:center}
+  .icon{width:96px;height:96px;border-radius:22px;background:#0A84FF;display:grid;place-items:center;box-shadow:0 18px 40px rgba(0,0,0,.35),inset 0 0 0 1px rgba(255,255,255,.25)}
+  .icon svg{width:56px;height:56px}
+  h1{font-size:34px;font-weight:800;letter-spacing:-.02em;margin-top:22px}
+  p{font-size:17px;line-height:1.45;color:rgba(255,255,255,.82);margin-top:8px;max-width:340px}
+  .code{display:flex;gap:8px;margin:26px 0 6px}
+  .code b{width:54px;height:64px;border-radius:14px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);display:grid;place-items:center;font-size:32px;font-weight:800}
+  .klein{font-size:13px;color:rgba(255,255,255,.6)}
+  a.los{display:block;width:100%;max-width:340px;margin-top:28px;padding:18px;border-radius:16px;background:#FFD166;color:#1c1c1e;font-size:19px;font-weight:800;text-decoration:none;box-shadow:0 10px 24px rgba(0,0,0,.25)}
+  a.los:active{transform:scale(.98)}
+  .karte{margin-top:28px;max-width:340px;width:100%;text-align:left;background:rgba(0,0,0,.22);border-radius:18px;padding:18px 18px 16px}
+  .karte h2{font-size:15px;font-weight:700}
+  .karte ol{margin:10px 0 0 20px;padding:0;font-size:15px;line-height:1.5;color:rgba(255,255,255,.85)}
+  .karte a{color:#FFD166;font-weight:700}
+  .fehlt{display:none}
+  body.ohne .mit{display:none} body.ohne .fehlt{display:block}
+</style>
+</head>
+<body>
+  <div class="icon"><svg viewBox="0 0 24 24" fill="#fff"><path d="M13.5 2 4 13.5h6.5L9.5 22 20 9.5h-6.6z"/></svg></div>
+  <h1>Komm zu Zack!</h1>
+  <p class="mit">Du bist zu einer Runde eingeladen. Tipp auf den Knopf, dann bist du direkt im Raum.</p>
+  <p class="fehlt">Dieser Link enthält keinen gültigen Raum. Lass dir die Einladung noch einmal schicken.</p>
+  <div class="code mit" id="code"></div>
+  <div class="klein mit">Raumcode</div>
+  <a class="los mit" id="los" href="#">In Zack! öffnen</a>
+  <div class="karte">
+    <h2>Noch kein Zack! auf dem iPhone?</h2>
+    <ol>
+      <li><a href="https://testflight.apple.com/join/xAByDEdJ">Zack! über TestFlight laden</a></li>
+      <li>Danach diesen Link noch einmal antippen</li>
+      <li class="mit">oder in Zack! bei „Beitreten“ den Code eingeben</li>
+    </ol>
+  </div>
+<script>
+  var c = (new URLSearchParams(location.search).get('c') || '').toUpperCase().replace(/[^A-Z]/g, '').slice(0, 4);
+  if (c.length !== 4) document.body.classList.add('ohne');
+  else {
+    document.title = 'Einladung zu Zack! · ' + c;
+    c.split('').forEach(function (b) { var e = document.createElement('b'); e.textContent = b; document.getElementById('code').appendChild(e); });
+    document.getElementById('los').href = 'zackspiel://c/' + c;
+  }
+</script>
+</body>
+</html>
