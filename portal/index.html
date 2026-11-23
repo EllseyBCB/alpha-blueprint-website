@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="portal" data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-2WL89hVUR9yhwrXVyjggo4rMXvz72Bka9L9KQFq0QP4='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ga04nOwZlz9xA/h4gFrNoQPpdOFhho8drkiY5oTm6/k='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -601,7 +601,7 @@ html[data-app=portal] .punkt .gespeichert{position:static;font-size:14px}
   <form class="tor" id="torForm" autocomplete="on">
     <span class="marke gross"><i></i>Alpha Blueprint</span>
     <h1>Kundenportal</h1>
-    <p class="unter">Melden Sie sich mit dem Zugang an, den Sie von uns bekommen haben.</p>
+    <p class="unter">Bitte mit dem Zugang anmelden, den wir geschickt haben.</p>
     <label for="wer">Zugangsname</label>
     <input type="text" id="wer" name="username" autocapitalize="none" autocorrect="off" spellcheck="false" autocomplete="username" required>
     <label for="wort">Passwort</label>
@@ -696,7 +696,7 @@ function weiter(token) {
     if (SEITE === "crm") { P.art = "crm"; P.portalKunden = inhalt.kunden || []; }
     else if (ich.rolle === "admin") { P.art = "admin"; P.kunden = inhalt.kunden || []; }
     else {
-      if (!inhalt.kunde) throw new Error("Für diesen Zugang ist noch nichts eingerichtet. Bitte rufen Sie uns an.");
+      if (!inhalt.kunde) throw new Error("Für diesen Zugang ist noch nichts eingerichtet. Bitte kurz bei uns anrufen.");
       P.art = "kunde"; P.kunde = inhalt.kunde; P.vorlagen = inhalt.kunde.vorlagenLinks || {};
     }
     document.getElementById("tor").hidden = true;
@@ -745,7 +745,7 @@ function erstesPasswortZeigen(token, name) {
   document.getElementById("tor").hidden = false; document.getElementById("app").hidden = true;
   var f = document.getElementById("torForm"), mitAlt = !TOR.erst;
   f.innerHTML = '<span class="marke gross"><i></i>Alpha Blueprint</span><h1>Eigenes Passwort festlegen</h1>' +
-    '<p class="unter">Willkommen! Bitte legen Sie jetzt ein eigenes Passwort fest. Ihr Zugangsname bleibt <b>' + esc(name) + '</b>.</p>' +
+    '<p class="unter">Willkommen! Bitte jetzt ein eigenes Passwort festlegen. Der Zugangsname bleibt <b>' + esc(name) + '</b>.</p>' +
     (mitAlt ? '<label for="ealt">Bisheriges Passwort</label><input type="password" id="ealt" autocomplete="current-password" required>' : "") +
     '<label for="eneu">Neues Passwort</label><input type="password" id="eneu" autocomplete="new-password" required>' +
     '<label for="eneu2">Neues Passwort wiederholen</label><input type="password" id="eneu2" autocomplete="new-password" required>' +
@@ -770,7 +770,7 @@ function erstesPasswortZeigen(token, name) {
 function codeSchrittZeigen(fehlerText) {
   var f = document.getElementById("torForm");
   f.innerHTML = '<span class="marke gross"><i></i>Alpha Blueprint</span><h1>Bestätigung</h1>' +
-    '<p class="unter">Bitte den 6-stelligen Code aus Ihrer Authenticator-App eingeben.</p>' +
+    '<p class="unter">Bitte den 6-stelligen Code aus der Authenticator-App eingeben.</p>' +
     '<label for="code">Code</label><input type="text" id="code" name="one-time-code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>' +
     '<button type="submit" class="haupt" id="oeffnen">Bestätigen</button><p class="sagt" id="sagt" role="status" aria-live="polite"></p>' +
     '<p class="fuss"><a href="#" id="zurueck">Zurück zur Anmeldung</a></p>';
@@ -795,7 +795,7 @@ function totpEinrichtenZeigen(token, pflicht, ziel, fertig) {
     if (!ziel) { document.getElementById("tor").hidden = false; document.getElementById("app").hidden = true; }
     box.innerHTML = (ziel ? "" : '<span class="marke gross"><i></i>Alpha Blueprint</span>') +
       '<h1 style="' + (ziel ? "font-size:20px;margin:0 0 6px" : "") + '">Zwei-Faktor einrichten</h1>' +
-      '<p class="unter">' + (pflicht ? "Für diesen Zugang ist ein zweiter Faktor Pflicht. " : "") + 'Scannen Sie den Code mit einer Authenticator-App (Apple Passwörter, Google Authenticator, 1Password …) und geben Sie den angezeigten Code ein.</p>' +
+      '<p class="unter">' + (pflicht ? "Für diesen Zugang ist ein zweiter Faktor Pflicht. " : "") + 'Den Code mit einer Authenticator-App scannen (Apple Passwörter, Google Authenticator, 1Password …) und den angezeigten Code eingeben.</p>' +
       '<div class="qr">' + qrSvg(j.uri) + '</div>' +
       '<p class="klein leise" style="margin:8px 0 14px;word-break:break-all">Oder von Hand eintragen: <code>' + esc(j.geheim.replace(/(.{4})/g, "$1 ").trim()) + "</code></p>" +
       '<label for="tcode">Code aus der App</label><input type="text" id="tcode" inputmode="numeric" autocomplete="one-time-code" maxlength="7">' +
@@ -967,13 +967,16 @@ function themaSetzen(t) {
 try { themaSetzen(localStorage.getItem("alpha-portal-thema") || "system"); } catch (e) { themaSetzen("system"); }
 document.getElementById("themaKnopf").onclick = function () {
   var n = { system: "hell", hell: "dunkel", dunkel: "system" }[THEMA]; themaSetzen(n);
-  if (typeof melden === "function") melden("Darstellung: " + { system: "wie Ihr Gerät", hell: "hell", dunkel: "dunkel" }[n]);
+  if (typeof melden === "function") melden("Darstellung: " + { system: "" + T("wie Ihr Gerät", "wie dein Gerät") + "", hell: "hell", dunkel: "dunkel" }[n]);
 };
 /* ===================================================================== Hilfen */
 function esc(t) { return String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
 function groesse(n) { n = n || 0; if (n < 1024) return n + " B"; if (n < 1048576) return Math.round(n / 1024) + " kB"; return (n / 1048576).toFixed(1).replace(".", ",") + " MB"; }
 function datum(t, mitZeit) { var d = new Date(t); return d.toLocaleDateString("de-DE", { day: "numeric", month: "short", year: "numeric" }) + (mitZeit ? ", " + d.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" }) : ""); }
 function endung(n) { var m = /\.([a-z0-9]{1,5})$/i.exec(n || ""); return m ? m[1].toUpperCase() : "DATEI"; }
+/* Anrede: je Kunde „sie“ (Vorgabe) oder „du“ (kunden/<kennung>.json → "anrede": "du"). T(sie, du) wählt den passenden Text. */
+var DU = false;
+function T(sie, du) { return DU ? du : sie; }
 function melden(text, fehler) {
   var m = document.createElement("div"); if (fehler) m.className = "fehler"; m.textContent = text;
   document.getElementById("meldung").appendChild(m); setTimeout(function () { m.remove(); }, fehler ? 8000 : 3500);
@@ -1104,7 +1107,7 @@ function kundenSeite() {
   var tabs = '<nav class="ptabs" aria-label="Bereiche"><div class="reihe">' + tabKnopf("uebersicht", "Übersicht") + tabKnopf("unterlagen", "Unterlagen") +
     tabKnopf("dokumente", "Dokumente") + tabKnopf("nachrichten", "Nachrichten", ungelesen()) + tabKnopf("einstellungen", "Zugang") + "</div></nav>";
   var inhalt = S.sicht === "einstellungen" ? einstellungen() : !S.stand ? '<div class="leer">Lädt …</div>'
-    : S.sicht === "unterlagen" ? kUnterlagen() : S.sicht === "dokumente" ? kDokumente() : S.sicht === "nachrichten" ? nachrichtenKarte("Ihre Nachricht an Alpha Blueprint …") : kUebersicht();
+    : S.sicht === "unterlagen" ? kUnterlagen() : S.sicht === "dokumente" ? kDokumente() : S.sicht === "nachrichten" ? nachrichtenKarte("" + T("Ihre Nachricht an Alpha Blueprint …", "Deine Nachricht an Alpha Blueprint …") + "") : kUebersicht();
   return kopf("") + tabs + '<main class="rahmen">' + inhalt + "</main>";
 }
 function kUebersicht() {
@@ -1114,30 +1117,30 @@ function kUebersicht() {
   var dok = S.stand.dokumente.slice(0, 3), msg = S.stand.nachrichten.slice(-2);
   var offeneRueckgaben = S.stand.dokumente.filter(function (d) { return d.rueckgabe && !uploadsVon("r-" + d.id.slice(0, 8)).length; }).length;
   var held = !alle.length
-    ? '<div class="pheld"><div class="worte"><div class="gross">Im Moment brauchen wir nichts von Ihnen</div><p>Sobald wir Unterlagen benötigen, erscheinen sie hier. Dokumente und Nachrichten finden Sie in den Bereichen daneben.</p></div></div>'
+    ? '<div class="pheld"><div class="worte"><div class="gross">' + T("Im Moment brauchen wir nichts von Ihnen", "Im Moment brauchen wir nichts von euch") + '</div><p>' + T("Sobald wir Unterlagen benötigen, erscheinen sie hier. Dokumente und Nachrichten finden Sie in den Bereichen daneben.", "Sobald wir Unterlagen benötigen, erscheinen sie hier. Dokumente und Nachrichten findest du in den Bereichen daneben.") + '</p></div></div>'
     : '<div class="pheld">' + ring(n, alle.length) + '<div class="worte">' +
       (naechster ? '<div class="gross">' + n + " von " + alle.length + " Punkten erledigt</div><p>Als Nächstes: " + esc(naechster.a.titel.replace(/^\d+ · /, "")) + '</p><button type="button" class="haupt" data-gehe="' + naechster.i + '">' + (n ? "Weiter ausfüllen" : "Jetzt anfangen") + "</button>"
-        : '<div class="gross">Alles erledigt. Vielen Dank!</div><p>Wir haben alle Unterlagen. Wenn sich etwas ändert, können Sie Ihre Angaben jederzeit anpassen.</p>') + "</div></div>";
+        : '<div class="gross">Alles erledigt. Vielen Dank!</div><p>' + T("Wir haben alle Unterlagen. Wenn sich etwas ändert, können Sie Ihre Angaben jederzeit anpassen.", "Wir haben alle Unterlagen. Wenn sich etwas ändert, kannst du die Angaben jederzeit anpassen.") + '</p>') + "</div></div>";
   var schritte = alle.length && n < alle.length ? '<div class="pschritte">' +
-    "<div><i>1</i><b>Beantworten oder hochladen</b><span>Zu jedem Punkt schreiben Sie kurz etwas oder laden eine Datei hoch. Ein Foto vom Handy genügt.</span></div>" +
-    "<div><i>2</i><b>Speichert sich von selbst</b><span>Sie müssen nichts absenden. Sie können jederzeit aufhören und später weitermachen.</span></div>" +
-    "<div><i>3</i><b>Fragen? Einfach schreiben</b><span>Unter „Nachrichten“ erreichen Sie uns direkt. Wir antworten persönlich.</span></div></div>" : "";
-  var liste = alle.length ? '<h2 class="ptitel">Ihre Unterlagen</h2><div class="pliste">' + K.abschnitte.map(function (a, i) {
+    "<div><i>1</i><b>Beantworten oder hochladen</b><span>" + T("Zu jedem Punkt schreiben Sie kurz etwas oder laden eine Datei hoch. Ein Foto vom Handy genügt.", "Zu jedem Punkt schreibst du kurz etwas oder lädst eine Datei hoch. Ein Foto vom Handy genügt.") + "</span></div>" +
+    "<div><i>2</i><b>Speichert sich von selbst</b><span>" + T("Sie müssen nichts absenden. Sie können jederzeit aufhören und später weitermachen.", "Du musst nichts absenden. Du kannst jederzeit aufhören und später weitermachen.") + "</span></div>" +
+    "<div><i>3</i><b>Fragen? Einfach schreiben</b><span>" + T("Unter „Nachrichten“ erreichen Sie uns direkt. Wir antworten persönlich.", "Unter „Nachrichten“ erreichst du uns direkt. Wir antworten persönlich.") + "</span></div></div>" : "";
+  var liste = alle.length ? '<h2 class="ptitel">' + T("Ihre Unterlagen", "Eure Unterlagen") + '</h2><div class="pliste">' + K.abschnitte.map(function (a, i) {
     var f = a.punkte.filter(function (p) { return fertig(p.id); }).length, voll = f === a.punkte.length;
     return '<button type="button" class="pzeile" data-gehe="' + i + '"><span class="symbol ' + (voll ? "gut" : f ? "teil" : "") + '">' + (voll ? "✓" : i + 1) + '</span><span class="mitte"><b>' + esc(a.titel.replace(/^\d+ · /, "")) + "</b><span>" +
       (voll ? "erledigt" : f ? f + " von " + a.punkte.length + " erledigt" : a.punkte.length + (a.punkte.length === 1 ? " Punkt offen" : " Punkte offen")) + '</span></span><span class="rechts"><span class="pfeil" aria-hidden="true">›</span></span></button>';
   }).join("") + '<button type="button" class="pzeile" data-gehe="eigen"><span class="symbol teil">＋</span><span class="mitte"><b>Eigene Punkte</b><span>' +
-    (eigeneIds().length ? eigeneIds().length + (eigeneIds().length === 1 ? " Punkt von Ihnen" : " Punkte von Ihnen") : "Etwas ergänzen, das Ihr Jarvis wissen soll") + '</span></span><span class="rechts"><span class="pfeil" aria-hidden="true">›</span></span></button>' + "</div>" : "";
+    (eigeneIds().length ? eigeneIds().length + (eigeneIds().length === 1 ? "" + T(" Punkt von Ihnen", " Punkt von euch") + "" : "" + T(" Punkte von Ihnen", " Punkte von euch") + "") : "" + T("Etwas ergänzen, das Ihr Jarvis wissen soll", "Etwas ergänzen, das euer Jarvis wissen soll") + "") + '</span></span><span class="rechts"><span class="pfeil" aria-hidden="true">›</span></span></button>' + "</div>" : "";
   return '<div class="seitenkopf"><div><span class="etikett">Kundenportal</span><h1>Willkommen, ' + esc(K.kurzname || K.name) + "</h1>" + (einleitung(K, 0) ? "<p>" + esc(einleitung(K, 0)) + "</p>" : "") + "</div></div>" +
     '<div class="karte pad">' + held + "</div>" + schritte + liste +
     '<h2 class="ptitel">Dokumente von Alpha Blueprint</h2><div class="karte pad">' +
-    (offeneRueckgaben ? '<div class="hinweis" style="margin-bottom:10px"><span>✍︎</span><span><b>' + offeneRueckgaben + (offeneRueckgaben === 1 ? " Dokument wartet" : " Dokumente warten") + " auf Ihre Unterschrift.</b> Öffnen, unterschreiben und hier wieder hochladen.</span></div>" : "") +
+    (offeneRueckgaben ? '<div class="hinweis" style="margin-bottom:10px"><span>✍︎</span><span><b>' + offeneRueckgaben + (offeneRueckgaben === 1 ? " Dokument wartet" : " Dokumente warten") + "" + T(" auf Ihre Unterschrift.", " auf eure Unterschrift.") + "</b> Öffnen, unterschreiben und hier wieder hochladen.</span></div>" : "") +
     (dok.length ? dok.map(dokZeile).join("") + (S.stand.dokumente.length > 3 ? '<button type="button" class="klein leise" data-sicht="dokumente" style="margin-top:6px">Alle ' + S.stand.dokumente.length + " Dokumente ansehen</button>" : "")
-      : '<div class="leer">Noch keine Dokumente. Verträge und Angebote stellen wir Ihnen hier bereit.</div>') + "</div>" +
+      : '<div class="leer">' + T("Noch keine Dokumente. Verträge und Angebote stellen wir Ihnen hier bereit.", "Noch keine Dokumente. Verträge und Angebote stellen wir euch hier bereit.") + '</div>') + "</div>" +
     '<h2 class="ptitel">Nachrichten' + (ungelesen() ? ' <span class="pille akzent" style="vertical-align:3px">' + ungelesen() + " neu</span>" : "") + '</h2><div class="karte pad">' +
-    (msg.length ? msg.map(function (m) { return '<div class="nachrichtvorschau ' + m.von_rolle + '"><span class="klein leise">' + esc(m.von_name) + " · " + datum(m.angelegt, true) + "</span><br>" + esc(m.text.length > 160 ? m.text.slice(0, 160) + " …" : m.text) + "</div>"; }).join("") : '<p class="leise" style="margin:0 0 10px">Fragen? Schreiben Sie uns hier, wir antworten persönlich.</p>') +
+    (msg.length ? msg.map(function (m) { return '<div class="nachrichtvorschau ' + m.von_rolle + '"><span class="klein leise">' + esc(m.von_name) + " · " + datum(m.angelegt, true) + "</span><br>" + esc(m.text.length > 160 ? m.text.slice(0, 160) + " …" : m.text) + "</div>"; }).join("") : '<p class="leise" style="margin:0 0 10px">' + T("Fragen? Schreiben Sie uns hier, wir antworten persönlich.", "Fragen? Schreib uns hier, wir antworten persönlich.") + '</p>') +
     '<button type="button" data-sicht="nachrichten" style="margin-top:8px">Nachricht schreiben</button></div>' +
-    '<p class="klein leise" style="margin:22px 4px 0">Ihre Dateien liegen geschützt in einem Rechenzentrum in Frankfurt. Bitte tragen Sie keine Passwörter ein. Zugänge richten wir gemeinsam ein.</p>';
+    '<p class="klein leise" style="margin:22px 4px 0">' + T("Ihre Dateien liegen geschützt in einem Rechenzentrum in Frankfurt. Bitte tragen Sie keine Passwörter ein. Zugänge richten wir gemeinsam ein.", "Eure Dateien liegen geschützt in einem Rechenzentrum in Frankfurt. Bitte trag keine Passwörter ein. Zugänge richten wir gemeinsam ein.") + '</p>';
 }
 function kUnterlagen() {
   var K = S.P.kunde;
@@ -1145,9 +1148,9 @@ function kUnterlagen() {
     var f = a.punkte.filter(function (p) { return fertig(p.id); }).length;
     return '<a href="#abschnitt-' + i + '" class="' + (f === a.punkte.length ? "fertig" : "") + '"><span>' + esc(a.titel.replace(/^\d+ · /, "")) + '</span><span class="z">' + f + "/" + a.punkte.length + "</span></a>";
   }).join("") + '<a href="#abschnitt-eigen"><span>Eigene Punkte</span><span class="z">' + (eigeneIds().length || "+") + "</span></a>";
-  if (!K.abschnitte.length) return '<div class="seitenkopf"><div><span class="etikett">Unterlagen</span><h1>' + esc(K.titel || "Ihre Unterlagen") + '</h1></div></div><div class="karte pad leer">Im Moment brauchen wir keine Unterlagen von Ihnen.</div>';
-  return '<div class="seitenkopf"><div><span class="etikett">Unterlagen</span><h1>' + esc(K.titel || "Ihre Unterlagen") + "</h1>" + (einleitung(K, 1) ? "<p>" + esc(einleitung(K, 1)) + "</p>" : "") + '</div></div>' +
-    '<div class="hinweis" style="margin-bottom:20px"><span>ⓘ</span><span><b>Sie müssen nichts absenden.</b> Antworten speichern sich von selbst, Dateien sind hochgeladen, sobald der grüne Haken erscheint. Höchstens 50 MB je Datei.</span></div>' +
+  if (!K.abschnitte.length) return '<div class="seitenkopf"><div><span class="etikett">Unterlagen</span><h1>' + esc(K.titel || "" + T("Ihre Unterlagen", "Eure Unterlagen") + "") + '</h1></div></div><div class="karte pad leer">' + T("Im Moment brauchen wir keine Unterlagen von Ihnen.", "Im Moment brauchen wir keine Unterlagen von euch.") + '</div>';
+  return '<div class="seitenkopf"><div><span class="etikett">Unterlagen</span><h1>' + esc(K.titel || "" + T("Ihre Unterlagen", "Eure Unterlagen") + "") + "</h1>" + (einleitung(K, 1) ? "<p>" + esc(einleitung(K, 1)) + "</p>" : "") + '</div></div>' +
+    '<div class="hinweis" style="margin-bottom:20px"><span>ⓘ</span><span><b>' + T("Sie müssen nichts absenden.", "Du musst nichts absenden.") + '</b> Antworten speichern sich von selbst, Dateien sind hochgeladen, sobald der grüne Haken erscheint. Höchstens 50 MB je Datei.</span></div>' +
     '<div class="unterlagen"><nav class="inhalt">' + index + "</nav><div>" +
     K.abschnitte.map(function (a, i) {
       return '<section class="abschnitt" id="abschnitt-' + i + '"><div class="kopfzeile"><h2>' + esc(a.titel) + '</h2><span class="klein leise">' + esc(a.hinweis || "") + "</span></div>" + a.punkte.map(punktKarte).join("") + "</section>";
@@ -1155,11 +1158,11 @@ function kUnterlagen() {
 }
 function eigenerAbschnitt() {
   var ids = eigeneIds();
-  return '<section class="abschnitt" id="abschnitt-eigen"><div class="kopfzeile"><h2>Möchten Sie noch etwas ergänzen?</h2><span class="klein leise">Alles, was Ihr Jarvis zusätzlich wissen oder können soll</span></div>' +
+  return '<section class="abschnitt" id="abschnitt-eigen"><div class="kopfzeile"><h2>' + T("Möchten Sie noch etwas ergänzen?", "Möchtest du noch etwas ergänzen?") + '</h2><span class="klein leise">' + T("Alles, was Ihr Jarvis zusätzlich wissen oder können soll", "Alles, was euer Jarvis zusätzlich wissen oder können soll") + '</span></div>' +
     ids.map(function (id) {
       var t = eigenTeile(id), hoch = uploadsVon(id), laufend = S.uploads.filter(function (u) { return u.punkt === id; });
       return '<div class="karte punkt eigen' + (fertig(id) ? " fertig" : "") + '" data-punkt="' + id + '"><div class="feld" style="margin-top:0"><input type="text" class="eigentitel" data-schluessel="et-' + id + '" data-eigen="' + id + '" data-teil="titel" placeholder="Worum geht es? z. B. Abrechnung mit Firmenkunden" value="' + esc(t.titel) + '">' +
-        '<textarea rows="3" data-schluessel="ex-' + id + '" data-eigen="' + id + '" data-teil="text" placeholder="Beschreiben Sie es in Ihren Worten">' + esc(t.text) + '</textarea><span class="gespeichert" data-gesp="' + id + '"></span></div>' +
+        '<textarea rows="3" data-schluessel="ex-' + id + '" data-eigen="' + id + '" data-teil="text" placeholder="' + T("Beschreiben Sie es in Ihren Worten", "Beschreib es in deinen Worten") + '">' + esc(t.text) + '</textarea><span class="gespeichert" data-gesp="' + id + '"></span></div>' +
         '<div class="werkzeuge"><button type="button" class="hoch" data-waehlen="' + id + '">' + HOCH_BILD + '<span>Datei hochladen oder Foto aufnehmen</span></button><input type="file" multiple hidden data-eingabe="' + id + '">' +
         (hoch.length ? "" : '<button type="button" class="klein leise zusatz gefahr" data-eigenweg="' + id + '">Diesen Punkt entfernen</button>') + "</div>" + dateiListe(hoch, laufend) + "</div>";
     }).join("") +
@@ -1239,7 +1242,7 @@ function punktKarte(p) {
   if (nv) return kopf + '<div class="nvzeile"><span class="pille">Bei uns nicht vorhanden</span><button type="button" class="klein leise" data-nvweg="' + p.id + '">Doch vorhanden</button></div>' + dateiListe(hoch, laufend) + "</div></div>";
   return kopf +
     (p.details ? '<ul class="details">' + p.details.map(function (x) { return "<li>" + esc(x) + "</li>"; }).join("") + "</ul>" : "") +
-    (p.felder ? feldBlock(p) : '<div class="feld"><textarea rows="2" data-schluessel="a-' + p.id + '" data-antwort="' + p.id + '" placeholder="' + esc(p.feld || "Ihre Antwort") + '">' + esc(antwortVon(p.id)) + "</textarea></div>") +
+    (p.felder ? feldBlock(p) : '<div class="feld"><textarea rows="2" data-schluessel="a-' + p.id + '" data-antwort="' + p.id + '" placeholder="' + esc(p.feld || "" + T("Ihre Antwort", "Deine Antwort") + "") + '">' + esc(antwortVon(p.id)) + "</textarea></div>") +
     '<div class="werkzeuge"><button type="button" class="hoch" data-waehlen="' + p.id + '">' + HOCH_BILD + '<span>Datei hochladen oder Foto aufnehmen</span></button><input type="file" multiple hidden data-eingabe="' + p.id + '">' +
     '<div class="zusatzreihe"><span class="links"><button type="button" class="klein haupt" data-speichern="' + p.id + '">Speichern</button><span class="gespeichert" data-gesp="' + p.id + '"></span></span>' +
     '<span class="rechtsg">' + (v ? '<button type="button" class="klein" data-vorlage="' + esc(p.vorlage) + '">Excel-Vorlage herunterladen</button>' : "") +
@@ -1259,16 +1262,16 @@ function dokZeile(d) {
 }
 function kDokumente() {
   var d = S.stand.dokumente, u = S.stand.uploads;
-  return '<div class="seitenkopf"><div><span class="etikett">Dokumente</span><h1>Ihre Dokumente</h1><p>Was wir Ihnen bereitstellen, etwa Verträge und Angebote, und alles, was Sie uns geschickt haben.</p></div></div>' +
+  return '<div class="seitenkopf"><div><span class="etikett">Dokumente</span><h1>' + T("Ihre Dokumente", "Eure Dokumente") + '</h1><p>' + T("Was wir Ihnen bereitstellen, etwa Verträge und Angebote, und alles, was Sie uns geschickt haben.", "Was wir euch bereitstellen, etwa Verträge und Angebote, und alles, was ihr uns geschickt habt.") + '</p></div></div>' +
     '<div class="karte pad" style="margin-bottom:16px"><h2>Von Alpha Blueprint</h2>' + (d.length ? d.map(dokZeile).join("") : '<div class="leer">Noch keine Dokumente.</div>') + "</div>" +
-    '<div class="karte pad"><h2>Von Ihnen hochgeladen</h2>' +
+    '<div class="karte pad"><h2>' + T("Von Ihnen hochgeladen", "Von euch hochgeladen") + '</h2>' +
     (u.length ? u.slice().reverse().map(function (x) {
       return '<div class="doczeile"><span class="docsymbol">' + esc(endung(x.datei)) + '</span><div class="mehr"><div class="titel">' + (x.url ? '<a href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(x.datei) + "</a>" : esc(x.datei)) + "</div>" +
         '<div class="klein leise">' + esc(punktTitel(x.punkt)) + " · " + datum(x.angelegt, true) + " · " + groesse(x.groesse) + "</div></div></div>";
     }).join("") : '<div class="leer">Noch nichts hochgeladen.</div>') + "</div>";
 }
 function einstellungen() {
-  return '<div class="seitenkopf"><div><span class="etikett">Einstellungen</span><h1>' + (S.admin ? "Dein Zugang" : "Ihr Zugang") + "</h1>" + (S.admin ? "" : "<p>Angemeldet als " + esc(S.P.benutzer) + ". Hier ändern Sie Ihr Passwort und sehen, auf welchen Geräten Sie angemeldet sind.</p>") + '</div></div>' + '<div class="raster zwei">' + passwortKarte(S.P.benutzer, S.admin) + '<div style="display:grid;gap:16px;align-content:start">' + sicherheitKarten(S.admin) + darstellungKarte() + "</div></div>";
+  return '<div class="seitenkopf"><div><span class="etikett">Einstellungen</span><h1>' + (S.admin ? "Dein Zugang" : "" + T("Ihr Zugang", "Dein Zugang") + "") + "</h1>" + (S.admin ? "" : "<p>Angemeldet als " + esc(S.P.benutzer) + "" + T(". Hier ändern Sie Ihr Passwort und sehen, auf welchen Geräten Sie angemeldet sind.", ". Hier änderst du dein Passwort und siehst, auf welchen Geräten du angemeldet bist.") + "</p>") + '</div></div>' + '<div class="raster zwei">' + passwortKarte(S.P.benutzer, S.admin || DU) + '<div style="display:grid;gap:16px;align-content:start">' + sicherheitKarten(S.admin || DU) + darstellungKarte() + "</div></div>";
 }
 function darstellungKarte() {
   var wahl = [["system", "Wie das Gerät"], ["hell", "Hell"], ["dunkel", "Dunkel"]];
@@ -1277,7 +1280,7 @@ function darstellungKarte() {
 }
 function nachrichtenKarte(platz) {
   var n = S.stand.nachrichten, ich = S.admin ? "admin" : "kunde";
-  return (S.admin ? "" : '<div class="seitenkopf"><div><span class="etikett">Nachrichten</span><h1>Nachrichten</h1><p>Schreiben Sie uns hier. Elia Nedvidek liest jede Nachricht persönlich und antwortet Ihnen an dieser Stelle.</p></div></div>') +
+  return (S.admin ? "" : '<div class="seitenkopf"><div><span class="etikett">Nachrichten</span><h1>Nachrichten</h1><p>' + T("Schreiben Sie uns hier. Elia Nedvidek liest jede Nachricht persönlich und antwortet Ihnen an dieser Stelle.", "Schreib uns hier. Elia liest jede Nachricht persönlich und antwortet dir an dieser Stelle.") + '</p></div></div>') +
     '<div class="karte"><div class="verlauf">' + (n.length ? n.map(function (m) {
       return '<div class="blase ' + (m.von_rolle === ich ? "ich" : "du") + '"><span class="von">' + esc(m.von_name) + " · " + datum(m.angelegt, true) + "</span>" + esc(m.text) + "</div>";
     }).join("") : '<div class="leer">Noch keine Nachrichten.</div>') + "</div>" +
@@ -1459,7 +1462,7 @@ function verdrahten() {
   }; });
   w.querySelectorAll("[data-nv]").forEach(function (b) { b.onclick = function () {
     var p = b.dataset.nv, t = (S.entwurf.antworten[p] != null ? S.entwurf.antworten[p] : antwortVon(p)).trim();
-    if (t && t !== NICHT_DA) return melden("Sie haben hier schon etwas eingetragen. Löschen Sie den Text, wenn es das bei Ihnen nicht gibt.", true);
+    if (t && t !== NICHT_DA) return melden("" + T("Sie haben hier schon etwas eingetragen. Löschen Sie den Text, wenn es das bei Ihnen nicht gibt.", "Hier steht schon etwas. Lösch den Text, wenn es das bei euch nicht gibt.") + "", true);
     b.disabled = true; antwortSetzen(p, NICHT_DA);
   }; });
   w.querySelectorAll("[data-nvweg]").forEach(function (b) { b.onclick = function () { b.disabled = true; antwortSetzen(b.dataset.nvweg, ""); }; });
@@ -1508,6 +1511,7 @@ function verdrahten() {
 /* ===================================================================== Start */
 function starten(P) {
   S.P = P; S.admin = P.art === "admin";
+  DU = !S.admin && !!P.kunde && P.kunde.anrede === "du";
   document.title = S.admin ? "Kundenportal · Verwaltung" : "Kundenportal · " + P.kunde.kurzname;
   if (S.admin) { S.sicht = "nachrichten"; zeichnen(); uebersichtLaden(); if (P.kunden.length === 1) { S.kunde = P.kunden[0].kennung; laden(); } }
   else { zeichnen(); laden(); }

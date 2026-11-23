@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="crm" data-glas data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-9BiVU+ZEmqcvgljDs5AQstRAM1tMrhk4sEZVJVUr8Zw='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-g4cmzd7wMz96FXRShoo1wdD0iJoYemI74mT39iSrmTc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -693,7 +693,7 @@ function weiter(token) {
     if (SEITE === "crm") { P.art = "crm"; P.portalKunden = inhalt.kunden || []; }
     else if (ich.rolle === "admin") { P.art = "admin"; P.kunden = inhalt.kunden || []; }
     else {
-      if (!inhalt.kunde) throw new Error("Für diesen Zugang ist noch nichts eingerichtet. Bitte rufen Sie uns an.");
+      if (!inhalt.kunde) throw new Error("Für diesen Zugang ist noch nichts eingerichtet. Bitte kurz bei uns anrufen.");
       P.art = "kunde"; P.kunde = inhalt.kunde; P.vorlagen = inhalt.kunde.vorlagenLinks || {};
     }
     document.getElementById("tor").hidden = true;
@@ -742,7 +742,7 @@ function erstesPasswortZeigen(token, name) {
   document.getElementById("tor").hidden = false; document.getElementById("app").hidden = true;
   var f = document.getElementById("torForm"), mitAlt = !TOR.erst;
   f.innerHTML = '<span class="marke gross"><i></i>Alpha Blueprint</span><h1>Eigenes Passwort festlegen</h1>' +
-    '<p class="unter">Willkommen! Bitte legen Sie jetzt ein eigenes Passwort fest. Ihr Zugangsname bleibt <b>' + esc(name) + '</b>.</p>' +
+    '<p class="unter">Willkommen! Bitte jetzt ein eigenes Passwort festlegen. Der Zugangsname bleibt <b>' + esc(name) + '</b>.</p>' +
     (mitAlt ? '<label for="ealt">Bisheriges Passwort</label><input type="password" id="ealt" autocomplete="current-password" required>' : "") +
     '<label for="eneu">Neues Passwort</label><input type="password" id="eneu" autocomplete="new-password" required>' +
     '<label for="eneu2">Neues Passwort wiederholen</label><input type="password" id="eneu2" autocomplete="new-password" required>' +
@@ -767,7 +767,7 @@ function erstesPasswortZeigen(token, name) {
 function codeSchrittZeigen(fehlerText) {
   var f = document.getElementById("torForm");
   f.innerHTML = '<span class="marke gross"><i></i>Alpha Blueprint</span><h1>Bestätigung</h1>' +
-    '<p class="unter">Bitte den 6-stelligen Code aus Ihrer Authenticator-App eingeben.</p>' +
+    '<p class="unter">Bitte den 6-stelligen Code aus der Authenticator-App eingeben.</p>' +
     '<label for="code">Code</label><input type="text" id="code" name="one-time-code" inputmode="numeric" autocomplete="one-time-code" maxlength="7" required>' +
     '<button type="submit" class="haupt" id="oeffnen">Bestätigen</button><p class="sagt" id="sagt" role="status" aria-live="polite"></p>' +
     '<p class="fuss"><a href="#" id="zurueck">Zurück zur Anmeldung</a></p>';
@@ -792,7 +792,7 @@ function totpEinrichtenZeigen(token, pflicht, ziel, fertig) {
     if (!ziel) { document.getElementById("tor").hidden = false; document.getElementById("app").hidden = true; }
     box.innerHTML = (ziel ? "" : '<span class="marke gross"><i></i>Alpha Blueprint</span>') +
       '<h1 style="' + (ziel ? "font-size:20px;margin:0 0 6px" : "") + '">Zwei-Faktor einrichten</h1>' +
-      '<p class="unter">' + (pflicht ? "Für diesen Zugang ist ein zweiter Faktor Pflicht. " : "") + 'Scannen Sie den Code mit einer Authenticator-App (Apple Passwörter, Google Authenticator, 1Password …) und geben Sie den angezeigten Code ein.</p>' +
+      '<p class="unter">' + (pflicht ? "Für diesen Zugang ist ein zweiter Faktor Pflicht. " : "") + 'Den Code mit einer Authenticator-App scannen (Apple Passwörter, Google Authenticator, 1Password …) und den angezeigten Code eingeben.</p>' +
       '<div class="qr">' + qrSvg(j.uri) + '</div>' +
       '<p class="klein leise" style="margin:8px 0 14px;word-break:break-all">Oder von Hand eintragen: <code>' + esc(j.geheim.replace(/(.{4})/g, "$1 ").trim()) + "</code></p>" +
       '<label for="tcode">Code aus der App</label><input type="text" id="tcode" inputmode="numeric" autocomplete="one-time-code" maxlength="7">' +
