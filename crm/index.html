@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="crm" data-glas data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-g4cmzd7wMz96FXRShoo1wdD0iJoYemI74mT39iSrmTc='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-WysDlKycz8ypaIVzQgSFhaVzIU/yx9Y4vZ0pe3QSvus='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -968,7 +968,7 @@ var STATUS = { lead: "Lead", angebot: "Angebot", kunde: "Kunde", pausiert: "Paus
 var ARTEN = { notiz: "Notiz", anruf: "Anruf", mail: "E-Mail", termin: "Termin", angebot: "Angebot", vertrag: "Vertrag" };
 var ARTZEICHEN = { notiz: "✎", anruf: "☎", mail: "✉", termin: "◷", angebot: "€", vertrag: "§" };
 function statusPille(s) { return '<span class="pille st-' + esc(s) + '">' + esc(STATUS[s] || s) + "</span>"; }
-var DATEI_MAX = 50 * 1024 * 1024;
+var DATEI_MAX = 500 * 1024 * 1024;
 
 /* ===================================================================== Zustand */
 var S = {
@@ -2002,7 +2002,7 @@ function verdrahten() {
   if (cd) cd.onchange = function () {
     Array.prototype.forEach.call(cd.files, function (datei) {
       var u = { name: datei.name }; S.hoch.push(u);
-      if (datei.size > DATEI_MAX) { u.fehler = "zu groß (höchstens 50 MB)"; return; }
+      if (datei.size > DATEI_MAX) { u.fehler = "zu groß (höchstens 500 MB)"; return; }
       api("crm_datei_link", { kunde_id: S.id, name: datei.name })
         .then(function (l) { return hochladen(l.url, datei).then(function () { return api("crm_datei_fertig", { kunde_id: S.id, pfad: l.pfad, dateiname: datei.name, groesse: datei.size }); }); })
         .then(function () { S.hoch = S.hoch.filter(function (x) { return x !== u; }); melden("„" + datei.name + "“ gespeichert."); akteLaden(S.id); },

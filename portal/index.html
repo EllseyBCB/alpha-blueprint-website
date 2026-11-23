@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="portal" data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-ga04nOwZlz9xA/h4gFrNoQPpdOFhho8drkiY5oTm6/k='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-W0a/jDHIayqRJ9Y5dXsEwonwCvhmIfMJrohM9yZoUfg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -981,7 +981,7 @@ function melden(text, fehler) {
   var m = document.createElement("div"); if (fehler) m.className = "fehler"; m.textContent = text;
   document.getElementById("meldung").appendChild(m); setTimeout(function () { m.remove(); }, fehler ? 8000 : 3500);
 }
-var DATEI_MAX = 50 * 1024 * 1024;
+var DATEI_MAX = 500 * 1024 * 1024;
 
 /* ===================================================================== Zustand */
 var S = {
@@ -1012,7 +1012,7 @@ function hochladen(link, datei, fortschritt) {
     r.onload = function () {
       if (r.status >= 200 && r.status < 300) return ok();
       var g = "Fehler " + r.status; try { var a = JSON.parse(r.responseText); if (a.message) g = a.message; } catch (x) {}
-      if (r.status === 413 || /size/i.test(g)) g = "zu groß (höchstens 50 MB)";
+      if (r.status === 413 || /size/i.test(g)) g = "zu groß (höchstens 500 MB)";
       if (r.status === 415 || /mime/i.test(g)) g = "Dateityp nicht zugelassen, bitte als PDF oder ZIP";
       nein(new Error(g));
     };
@@ -1150,7 +1150,7 @@ function kUnterlagen() {
   }).join("") + '<a href="#abschnitt-eigen"><span>Eigene Punkte</span><span class="z">' + (eigeneIds().length || "+") + "</span></a>";
   if (!K.abschnitte.length) return '<div class="seitenkopf"><div><span class="etikett">Unterlagen</span><h1>' + esc(K.titel || "" + T("Ihre Unterlagen", "Eure Unterlagen") + "") + '</h1></div></div><div class="karte pad leer">' + T("Im Moment brauchen wir keine Unterlagen von Ihnen.", "Im Moment brauchen wir keine Unterlagen von euch.") + '</div>';
   return '<div class="seitenkopf"><div><span class="etikett">Unterlagen</span><h1>' + esc(K.titel || "" + T("Ihre Unterlagen", "Eure Unterlagen") + "") + "</h1>" + (einleitung(K, 1) ? "<p>" + esc(einleitung(K, 1)) + "</p>" : "") + '</div></div>' +
-    '<div class="hinweis" style="margin-bottom:20px"><span>ⓘ</span><span><b>' + T("Sie müssen nichts absenden.", "Du musst nichts absenden.") + '</b> Antworten speichern sich von selbst, Dateien sind hochgeladen, sobald der grüne Haken erscheint. Höchstens 50 MB je Datei.</span></div>' +
+    '<div class="hinweis" style="margin-bottom:20px"><span>ⓘ</span><span><b>' + T("Sie müssen nichts absenden.", "Du musst nichts absenden.") + '</b> Antworten speichern sich von selbst, Dateien sind hochgeladen, sobald der grüne Haken erscheint. Höchstens 500 MB je Datei.</span></div>' +
     '<div class="unterlagen"><nav class="inhalt">' + index + "</nav><div>" +
     K.abschnitte.map(function (a, i) {
       return '<section class="abschnitt" id="abschnitt-' + i + '"><div class="kopfzeile"><h2>' + esc(a.titel) + '</h2><span class="klein leise">' + esc(a.hinweis || "") + "</span></div>" + a.punkte.map(punktKarte).join("") + "</section>";
@@ -1367,7 +1367,7 @@ function dateienHoch(punkt, liste) {
   Array.prototype.forEach.call(liste, function (datei) {
     var u = { id: "u" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), punkt: punkt, name: datei.name, groesse: datei.size, anteil: 0, stand: "laeuft" };
     S.uploads.push(u);
-    if (datei.size > DATEI_MAX) { u.stand = "fehler"; u.grund = "zu groß (höchstens 50 MB)"; return; }
+    if (datei.size > DATEI_MAX) { u.stand = "fehler"; u.grund = "zu groß (höchstens 500 MB)"; return; }
     api("hochladen", { punkt: punkt, name: datei.name }).then(function (l) {
       return hochladen(l.url, datei, function (x) { u.anteil = x; var b = document.querySelector('[data-upload="' + u.id + '"] .dbalken i'); if (b) b.style.width = Math.round(x * 100) + "%"; });
     }).then(function () {
@@ -1397,7 +1397,7 @@ var TUN = {
   rueckgabe: function (b) { S.entwurf.rueckgabe = b.checked; },
   bereitstellen: function (b) {
     var d = S.datei; if (!d) return;
-    if (d.size > DATEI_MAX) return melden("Höchstens 50 MB je Datei.", true);
+    if (d.size > DATEI_MAX) return melden("Höchstens 500 MB je Datei.", true);
     b.disabled = true; b.textContent = "Wird hochgeladen …";
     api("bereitstellen", { name: d.name }).then(function (l) {
       return hochladen(l.url, d).then(function () {
