@@ -180,7 +180,7 @@ def seite_bauen(quelle):
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(meta['titel'])}</title><meta name="robots" content="noindex,follow">
 <link rel="canonical" href="{DOMAIN}{nach}"><meta http-equiv="refresh" content="0; url={nach}">
-<style>body{{background:#05090e;color:#e6f3f9;font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0}}a{{color:#a8ecfa}}</style>
+<style>body{{background:#000;color:#f5f5f5;font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0}}a{{color:#a8ecfa}}</style>
 </head><body><p>Diese Seite ist umgezogen: <a href="{nach}">weiter</a></p></body></html>
 """)
         return None
@@ -222,7 +222,7 @@ def seite_bauen(quelle):
 <link rel="canonical" href="{kanonisch}">
 <meta name="robots" content="{robots}">
 <meta name="author" content="Elia Nedvidek">
-<meta name="theme-color" content="#05090e">
+<meta name="theme-color" content="#000000">
 <link rel="icon" type="image/png" href="/assets/logo-sw.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/neu/archivo-var.woff2" as="font" type="font/woff2" crossorigin>
