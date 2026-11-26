@@ -223,7 +223,7 @@ def seite_bauen(quelle):
 <meta name="robots" content="{robots}">
 <meta name="author" content="Elia Nedvidek">
 <meta name="theme-color" content="#05090e">
-<link rel="icon" type="image/png" href="/assets/logo-cyan.png">
+<link rel="icon" type="image/png" href="/assets/logo-sw.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/neu/archivo-var.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="preload" href="/assets/fonts/xn7gYHE41ni1AdIRggexSg.woff2" as="font" type="font/woff2" crossorigin>
