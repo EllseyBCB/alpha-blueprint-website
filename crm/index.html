@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="crm" data-glas data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-WysDlKycz8ypaIVzQgSFhaVzIU/yx9Y4vZ0pe3QSvus='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-CYD4/is+1sz/HZR0Bjluq2sXF7W+zSsMFZKU4Gs0T2U='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -1132,7 +1132,7 @@ function start() {
       var spaet = k.naechster_termin && k.naechster_termin < heute;
       return '<div class="doczeile" style="cursor:pointer" data-akte="' + k.id + '"><div class="mehr"><div class="titel">' + esc(k.firma) + '</div><div class="klein" style="color:var(--mittel)">' + esc(k.naechster_schritt || "–") + "</div></div>" +
         (k.naechster_termin ? '<span class="pille ' + (spaet ? "warn" : "") + '">' + datum(k.naechster_termin) + "</span>" : "") + "</div>";
-    }).join("") : '<div class="leer">Keine offenen Schritte.</div>') + "</div></div>";
+    }).join("") : '<div class="leer">Keine offenen Schritte.</div>') + "</div></div>" + anfragenStartKarte();
 }
 /* Eigene Punkte des Kunden im Portal: Kennung „eigen-…“, erste Zeile der Antwort ist die Überschrift. */
 function punktName(pp, id, text) {
@@ -1183,7 +1183,7 @@ function akte() {
   var F = S.form;
   if (!F) return '<div class="leer">Lädt …</div>';
   var neu = !F.id, p = S.portal;
-  var reiter = [["stammdaten", "Stammdaten"], ["verlauf", "Verlauf" + (S.akte && S.akte.verlauf.length ? " · " + S.akte.verlauf.length : "")], ["zahlungen", "Zahlungen"], ["dateien", "Dateien"], ["portal", "Kundenportal"]];
+  var reiter = [["stammdaten", "Stammdaten"], ["verlauf", "Verlauf" + (S.akte && S.akte.verlauf.length ? " · " + S.akte.verlauf.length : "")], ["zahlungen", "Zahlungen"]].concat(AQ.kunden.indexOf(F.id) !== -1 ? [["anfragen", "Wünsche" + (AQ.liste && S.id && anfragenVon(S.id).filter(function (x) { return x.status === "neu"; }).length ? " · " + anfragenVon(S.id).filter(function (x) { return x.status === "neu"; }).length + " prüfen" : "")]] : []).concat([["dateien", "Dateien"], ["portal", "Kundenportal"]]);
   var ungelesen = p ? p.nachrichten.filter(function (n) { return n.von_rolle === "kunde" && !n.gelesen_admin; }).length : 0;
   return '<div class="seitenkopf"><div><button type="button" class="klein leise" data-sicht="kunden">← Alle Kunden</button><h1>' + esc(F.firma || "Neuer Kunde") + "</h1>" +
     '<p>' + (neu ? "Noch nicht gespeichert." : statusPille(F.status) + (F.kennung ? ' <span class="pille akzent">Portal: ' + esc(F.kennung) + "</span>" : "")) + "</p></div>" +
@@ -1191,7 +1191,7 @@ function akte() {
     (neu ? "" : '<nav class="reiter" style="padding:0;margin:-6px 0 18px;border-bottom:1px solid var(--linie)">' + reiter.map(function (r) {
       return '<button type="button" data-reiter="' + r[0] + '" aria-current="' + (S.reiter === r[0]) + '">' + r[1] + (r[0] === "portal" && ungelesen ? ' <span class="zahlpunkt">' + ungelesen + "</span>" : "") + "</button>";
     }).join("") + "</nav>") +
-    (neu || S.reiter === "stammdaten" ? stammdaten() : S.reiter === "verlauf" ? verlauf() : S.reiter === "zahlungen" ? zahlungenReiter() : S.reiter === "dateien" ? dateien() : portalReiter());
+    (neu || S.reiter === "stammdaten" ? stammdaten() : S.reiter === "verlauf" ? verlauf() : S.reiter === "zahlungen" ? zahlungenReiter() : S.reiter === "anfragen" ? anfragenReiter() : S.reiter === "dateien" ? dateien() : portalReiter());
 }
 function feld(name, titel, art) {
   var v = S.form[name] == null ? "" : S.form[name];
@@ -1972,6 +1972,187 @@ var TUN = {
 function geaendert() {
   if (!S.geaendert) { S.geaendert = true; var k = document.querySelector(".seitenkopf"); if (k && !k.querySelector('[data-tun="speichern"]')) { zeichnen(); } }
 }
+/* ===================================================================== Anfragen (Kundenwünsche mit Kostenprüfung) */
+/* Jeder Wunsch wird erst geprüft: Erhöht er die Monatsgebühr oder nicht? Der Kunde bekommt das genannt, BEVOR er ja oder nein sagt. */
+var AQ = { liste: null, neu: { titel: "", beschreibung: "" }, pruef: {}, du: [], kunden: [], ki: false, wartet: 0 };
+var AQSTATUS = { neu: "Prüfung offen", geprueft: "Geprüft, wartet auf Antwort", zugestimmt: "Zugestimmt, in Arbeit", abgelehnt: "Abgelehnt", laeuft: "Läuft" };
+function apiA(aktion, daten) {
+  return fetch(S.P.api.url.replace(/kundenportal$/, "crm-anfragen"), {
+    method: "POST", headers: { "content-type": "application/json", "x-portal-sitzung": S.P.api.sitzung },
+    body: JSON.stringify(Object.assign({ aktion: aktion }, daten || {})),
+  }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) {
+    if (!r.ok || j.fehler) throw new Error(j.fehler || ("Fehler " + r.status)); return j; }); });
+}
+function anfragenLaden() {
+  return apiA("liste").then(function (j) {
+    AQ.liste = j.anfragen; AQ.du = j.du || []; AQ.kunden = j.kunden || []; AQ.ki = true; zeichnen();
+    /* Solange die KI an einem Wunsch arbeitet, alle paar Sekunden nachsehen (höchstens zwei Minuten). */
+    var laeuft = AQ.liste.some(function (a) { return a.status === "neu" && aqWartet(a); });
+    if (laeuft && AQ.wartet < 24) { AQ.wartet++; setTimeout(function () { if (!document.hidden) anfragenLaden(); }, 5000); } else if (!laeuft) AQ.wartet = 0;
+  }, function (f) { AQ.liste = AQ.liste || []; melden("Wünsche: " + f.message, true); });
+}
+/* Wartet der Wunsch noch auf die KI? Sie läuft über das Claude-Abo auf Elias Rechner (ki-pruefer.mjs), nicht über einen API-Schlüssel. */
+function aqWartet(a) { var st = a.ki_stand || ""; return st === "laeuft" || st === "wartet" || st.indexOf("Kein Claude-Schlüssel") !== -1 || (!a.ki && !st); }
+function anfragenVon(id) { return (AQ.liste || []).filter(function (a) { return a.kunde_id === id; }); }
+function aqSumme(l, status) { return l.filter(function (a) { return a.status === status; }).reduce(function (s, a) { return s + betrag(a.mehrkosten); }, 0); }
+function anfrageSpeichern(d, danach) {
+  return apiA("speichern", { daten: d }).then(function () { if (danach) danach(); return anfragenLaden(); }, function (f) { melden(f.message, true); zeichnen(); });
+}
+function anfrageText(a, grund, laufend) {
+  var jetzt = grund + laufend, m = betrag(a.mehrkosten), e = betrag(a.einmalig), kp = betrag(a.kaufaufschlag);
+  var du = AQ.du.indexOf(a.kunde_id) !== -1, T = function (sie, d) { return du ? d : sie; };
+  if (!m && !e && !kp) return T("Ihr Wunsch", "Dein Wunsch") + " „" + a.titel + "“: Ich habe ihn geprüft. Er kostet nichts extra, die monatliche Miete bleibt bei " + euro2(jetzt) + ". " + T("Geben Sie mir kurz Bescheid, dann setze ich ihn um.", "Gib mir kurz Bescheid, dann setze ich ihn um.");
+  return T("Ihr Wunsch", "Dein Wunsch") + " „" + a.titel + "“: Ich habe ihn geprüft." +
+    (m ? " Er erhöht die monatliche Miete um " + euro2(m) + " (von " + euro2(jetzt) + " auf " + euro2(jetzt + m) + "), sobald er " + T("bei Ihnen", "bei euch") + " läuft." : "") +
+    (kp ? " Der Kaufpreis für das System steigt damit um " + euro2(kp) + "." : "") +
+    (e ? " Einmalig kommen " + euro2(e) + " dazu." : "") +
+    " " + T("Geben Sie mir bitte kurz Bescheid, ob ich ihn umsetzen soll.", "Gib mir bitte kurz Bescheid, ob ich ihn umsetzen soll.") + " Vorher baue ich nichts.";
+}
+function anfragenUebersichtText(l, grund) {
+  var laufend = aqSumme(l, "laeuft"), z = [];
+  var gruppe = function (titel, f) { var x = l.filter(f); if (!x.length) return; z.push(titel); x.forEach(function (a) { z.push("- " + a.titel + ": " + (a.status === "neu" ? "wird noch geprüft" : betrag(a.mehrkosten) ? "+ " + euro2(a.mehrkosten) + " im Monat" : "kostet nichts extra") + (a.status !== "neu" && betrag(a.kaufaufschlag) ? ", Kaufpreis + " + euro2(a.kaufaufschlag) : "") + (betrag(a.einmalig) ? ", einmalig " + euro2(a.einmalig) : "")); }); z.push(""); };
+  z.push("Übersicht eurer Wünsche, Stand " + datum(heuteIso()), "");
+  gruppe("Läuft bereits:", function (a) { return a.status === "laeuft"; });
+  gruppe("Zugestimmt, in Arbeit:", function (a) { return a.status === "zugestimmt"; });
+  gruppe("Geprüft, wartet auf eure Antwort:", function (a) { return a.status === "geprueft"; });
+  gruppe("Eingegangen, Prüfung läuft:", function (a) { return a.status === "neu"; });
+  z.push("Monatliche Nutzung aktuell: " + euro2(grund + laufend) + (laufend ? " (Grundbetrag " + euro2(grund) + " + Erweiterungen " + euro2(laufend) + ")" : ""));
+  var zu = aqSumme(l, "zugestimmt"); if (zu) z.push("Nach Fertigstellung der zugestimmten Wünsche: " + euro2(grund + laufend + zu));
+  return z.join("\n");
+}
+function anfragenReiter() {
+  if (AQ.liste === null) { anfragenLaden(); return '<div class="leer">Lädt …</div>'; }
+  var l = anfragenVon(S.id), grund = betrag(S.form.monatlich), laufend = aqSumme(l, "laeuft"), zu = aqSumme(l, "zugestimmt");
+  var offen = l.filter(function (a) { return a.status === "neu"; }).length;
+  var pille = function (a) { var f = { neu: "warn", geprueft: "akzent", zugestimmt: "akzent", laeuft: "gut", abgelehnt: "" }[a.status]; return '<span class="pille ' + f + '">' + esc(AQSTATUS[a.status] || a.status) + "</span>"; };
+  var kosten = function (a) { var t = []; if (betrag(a.mehrkosten)) t.push("+ " + euro2(a.mehrkosten) + " im Monat"); if (betrag(a.kaufaufschlag)) t.push("Kaufpreis + " + euro2(a.kaufaufschlag)); if (betrag(a.einmalig)) t.push("einmalig " + euro2(a.einmalig)); return t.length ? t.join(", ") : "kostet nichts extra"; };
+  var istDu = AQ.du.indexOf(S.id) !== -1, hatPortal = !!(S.form && S.form.kennung);
+  var GR = { klein: "Kleine Anpassung", mittel: "Neue Funktion", gross: "Neuer Bereich", anbindung: "Anbindung an ein fremdes System" };
+  var kiKasten = function (a) {
+    var k = a.ki, st = a.ki_stand || "";
+    if (aqWartet(a)) return '<div class="klein" style="background:var(--akzent-hell);color:var(--akzent);border-radius:8px;padding:10px 12px;margin-top:10px">Die KI prüft den Wunsch gerade … <span style="opacity:.75">Sie läuft über dein Claude-Abo auf deinem Rechner. Ist er aus, kommt der Vorschlag, sobald er wieder an ist. Du kannst auch gleich selbst prüfen.</span></div>';
+    if (!k) return '<div class="klein leise" style="margin-top:10px">' + (st.indexOf("fehler:") === 0 ? "KI-Prüfung nicht möglich: " + esc(st.slice(7).trim()) : "Noch keine KI-Einschätzung.") + ' <button type="button" class="klein" data-aqki="' + a.id + '">KI prüfen lassen</button></div>';
+    return '<div style="background:var(--karte2);border:1px solid var(--linie);border-radius:8px;padding:12px 14px;margin-top:10px">' +
+      '<div class="kartenkopf" style="margin-bottom:6px"><span class="etikett">Vorschlag der KI</span><span class="pille akzent">' + esc(GR[k.groesse] || k.groesse) + "</span></div>" +
+      '<div style="font-weight:600">' + (betrag(k.mehrkosten_monat) || betrag(k.kaufaufschlag) ? "+ " + euro2(k.mehrkosten_monat) + " im Monat · Kaufpreis + " + euro2(k.kaufaufschlag) : "Kostet nichts extra") + ' <span class="klein leise" style="font-weight:400">· Aufwand etwa ' + esc(String(k.aufwand_stunden).replace(".", ",")) + " Std.</span></div>" +
+      '<p class="klein" style="margin:6px 0 0">' + esc(k.begruendung) + "</p>" +
+      ((k.rueckfragen || []).length ? '<p class="klein" style="margin:6px 0 0"><b>Vorher klären:</b> ' + k.rueckfragen.map(esc).join(" · ") + "</p>" : "") +
+      '<div class="reihe" style="gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="klein haupt" data-aqnehmen="' + a.id + '">Vorschlag übernehmen</button><button type="button" class="klein leise" data-aqki="' + a.id + '">Neu prüfen lassen</button></div></div>';
+  };
+  return '<div class="kennzahlen">' +
+    '<div class="karte kennzahl"><span class="etikett">Grundbetrag</span><div class="z">' + euro2(grund) + '</div><div class="u">im Monat (Stammdaten)</div></div>' +
+    '<div class="karte kennzahl"><span class="etikett">Erweiterungen, laufend</span><div class="z">+ ' + euro2(laufend) + '</div><div class="u">' + l.filter(function (a) { return a.status === "laeuft" && betrag(a.mehrkosten); }).length + " mit Aufpreis</div></div>" +
+    '<div class="karte kennzahl"><span class="etikett">Aktuell im Monat</span><div class="z" style="color:var(--gut)">' + euro2(grund + laufend) + '</div><div class="u">' + (zu ? "nach Fertigstellung " + euro2(grund + laufend + zu) : "nichts Zugesagtes offen") + "</div></div>" +
+    '<div class="karte kennzahl"><span class="etikett">Prüfung offen</span><div class="z">' + offen + '</div><div class="u">' + l.filter(function (a) { return a.status === "geprueft"; }).length + " warten auf Antwort</div></div></div>" +
+    '<div class="karte pad"><div class="kartenkopf"><h2>Neuer Wunsch</h2>' + (l.length ? '<button type="button" class="klein" data-aquebersicht>Übersicht für den Kunden kopieren</button>' : "") + "</div>" +
+    '<p class="klein leise" style="margin:0 0 10px">Erst aufnehmen, dann prüfen, ob er Miete und Kaufpreis erhöht. Der Kunde bekommt das genannt, bevor er ja oder nein sagt.' +
+      (hatPortal ? " Der Kunde kann Wünsche auch selbst im Kundenportal eintragen." : "") + " Die KI schätzt jeden neuen Wunsch ein, über dein Claude-Abo." + "</p>" +
+    '<label class="check" style="margin:0 0 10px"><input type="checkbox" data-aqdu' + (istDu ? " checked" : "") + '><span>Diesen Kunden duze ich (für die Antworttexte)</span></label>' +
+    '<input type="text" placeholder="Was wünscht sich der Kunde? z. B. Bar-Verkäufe aus Lightspeed anzeigen" data-schluessel="aq-titel" data-aqneu="titel" value="' + esc(AQ.neu.titel) + '">' +
+    '<textarea rows="2" placeholder="Einzelheiten (optional)" style="margin-top:8px" data-schluessel="aq-beschreibung" data-aqneu="beschreibung">' + esc(AQ.neu.beschreibung) + "</textarea>" +
+    '<div style="margin-top:10px"><button type="button" class="haupt" data-aqanlegen>Wunsch aufnehmen</button></div></div>' +
+    (l.length ? l.map(function (a) {
+      var P, tun = "";
+      if (a.status === "neu") {
+        P = AQ.pruef[a.id] || { mehr: "", kauf: "", einmalig: "", text: "" };
+        tun = kiKasten(a) +
+          '<div style="margin-top:12px"><span class="klein" style="font-weight:600">Deine Prüfung</span>' +
+          '<div class="reihe" style="align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px">' +
+          '<input type="text" inputmode="decimal" placeholder="0" style="width:90px;text-align:right" data-schluessel="aq-mehr-' + a.id + '" data-aqpruef="' + a.id + '" data-teil="mehr" value="' + esc(P.mehr) + '"><span class="klein">€ mehr Miete im Monat</span>' +
+          '<input type="text" inputmode="decimal" placeholder="0" style="width:100px;text-align:right" data-schluessel="aq-kauf-' + a.id + '" data-aqpruef="' + a.id + '" data-teil="kauf" value="' + esc(P.kauf) + '"><span class="klein">€ mehr Kaufpreis</span>' +
+          '<input type="text" inputmode="decimal" placeholder="0" style="width:90px;text-align:right" data-schluessel="aq-einmal-' + a.id + '" data-aqpruef="' + a.id + '" data-teil="einmalig" value="' + esc(P.einmalig) + '"><span class="klein">€ einmalig</span></div>' +
+          '<textarea rows="3" style="margin-top:8px" placeholder="Antwort an den Kunden. Leer lassen: dann schreibt das CRM den Standardtext mit den Beträgen." data-schluessel="aq-text-' + a.id + '" data-aqpruef="' + a.id + '" data-teil="text">' + esc(P.text) + "</textarea>" +
+          '<div class="reihe" style="gap:8px;flex-wrap:wrap;margin-top:8px"><button type="button" class="klein haupt" data-aqkostet="' + a.id + '">Prüfung speichern: kostet extra</button><button type="button" class="klein" data-aqfrei="' + a.id + '">Prüfung speichern: kostet nichts extra</button></div></div>';
+      } else if (a.status === "geprueft") {
+        tun = '<div class="klein" style="background:var(--karte2);border-radius:8px;padding:10px 12px;margin-top:10px;white-space:pre-wrap">' + esc(a.antwort_text || anfrageText(a, grund, laufend)) + "</div>" +
+          '<div class="reihe" style="gap:8px;flex-wrap:wrap;margin-top:10px">' + (hatPortal && !a.mitgeteilt_am ? '<button type="button" class="klein haupt" data-aqportal="' + a.id + '">Im Kundenportal freigeben</button>' : "") +
+          '<button type="button" class="klein" data-aqtext="' + a.id + '">Mitteilung kopieren</button>' +
+          (a.mitgeteilt_am ? '<span class="klein leise" style="align-self:center">mitgeteilt am ' + datum(a.mitgeteilt_am) + "</span>" +
+            '<button type="button" class="klein haupt" data-aqja="' + a.id + '">Kunde sagt ja</button><button type="button" class="klein" data-aqnein="' + a.id + '">Kunde sagt nein</button>'
+            : '<span class="klein leise" style="align-self:center">Erst mitteilen' + (hatPortal ? " oder freigeben" : "") + ', dann kann der Kunde entscheiden.</span>') +
+          '<button type="button" class="klein leise" data-aqzurueck="' + a.id + '">Prüfung ändern</button></div>';
+      } else if (a.status === "zugestimmt") {
+        tun = '<div class="reihe" style="gap:8px;flex-wrap:wrap;margin-top:10px"><span class="klein leise" style="align-self:center">Zugestimmt am ' + datum(a.entschieden_am) + '</span><button type="button" class="klein haupt" data-aqlaeuft="' + a.id + '">Fertig, läuft ab heute</button></div>';
+      } else if (a.status === "laeuft") {
+        tun = '<div class="klein leise" style="margin-top:8px">Läuft seit ' + datum(a.laeuft_ab) + (betrag(a.mehrkosten) ? ", zählt mit " + euro2(a.mehrkosten) + " im Monat" : "") + "</div>";
+      } else if (a.status === "abgelehnt") {
+        tun = '<div class="klein leise" style="margin-top:8px">Abgelehnt am ' + datum(a.entschieden_am) + ". Nicht umgesetzt.</div>";
+      }
+      return '<div class="karte pad" style="margin-top:14px"><div class="kartenkopf"><h2 style="font-size:16px">' + esc(a.titel) + "</h2>" + pille(a) + "</div>" +
+        (a.beschreibung ? '<p class="klein" style="margin:0 0 6px;white-space:pre-wrap">' + esc(a.beschreibung) + "</p>" : "") +
+        '<div class="klein leise">Eingegangen am ' + datum(a.eingegangen) + (a.quelle === "portal" ? " über das Kundenportal" : "") + (a.status !== "neu" ? " · " + kosten(a) : "") + "</div>" + tun +
+        '<div style="margin-top:10px">' + (S.bestaetigen === "aq" + a.id ? '<button type="button" class="klein gefahr" data-aqweg="' + a.id + '">Wirklich löschen?</button>' : '<button type="button" class="klein leise" data-frage="aq' + a.id + '">Löschen</button>') + "</div></div>";
+    }).join("") : '<div class="leer" style="margin-top:14px">Noch keine Wünsche erfasst.</div>');
+}
+/* Start-Karte: was monatlich wiederkehrend hereinkommt, und wo noch eine Prüfung offen ist. */
+function anfragenStartKarte() {
+  if (AQ.liste === null || !S.liste) return "";
+  var kunden = S.liste.filter(function (k) { return AQ.kunden.indexOf(k.id) !== -1; });   // Wünsche mit Kostenprüfung gibt es nur für freigeschaltete Kunden
+  if (!kunden.length) return "";
+  var zeilen = kunden.map(function (k) { var l = anfragenVon(k.id); return { k: k, grund: betrag(k.monatlich), lauf: aqSumme(l, "laeuft"), zu: aqSumme(l, "zugestimmt") }; }).filter(function (x) { return x.grund || x.lauf || x.zu; });
+  var offen = AQ.liste.filter(function (a) { return a.status === "neu" || a.status === "geprueft"; });
+  var firma = function (id) { var k = S.liste.filter(function (x) { return x.id === id; })[0]; return k ? k.firma : "?"; };
+  var gesamt = zeilen.reduce(function (s, x) { return s + x.grund + x.lauf; }, 0), kommt = zeilen.reduce(function (s, x) { return s + x.zu; }, 0);
+  return '<div class="raster zwei" style="margin-top:18px"><div class="karte pad"><div class="kartenkopf"><h2>Miete mit Erweiterungen</h2><span class="pille gut">' + euro2(gesamt) + " im Monat</span></div>" +
+    (zeilen.length ? zeilen.map(function (x) {
+      return '<div class="doczeile" style="cursor:pointer" data-akte="' + x.k.id + '" data-zu="anfragen"><div class="mehr"><div class="titel">' + esc(x.k.firma) + '</div><div class="klein" style="color:var(--mittel)">Grundbetrag ' + euro2(x.grund) + (x.lauf ? " + Erweiterungen " + euro2(x.lauf) : "") + (x.zu ? " · zugesagt + " + euro2(x.zu) : "") + '</div></div><span class="pille">' + euro2(x.grund + x.lauf) + "</span></div>";
+    }).join("") + (kommt ? '<div class="klein leise" style="margin-top:8px">Nach Fertigstellung der zugesagten Wünsche: ' + euro2(gesamt + kommt) + " im Monat.</div>" : "") : '<div class="leer">Noch kein Monatsbetrag eingetragen.</div>') + "</div>" +
+    '<div class="karte pad"><h2>Wünsche in Prüfung</h2>' + (offen.length ? offen.slice(0, 10).map(function (a) {
+      return '<div class="doczeile" style="cursor:pointer" data-akte="' + a.kunde_id + '" data-zu="anfragen"><div class="mehr"><div class="titel">' + esc(a.titel) + '</div><div class="klein" style="color:var(--mittel)">' + esc(firma(a.kunde_id)) + '</div></div><span class="pille ' + (a.status === "neu" ? "warn" : "akzent") + '">' + (a.status === "neu" ? "prüfen" : "wartet auf Antwort") + "</span></div>";
+    }).join("") : '<div class="leer">Nichts offen.</div>') + "</div></div>";
+}
+function anfragenVerdrahten(w) {
+  var finde = function (id) { return (AQ.liste || []).filter(function (a) { return a.id === id; })[0]; };
+  var kopieren = function (t, ok) { (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(ok, function () { melden("Kopieren ging nicht, bitte von Hand markieren.", true); }); };
+  w.querySelectorAll("[data-aqneu]").forEach(function (t) { t.oninput = function () { AQ.neu[t.dataset.aqneu] = t.value; }; });
+  w.querySelectorAll("[data-aqpruef]").forEach(function (t) { t.oninput = function () { (AQ.pruef[t.dataset.aqpruef] = AQ.pruef[t.dataset.aqpruef] || { mehr: "", kauf: "", einmalig: "", text: "" })[t.dataset.teil] = t.value; }; });
+  w.querySelectorAll("[data-aqdu]").forEach(function (t) { t.onchange = function () { apiA("anrede", { kunde_id: S.id, du: t.checked }).then(function (j) { AQ.du = j.du; zeichnen(); }, function (f) { melden(f.message, true); }); }; });
+  w.querySelectorAll("[data-aqki]").forEach(function (b) { b.onclick = function () {
+    b.disabled = true; b.textContent = "KI prüft …";
+    apiA("ki", { id: b.dataset.aqki }).then(function () { anfragenLaden(); }, function (f) { melden(f.message, true); anfragenLaden(); }); }; });
+  w.querySelectorAll("[data-aqnehmen]").forEach(function (b) { b.onclick = function () {
+    var a = finde(b.dataset.aqnehmen), k = a.ki || {}, z = function (n) { return betrag(n) ? String(n).replace(".", ",") : ""; };
+    AQ.pruef[a.id] = { mehr: z(k.mehrkosten_monat), kauf: z(k.kaufaufschlag), einmalig: "", text: k.antwort_entwurf || "" };
+    zeichnen(); melden("Übernommen. Beträge und Text prüfen, dann speichern."); }; });
+  w.querySelectorAll("[data-aqportal]").forEach(function (b) { b.onclick = function () { var a = finde(b.dataset.aqportal), l = anfragenVon(S.id); b.disabled = true;
+    anfrageSpeichern(Object.assign({}, a, { antwort_text: a.antwort_text || anfrageText(a, betrag(S.form.monatlich), aqSumme(l, "laeuft")), mitgeteilt_am: heuteIso() }), function () { melden("Freigegeben. Der Kunde sieht die Antwort jetzt im Portal und kann ja oder nein sagen."); }); }; });
+  w.querySelectorAll("[data-aqanlegen]").forEach(function (b) { b.onclick = function () {
+    if (!AQ.neu.titel.trim()) { melden("Bitte kurz beschreiben, was der Kunde wünscht.", true); return; }
+    b.disabled = true;
+    anfrageSpeichern({ kunde_id: S.id, titel: AQ.neu.titel, beschreibung: AQ.neu.beschreibung, eingegangen: heuteIso(), status: "neu" }, function () { AQ.neu = { titel: "", beschreibung: "" }; melden("Aufgenommen. Jetzt prüfen, ob er extra kostet."); });
+  }; });
+  w.querySelectorAll("[data-aqfrei]").forEach(function (b) { b.onclick = function () { var a = finde(b.dataset.aqfrei); b.disabled = true;
+    var P = AQ.pruef[a.id] || {}, d = Object.assign({}, a, { mehrkosten: 0, einmalig: 0, kaufaufschlag: 0, status: "geprueft", mitgeteilt_am: null });
+    d.antwort_text = (P.text || "").trim() || anfrageText(d, betrag(S.form.monatlich), aqSumme(anfragenVon(S.id), "laeuft"));
+    anfrageSpeichern(d, function () { delete AQ.pruef[a.id]; melden("Geprüft: kostet nichts extra."); }); }; });
+  w.querySelectorAll("[data-aqkostet]").forEach(function (b) { b.onclick = function () {
+    var a = finde(b.dataset.aqkostet), P = AQ.pruef[a.id] || {}, m = eingabeZahl(P.mehr), e = eingabeZahl(P.einmalig), kp = eingabeZahl(P.kauf);
+    if (m <= 0 && e <= 0 && kp <= 0) { melden("Bitte eintragen, um wie viel Miete oder Kaufpreis steigen.", true); return; }
+    b.disabled = true;
+    var d = Object.assign({}, a, { mehrkosten: m, einmalig: e, kaufaufschlag: kp, status: "geprueft", mitgeteilt_am: null });
+    d.antwort_text = (P.text || "").trim() || anfrageText(d, betrag(S.form.monatlich), aqSumme(anfragenVon(S.id), "laeuft"));
+    anfrageSpeichern(d, function () { delete AQ.pruef[a.id]; melden("Geprüft. Jetzt dem Kunden mitteilen."); }); }; });
+  w.querySelectorAll("[data-aqtext]").forEach(function (b) { b.onclick = function () {
+    var a = finde(b.dataset.aqtext), l = anfragenVon(S.id);
+    kopieren(a.antwort_text || anfrageText(a, betrag(S.form.monatlich), aqSumme(l, "laeuft")), function () {
+      melden("Kopiert. Jetzt in Mail oder WhatsApp einfügen.");
+      if (!a.mitgeteilt_am) anfrageSpeichern(Object.assign({}, a, { mitgeteilt_am: heuteIso() }));
+    }); }; });
+  w.querySelectorAll("[data-aqja]").forEach(function (b) { b.onclick = function () { var a = finde(b.dataset.aqja); b.disabled = true;
+    anfrageSpeichern(Object.assign({}, a, { status: "zugestimmt", entschieden_am: heuteIso() }), function () { melden("Zugestimmt. Jetzt umsetzen."); }); }; });
+  w.querySelectorAll("[data-aqnein]").forEach(function (b) { b.onclick = function () { var a = finde(b.dataset.aqnein); b.disabled = true;
+    anfrageSpeichern(Object.assign({}, a, { status: "abgelehnt", entschieden_am: heuteIso() }), function () { melden("Abgelehnt, wird nicht umgesetzt."); }); }; });
+  w.querySelectorAll("[data-aqzurueck]").forEach(function (b) { b.onclick = function () { var a = finde(b.dataset.aqzurueck);
+    AQ.pruef[a.id] = { mehr: betrag(a.mehrkosten) ? String(a.mehrkosten).replace(".", ",") : "", kauf: betrag(a.kaufaufschlag) ? String(a.kaufaufschlag).replace(".", ",") : "", einmalig: betrag(a.einmalig) ? String(a.einmalig).replace(".", ",") : "", text: a.antwort_text || "" };
+    anfrageSpeichern(Object.assign({}, a, { status: "neu", mitgeteilt_am: null })); }; });
+  w.querySelectorAll("[data-aqlaeuft]").forEach(function (b) { b.onclick = function () { var a = finde(b.dataset.aqlaeuft); b.disabled = true;
+    anfrageSpeichern(Object.assign({}, a, { status: "laeuft", laeuft_ab: heuteIso() }), function () { melden(betrag(a.mehrkosten) ? "Läuft. Die Monatsgebühr steigt ab heute um " + euro2(a.mehrkosten) + "." : "Läuft, ohne Aufpreis."); }); }; });
+  w.querySelectorAll("[data-aqweg]").forEach(function (b) { b.onclick = function () {
+    apiA("weg", { id: b.dataset.aqweg }).then(function () { S.bestaetigen = null; anfragenLaden(); }, function (f) { melden(f.message, true); }); }; });
+  w.querySelectorAll("[data-aquebersicht]").forEach(function (b) { b.onclick = function () {
+    kopieren(anfragenUebersichtText(anfragenVon(S.id), betrag(S.form.monatlich)), function () { melden("Übersicht kopiert."); }); }; });
+}
+
 function verdrahten() {
   var w = document.getElementById("app");
   w.querySelectorAll("[data-tun]").forEach(function (b) { b.onclick = function () { TUN[b.dataset.tun](b); }; });
@@ -1998,6 +2179,7 @@ function verdrahten() {
   sicherheitVerdrahten();
   finanzVerdrahten();
   portalExtrasVerdrahten(w);
+  anfragenVerdrahten(w);
   var cd = document.getElementById("crmDatei");
   if (cd) cd.onchange = function () {
     Array.prototype.forEach.call(cd.files, function (datei) {
@@ -2015,7 +2197,7 @@ function verdrahten() {
 /* ===================================================================== Start */
 function starten(P) {
   S.P = P;
-  zeichnen(); listeLaden(); aktivitaetLaden();
+  zeichnen(); listeLaden(); aktivitaetLaden(); anfragenLaden();
   setInterval(function () { if (document.hidden || S.geaendert) return; listeLaden(); if (S.sicht === "start") aktivitaetLaden(); }, 45000);
   window.addEventListener("beforeunload", function (e) { if (S.geaendert) { e.preventDefault(); e.returnValue = ""; } });
 }

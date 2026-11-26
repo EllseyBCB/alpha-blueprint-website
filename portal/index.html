@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="portal" data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-W0a/jDHIayqRJ9Y5dXsEwonwCvhmIfMJrohM9yZoUfg='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-MMPsGff55X2ZGNlQJuA/ZOKedyUZmd/S6D/Q3KHyghk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -1084,6 +1084,7 @@ var TAB_BILD = {
   unterlagen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m4 6.5 1.6 1.6L8.4 5"/><path d="m4 12.5 1.6 1.6 2.8-3.1"/><path d="m4 18.5 1.6 1.6 2.8-3.1"/><path d="M12 6.5h8M12 12.5h8M12 18.5h8"/></svg>',
   dokumente: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3.5H7a1.5 1.5 0 0 0-1.5 1.5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3.5V8h4.5"/><path d="M9 13h6M9 16.5h6"/></svg>',
   nachrichten: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.6c0 4-3.8 7.2-8.5 7.2-1.1 0-2.2-.2-3.200-.5L4 20l1.300-3.600c-1.100-1.300-1.800-3-1.800-4.800 0-4 3.800-7.200 8.500-7.200s8.500 3.200 8.500 7.200z"/></svg>',
+  wuensche: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.500 18h5"/><path d="M10 21h4"/><path d="M12 3a6 6 0 0 0-3.600 10.800c.700.600 1.100 1.300 1.100 2.200h5c0-.900.400-1.600 1.100-2.200A6 6 0 0 0 12 3z"/></svg>',
   einstellungen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="9" r="3.6"/><path d="M5 20c.8-3.200 3.600-5.200 7-5.200s6.200 2 7 5.200"/></svg>'
 };
 function tabKnopf(id, text, zahl) {
@@ -1105,8 +1106,8 @@ function reiterKnopf(id, text, zahl) {
 /* ---------------------------------------------------------------- Kunde */
 function kundenSeite() {
   var tabs = '<nav class="ptabs" aria-label="Bereiche"><div class="reihe">' + tabKnopf("uebersicht", "Übersicht") + tabKnopf("unterlagen", "Unterlagen") +
-    tabKnopf("dokumente", "Dokumente") + tabKnopf("nachrichten", "Nachrichten", ungelesen()) + tabKnopf("einstellungen", "Zugang") + "</div></nav>";
-  var inhalt = S.sicht === "einstellungen" ? einstellungen() : !S.stand ? '<div class="leer">Lädt …</div>'
+    tabKnopf("dokumente", "Dokumente") + tabKnopf("nachrichten", "Nachrichten", ungelesen()) + (W.aus ? "" : tabKnopf("wuensche", "Wünsche", wOffen())) + tabKnopf("einstellungen", "Zugang") + "</div></nav>";
+  var inhalt = S.sicht === "einstellungen" ? einstellungen() : S.sicht === "wuensche" ? kWuensche() : !S.stand ? '<div class="leer">Lädt …</div>'
     : S.sicht === "unterlagen" ? kUnterlagen() : S.sicht === "dokumente" ? kDokumente() : S.sicht === "nachrichten" ? nachrichtenKarte("" + T("Ihre Nachricht an Alpha Blueprint …", "Deine Nachricht an Alpha Blueprint …") + "") : kUebersicht();
   return kopf("") + tabs + '<main class="rahmen">' + inhalt + "</main>";
 }
@@ -1409,8 +1410,74 @@ var TUN = {
     }, function (f) { melden(f.message, true); zeichnen(); });
   },
 };
+/* ---------------------------------------------------------------- Wünsche (Erweiterungen mit Kostenauskunft vorab) */
+/* Der Kunde trägt ein, was er sich wünscht. Alpha Blueprint prüft, ob es extra kostet, und antwortet hier. Erst danach sagt der Kunde ja oder nein. */
+var W = { liste: null, miete: 0, aus: false, neu: { titel: "", beschreibung: "" }, laeuft: false };
+function apiW(aktion, daten) {
+  return fetch(S.P.api.url.replace(/kundenportal$/, "crm-anfragen"), {
+    method: "POST", headers: { "content-type": "application/json", "x-portal-sitzung": S.P.api.sitzung },
+    body: JSON.stringify(Object.assign({ aktion: aktion }, daten || {})),
+  }).then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) {
+    if (!r.ok || j.fehler) throw new Error(j.fehler || ("Fehler " + r.status)); return j; }); });
+}
+function wLaden() { if (S.admin) return; return apiW("meine").then(function (j) { W.liste = j.anfragen || []; W.miete = j.miete || 0; W.aus = !!j.aus; zeichnen(); }, function () { if (W.liste === null) { W.liste = []; zeichnen(); } }); }
+function wOffen() { return (W.liste || []).filter(function (a) { return a.status === "geprueft"; }).length; }
+function wEuro(n) { return (Number(n) || 0).toLocaleString("de-DE", { style: "currency", currency: "EUR", maximumFractionDigits: Math.round(n) === Number(n) ? 0 : 2 }); }
+function kWuensche() {
+  if (W.liste === null) return '<div class="leer">Lädt …</div>';
+  var kosten = function (a) { var t = []; if (a.mehrkosten) t.push("Miete + " + wEuro(a.mehrkosten) + " im Monat"); if (a.kaufaufschlag) t.push("Kaufpreis + " + wEuro(a.kaufaufschlag)); if (a.einmalig) t.push("einmalig " + wEuro(a.einmalig)); return t.length ? t.join(" · ") : "Kostet nichts extra"; };
+  return '<div class="seitenkopf"><div><span class="etikett">Wünsche</span><h1>' + T("Ihre Wünsche und Erweiterungen", "Eure Wünsche und Erweiterungen") + "</h1><p>" +
+    T("Tragen Sie hier ein, was Sie sich wünschen. Wir prüfen jeden Wunsch und schreiben Ihnen, ob er extra kostet. Erst danach entscheiden Sie. Vorher wird nichts gebaut.",
+      "Tragt hier ein, was ihr euch wünscht. Wir prüfen jeden Wunsch und schreiben euch, ob er extra kostet. Erst danach entscheidet ihr. Vorher wird nichts gebaut.") + "</p></div></div>" +
+    (W.miete ? '<p class="klein" style="margin:-6px 0 14px">' + T("Ihre monatliche Miete aktuell: ", "Eure monatliche Miete aktuell: ") + "<b>" + wEuro(W.miete) + "</b></p>" : "") +
+    '<div class="karte pad"><h2 style="margin-top:0">Neuer Wunsch</h2>' +
+    '<div class="feld" style="margin-top:0"><input type="text" maxlength="300" placeholder="' + T("Was wünschen Sie sich? Ein Satz genügt.", "Was wünscht ihr euch? Ein Satz genügt.") + '" data-schluessel="w-titel" data-wneu="titel" value="' + esc(W.neu.titel) + '"></div>' +
+    '<div class="feld"><textarea rows="3" maxlength="5000" placeholder="' + T("Einzelheiten, falls Sie mögen: Wofür brauchen Sie es, wer nutzt es, wie oft?", "Einzelheiten, falls ihr mögt: Wofür braucht ihr es, wer nutzt es, wie oft?") + '" data-schluessel="w-beschreibung" data-wneu="beschreibung">' + esc(W.neu.beschreibung) + "</textarea></div>" +
+    '<div style="margin-top:10px"><button type="button" class="haupt" data-wsenden' + (W.laeuft ? " disabled" : "") + ">Wunsch einreichen</button></div></div>" +
+    (W.liste.length ? W.liste.map(function (a) {
+      var pille, inhalt;
+      if (a.status === "geprueft") {
+        pille = '<span class="pille akzent">' + T("Ihre Entscheidung", "Eure Entscheidung") + "</span>";
+        inhalt = '<p style="white-space:pre-wrap;margin:8px 0">' + esc(a.antwort_text) + '</p><p class="klein" style="font-weight:600;margin:0 0 10px">' + kosten(a) + "</p>" +
+          (S.bestaetigen === "wn" + a.id
+            ? '<button type="button" class="klein" data-wnein="' + a.id + '">Wirklich nicht umsetzen?</button> <button type="button" class="klein leise" data-wabbruch>Zurück</button>'
+            : '<button type="button" class="haupt" data-wja="' + a.id + '">Ja, bitte umsetzen</button> <button type="button" data-wfrage="' + a.id + '">Nein, nicht umsetzen</button>');
+      } else if (a.status === "zugestimmt") {
+        pille = '<span class="pille gut">In Arbeit</span>';
+        inhalt = '<p class="klein" style="margin:8px 0 0">' + T("Sie haben", "Ihr habt") + " am " + datum(a.entschieden_am) + " zugestimmt. " + kosten(a) + ", sobald es läuft.</p>";
+      } else if (a.status === "laeuft") {
+        pille = '<span class="pille gut">Umgesetzt</span>';
+        inhalt = '<p class="klein" style="margin:8px 0 0">Läuft seit ' + datum(a.laeuft_ab) + ". " + kosten(a) + ".</p>";
+      } else if (a.status === "abgelehnt") {
+        pille = '<span class="pille">Nicht umgesetzt</span>';
+        inhalt = '<p class="klein" style="margin:8px 0 0">' + T("Sie haben", "Ihr habt") + " am " + datum(a.entschieden_am) + " entschieden, den Wunsch nicht umzusetzen.</p>";
+      } else {
+        pille = '<span class="pille warn">Wird geprüft</span>';
+        inhalt = '<p class="klein" style="margin:8px 0 0">' + T("Sie bekommen hier die Antwort, ob der Wunsch extra kostet. Vorher wird nichts gebaut.", "Ihr bekommt hier die Antwort, ob der Wunsch extra kostet. Vorher wird nichts gebaut.") + "</p>";
+      }
+      return '<div class="karte pad" style="margin-top:14px"><div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start"><h3 style="margin:0">' + esc(a.titel) + "</h3>" + pille + "</div>" +
+        (a.beschreibung ? '<p class="klein" style="white-space:pre-wrap;margin:6px 0 0;color:var(--mittel)">' + esc(a.beschreibung) + "</p>" : "") +
+        '<div class="klein" style="color:var(--leise);margin-top:4px">Eingereicht am ' + datum(a.eingegangen) + "</div>" + inhalt + "</div>";
+    }).join("") : '<div class="leer" style="margin-top:14px">Noch keine Wünsche eingereicht.</div>');
+}
+function wVerdrahten(w) {
+  w.querySelectorAll("[data-wneu]").forEach(function (t) { t.oninput = function () { W.neu[t.dataset.wneu] = t.value; }; });
+  w.querySelectorAll("[data-wsenden]").forEach(function (b) { b.onclick = function () {
+    if (W.neu.titel.trim().length < 3) { melden(T("Bitte kurz beschreiben, was Sie sich wünschen.", "Bitte kurz beschreiben, was ihr euch wünscht."), true); return; }
+    W.laeuft = true; b.disabled = true;
+    apiW("wunsch", { titel: W.neu.titel, beschreibung: W.neu.beschreibung }).then(function () { W.laeuft = false; W.neu = { titel: "", beschreibung: "" }; melden(T("Eingereicht. Sie bekommen hier die Antwort.", "Eingereicht. Ihr bekommt hier die Antwort.")); wLaden(); },
+      function (f) { W.laeuft = false; melden(f.message, true); zeichnen(); }); }; });
+  var antworten = function (id, ja, b) { b.disabled = true;
+    apiW("antwort", { id: id, ja: ja }).then(function () { S.bestaetigen = null; melden(ja ? "Danke. Wir setzen den Wunsch um." : "In Ordnung, der Wunsch wird nicht umgesetzt."); wLaden(); }, function (f) { melden(f.message, true); wLaden(); }); };
+  w.querySelectorAll("[data-wja]").forEach(function (b) { b.onclick = function () { antworten(b.dataset.wja, true, b); }; });
+  w.querySelectorAll("[data-wfrage]").forEach(function (b) { b.onclick = function () { S.bestaetigen = "wn" + b.dataset.wfrage; zeichnen(); }; });
+  w.querySelectorAll("[data-wabbruch]").forEach(function (b) { b.onclick = function () { S.bestaetigen = null; zeichnen(); }; });
+  w.querySelectorAll("[data-wnein]").forEach(function (b) { b.onclick = function () { antworten(b.dataset.wnein, false, b); }; });
+}
+
 function verdrahten() {
   var w = document.getElementById("app");
+  wVerdrahten(w);
   w.querySelectorAll("[data-tun]").forEach(function (b) {
     if (b.type === "checkbox") b.onchange = function () { TUN[b.dataset.tun](b); };
     else b.onclick = function () { TUN[b.dataset.tun](b); };
@@ -1514,11 +1581,11 @@ function starten(P) {
   DU = !S.admin && !!P.kunde && P.kunde.anrede === "du";
   document.title = S.admin ? "Kundenportal · Verwaltung" : "Kundenportal · " + P.kunde.kurzname;
   if (S.admin) { S.sicht = "nachrichten"; zeichnen(); uebersichtLaden(); if (P.kunden.length === 1) { S.kunde = P.kunden[0].kennung; laden(); } }
-  else { zeichnen(); laden(); }
+  else { zeichnen(); laden(); wLaden(); }
   /* Neue Nachrichten und Dateien ohne Neuladen: alle 30 Sekunden, solange das Fenster sichtbar ist. */
   setInterval(function () {
     if (document.hidden || S.uploads.some(function (u) { return u.stand === "laeuft"; })) return;
-    laden(true); if (S.admin) uebersichtLaden();
+    laden(true); if (S.admin) uebersichtLaden(); else if (!W.laeuft && S.bestaetigen === null && S.sicht !== "wuensche") wLaden(); else if (S.sicht === "wuensche" && !W.neu.titel && !W.neu.beschreibung && S.bestaetigen === null) wLaden();
   }, 30000);
   window.addEventListener("beforeunload", function (e) { if (S.uploads.some(function (u) { return u.stand === "laeuft"; })) { e.preventDefault(); e.returnValue = ""; } });
 }
