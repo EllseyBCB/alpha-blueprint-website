@@ -101,7 +101,33 @@ KONTAKTFORMULAR = """
 </form>"""
 
 
+# Scroll-Reise durch Alpha Automation (26.11.2026): ein angepinntes iPhone, in das man hineinscrollt. Alles ist nur gezeichnet –
+# die App-Ansicht ist HTML, nichts davon ruft etwas auf. Ohne Scroll-Zeitachsen (alte Browser, „weniger Bewegung“) steht der Endzustand da.
+REISE = """<section class="reise" aria-labelledby="reise-titel">
+  <div class="reise-buehne">
+    <div class="reise-worte">
+      <div class="reise-text t0"><h2 id="reise-titel">Scrollen Sie in die App.</h2><p>Echte Ansichten aus Alpha Automation, mit Beispieldaten.</p></div>
+      <div class="reise-text t1"><span class="nummer">01</span><h3>Sagen Sie, was passieren soll.</h3><p>Ein Tipp auf das Mikrofon, dann ein ganz normaler Satz. Tippen geht auch.</p></div>
+      <div class="reise-text t2"><span class="nummer">02</span><h3>Alpha versteht den Satz.</h3><p>Die App liest heraus, was der Auslöser ist und was passieren soll.</p></div>
+      <div class="reise-text t3"><span class="nummer">03</span><h3>Sie sehen die fertige Regel.</h3><p>Als klares Wenn und Dann. Passt etwas nicht, ändern Sie es mit einem Tipp.</p></div>
+      <div class="reise-text t4"><span class="nummer">04</span><h3>Ein Tipp, und sie wird eingerichtet.</h3><p>Sie sehen, wie weit die App ist. Mehr müssen Sie nicht tun.</p></div>
+      <div class="reise-text t5"><span class="nummer">05</span><h3>Ab dann läuft sie von selbst.</h3><p>Die Automatisierung steht unter „Meine“ und arbeitet zur eingestellten Zeit.</p><a class="knopf" href="/alpha-automation/">Alpha Automation ansehen {{pfeil}}</a></div>
+    </div>
+    <div class="reise-handy" aria-hidden="true">
+      <div class="reise-schirm">
+        <img class="b1" src="/assets/neu/alpha-automation/app-iphone-reise-1-sprechen.webp" width="900" height="1948" alt="" loading="lazy">
+        <img class="b2" src="/assets/neu/alpha-automation/app-iphone-reise-2-versteht.webp" width="900" height="1948" alt="" loading="lazy">
+        <img class="b3" src="/assets/neu/alpha-automation/app-iphone-reise-3-regel.webp" width="900" height="1948" alt="" loading="lazy">
+        <img class="b4" src="/assets/neu/alpha-automation/app-iphone-reise-4-einrichten.webp" width="900" height="1948" alt="" loading="lazy">
+        <img class="b5" src="/assets/neu/alpha-automation/app-iphone-reise-5-laeuft.webp" width="900" height="1948" alt="" loading="lazy">
+      </div>
+    </div>
+  </div>
+</section>"""
+
+
 def ersetzen(inhalt):
+    inhalt = inhalt.replace("{{reise}}", REISE)
     inhalt = re.sub(r"\{\{symbol:([a-z0-9-]+)(?:\s+([a-z0-9 -]+))?\}\}", lambda m: symbol(m.group(1), m.group(2) or ""), inhalt)
     inhalt = re.sub(r"\{\{aa-zeichen(?:\s+([a-z0-9 -]+))?\}\}", lambda m: AA_ZEICHEN.format(k=m.group(1) or ""), inhalt)
     inhalt = inhalt.replace("{{kontaktformular}}", KONTAKTFORMULAR)
@@ -180,7 +206,7 @@ def seite_bauen(quelle):
 <html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{html.escape(meta['titel'])}</title><meta name="robots" content="noindex,follow">
 <link rel="canonical" href="{DOMAIN}{nach}"><meta http-equiv="refresh" content="0; url={nach}">
-<style>body{{background:#000;color:#f5f5f5;font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0}}a{{color:#a8ecfa}}</style>
+<style>body{{background:#fff;color:#0a0a0a;font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0}}a{{color:#a8ecfa}}</style>
 </head><body><p>Diese Seite ist umgezogen: <a href="{nach}">weiter</a></p></body></html>
 """)
         return None
@@ -222,7 +248,7 @@ def seite_bauen(quelle):
 <link rel="canonical" href="{kanonisch}">
 <meta name="robots" content="{robots}">
 <meta name="author" content="Elia Nedvidek">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#ffffff">
 <link rel="icon" type="image/png" href="/assets/logo-sw.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="preload" href="/assets/fonts/neu/archivo-var.woff2" as="font" type="font/woff2" crossorigin>

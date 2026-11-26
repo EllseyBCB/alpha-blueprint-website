@@ -40,6 +40,44 @@
     zeigen.forEach(function (el) { el.classList.add("da"); });
   }
 
+  /* Überschriften Wort für Wort (26.11.2026): Jedes Wort bekommt eine Maske und steigt beim Hereinscrollen gerade auf.
+     Nur Textknoten werden zerlegt – Auszeichnungen (em, br, strong) bleiben, wie sie sind. */
+  if ("IntersectionObserver" in window && !ruhig) {
+    var wio = new IntersectionObserver(function (eintraege) {
+      eintraege.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("da"); wio.unobserve(e.target); } });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.15 });
+    document.querySelectorAll("main h1, main h2, main .produkt-text h3").forEach(function (h) {
+      if (h.closest(".abschluss")) return;
+      h.setAttribute("aria-label", h.textContent.replace(/\s+/g, " ").trim());
+      var n = 0;
+      (function gehen(knoten) {
+        Array.prototype.slice.call(knoten.childNodes).forEach(function (k) {
+          if (k.nodeType === 3) {
+            var frag = document.createDocumentFragment();
+            k.textContent.split(/(\s+)/).forEach(function (t) {
+              if (!t) return;
+              if (/^\s+$/.test(t)) { frag.appendChild(document.createTextNode(" ")); return; }
+              var w = document.createElement("span"); w.className = "w";
+              var innen = document.createElement("span"); innen.textContent = t; innen.style.setProperty("--n", n++);
+              w.appendChild(innen); frag.appendChild(w);
+            });
+            knoten.replaceChild(frag, k);
+          } else if (k.nodeType === 1 && k.tagName !== "BR") gehen(k);
+        });
+      })(h);
+      h.classList.add("wortweise"); wio.observe(h);
+    });
+  }
+
+  /* Linien über den Abschnitten ziehen sich beim Hereinscrollen auf (ruhige Fassung, 26.11.2026) */
+  var linien = document.querySelectorAll(".kennung");
+  if ("IntersectionObserver" in window && !ruhig) {
+    var lio = new IntersectionObserver(function (eintraege) {
+      eintraege.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("linie-da"); lio.unobserve(e.target); } });
+    }, { rootMargin: "0px 0px -6% 0px" });
+    linien.forEach(function (el) { lio.observe(el); });
+  } else { linien.forEach(function (el) { el.classList.add("linie-da"); }); }
+
   /* Angepinnte Bildstrecke: der Schritt in der Bildmitte bestimmt das Bild */
   document.querySelectorAll(".strecke").forEach(function (strecke) {
     var schritte = strecke.querySelectorAll(".schritt");
