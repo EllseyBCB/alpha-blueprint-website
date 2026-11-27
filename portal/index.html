@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="de" data-app="portal" data-thema="system">
 <head>
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-MMPsGff55X2ZGNlQJuA/ZOKedyUZmd/S6D/Q3KHyghk='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'sha256-RcQ1BS5KZwvKqG3uzG3jMPqQctgYWXWoiQ8/2/ZXBHA='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://vernkyijbvbfeqcuhxzp.supabase.co; font-src 'self'; connect-src https://vernkyijbvbfeqcuhxzp.supabase.co; frame-src https://vernkyijbvbfeqcuhxzp.supabase.co; media-src https://vernkyijbvbfeqcuhxzp.supabase.co; base-uri 'none'; form-action 'none'; object-src 'none'">
 <meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -1172,7 +1172,9 @@ function eigenerAbschnitt() {
 function dateiListe(liste, laufend) {
   if (!liste.length && !laufend.length) return "";
   return '<ul class="dateien">' + liste.map(function (u) {
-    return '<li><span class="n">' + (u.url ? '<a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.datei) + "</a>" : esc(u.datei)) + '</span><span class="g">' + groesse(u.groesse) + '</span><span class="s ok">✓ hochgeladen am ' + datum(u.angelegt) + "</span></li>";
+    return '<li><span class="n">' + (u.url ? '<a href="' + esc(u.url) + '" target="_blank" rel="noopener">' + esc(u.datei) + "</a>" : esc(u.datei)) + '</span><span class="g">' + groesse(u.groesse) + '</span><span class="s ok">✓ hochgeladen am ' + datum(u.angelegt) + "</span>" +
+      (S.bestaetigen === "d:" + u.pfad ? '<button type="button" class="klein gefahr" data-dateiweg="' + esc(u.pfad) + '">Wirklich löschen?</button>'
+        : '<button type="button" class="klein leise" data-dateiwegfrage="' + esc(u.pfad) + '">Löschen</button>') + "</li>";
   }).join("") + laufend.map(function (u) {
     return '<li data-upload="' + u.id + '"><span class="n">' + esc(u.name) + '</span><span class="g">' + groesse(u.groesse) + "</span>" +
       (u.stand === "fehler" ? '<span class="s fehler">✗ Nicht hochgeladen: ' + esc(u.grund) + '</span><button type="button" class="klein leise" data-weg="' + u.id + '">Ausblenden</button>'
@@ -1566,6 +1568,9 @@ function verdrahten() {
   });
   w.querySelectorAll("[data-vorlage]").forEach(function (b) { b.onclick = function () { vorlageHolen(b.dataset.vorlage); }; });
   w.querySelectorAll("[data-weg]").forEach(function (b) { b.onclick = function () { S.uploads = S.uploads.filter(function (u) { return u.id !== b.dataset.weg; }); zeichnen(); }; });
+  w.querySelectorAll("[data-dateiwegfrage]").forEach(function (b) { b.onclick = function () { var k = "d:" + b.dataset.dateiwegfrage; S.bestaetigen = k; zeichnen(); setTimeout(function () { if (S.bestaetigen === k) { S.bestaetigen = null; zeichnen(); } }, 5000); }; });
+  w.querySelectorAll("[data-dateiweg]").forEach(function (b) { b.onclick = function () {
+    b.disabled = true; api("datei_weg", { pfad: b.dataset.dateiweg }).then(function () { S.bestaetigen = null; melden("Datei gelöscht."); laden(true); }, function (f) { b.disabled = false; melden(f.message, true); }); }; });
   w.querySelectorAll("[data-zurueckfrage]").forEach(function (b) { b.onclick = function () { S.bestaetigen = b.dataset.zurueckfrage; zeichnen(); setTimeout(function () { if (S.bestaetigen === b.dataset.zurueckfrage) { S.bestaetigen = null; zeichnen(); } }, 5000); }; });
   w.querySelectorAll("[data-zurueck]").forEach(function (b) { b.onclick = function () {
     b.disabled = true; api("zurueckziehen", { id: b.dataset.zurueck }).then(function () { S.bestaetigen = null; melden("Zurückgezogen."); laden(true); }, function (f) { melden(f.message, true); }); }; });
